@@ -2,10 +2,7 @@ package checkmate.com.checkmate.eventschedule.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.sql.Time;
@@ -33,5 +30,18 @@ public class EventSchedule {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="event_id")
     private Event event;
-    
+
+    @Builder(toBuilder=true)
+    public EventSchedule(final Date eventDate, final Time eventStartTime, final Time eventEndTime, final Event event){
+        this.eventDate = eventDate;
+        this.eventStartTime = eventStartTime;
+        this.eventEndTime = eventEndTime;
+        this.event = event;
+    }
+
+    public void update(final Date eventDate, final Time eventStartTime, final Time eventEndTime) {
+        this.eventDate = eventDate;
+        this.eventStartTime = eventStartTime;
+        this.eventEndTime = eventEndTime;
+    }
 }
