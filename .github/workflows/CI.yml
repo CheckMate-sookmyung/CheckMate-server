@@ -5,10 +5,10 @@ on:
     branches: [ "main" ]
     
 env:
-  PROJECT_NAME: 
-  BUCKET_NAME:
-  CODE_DEPLOY_APP_NAME:
-  DEPLOYMENT_GROUP_NAME:
+  PROJECT_NAME: checkmate
+  BUCKET_NAME: checkmate-cicd-bucket
+  CODE_DEPLOY_APP_NAME: checkmate-cicd
+  DEPLOYMENT_GROUP_NAME: checkmate-instance
 
 jobs:
   deploy:
