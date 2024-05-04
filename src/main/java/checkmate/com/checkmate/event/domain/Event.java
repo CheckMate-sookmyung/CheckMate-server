@@ -26,5 +26,23 @@ public class Event {
     private String eventImage;
 
     private Boolean alarm;
-    
+
+    @Builder(toBuilder = true)
+    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarm){
+        this.eventTitle = eventTitle;
+        this.eventDetail = eventDetail;
+        this.eventImage = eventImage;
+        this.alarm = alarm;
+    }
+
+    public void update(String eventTitle, String eventDetail, String eventImage){
+        this.eventTitle = eventTitle;
+        this.eventDetail = eventDetail;
+        this.eventImage = eventImage;
+    }
+
+    public void updateAlarm(){
+        this.alarm = true;
+    }
+
 }
