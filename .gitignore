@@ -37,5 +37,5 @@ out/
 .vscode/
 
 ## Key Files ##
-./src/main/resources/application-s3.yml
-./src/main/resources/application-db.yml
+src/main/resources/application-db.yml
+src/main/resources/application-s3.yml
