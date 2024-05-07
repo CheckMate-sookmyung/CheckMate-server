@@ -1,10 +1,14 @@
 package checkmate.com.checkmate.event.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
+import checkmate.com.checkmate.user.domain.User;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -25,24 +29,37 @@ public class Event {
 
     private String eventImage;
 
-    private Boolean alarm;
+    private Boolean alarmRequest;
+
+    private Boolean alarmResponse;
+
+    @OneToMany(mappedBy="event")
+    private List<EventSchedule> eventSchedules = new ArrayList<>();
+
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable = false)
+    private User user;
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarm){
+    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarmRequest, List<EventSchedule> eventSchedules,User user){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.alarm = alarm;
+        this.alarmRequest = alarmRequest;
+        this.alarmResponse = false;
+        this.eventSchedules = eventSchedules;
+        this.user = user;
     }
 
-    public void update(String eventTitle, String eventDetail, String eventImage){
+    public void update(String eventTitle, String eventDetail, String eventImage, List<EventSchedule> eventSchedules){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
+        this.eventSchedules = eventSchedules;
     }
 
     public void updateAlarm(){
-        this.alarm = true;
+        this.alarmResponse = true;
     }
 
 }
