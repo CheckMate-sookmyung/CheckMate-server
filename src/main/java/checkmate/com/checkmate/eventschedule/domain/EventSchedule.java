@@ -21,25 +21,25 @@ public class EventSchedule {
     @Id @GeneratedValue
     private Long eventScheduleId;
 
-    private Date eventDate;
+    private String eventDate;
 
-    private Time eventStartTime;
+    private String eventStartTime;
 
-    private Time eventEndTime;
+    private String eventEndTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="event_id")
     private Event event;
 
     @Builder(toBuilder=true)
-    public EventSchedule(final Date eventDate, final Time eventStartTime, final Time eventEndTime, final Event event){
+    public EventSchedule(final String eventDate, final String eventStartTime, final String eventEndTime, final Event event){
         this.eventDate = eventDate;
         this.eventStartTime = eventStartTime;
         this.eventEndTime = eventEndTime;
         this.event = event;
     }
 
-    public void update(final Date eventDate, final Time eventStartTime, final Time eventEndTime) {
+    public void update(final String eventDate, final String eventStartTime, final String eventEndTime) {
         this.eventDate = eventDate;
         this.eventStartTime = eventStartTime;
         this.eventEndTime = eventEndTime;
