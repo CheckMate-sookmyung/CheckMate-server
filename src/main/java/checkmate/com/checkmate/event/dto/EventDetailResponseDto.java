@@ -18,6 +18,7 @@ public class EventDetailResponseDto {
     private final String eventDetail;
     private final String eventImage;
     private final List<EventScheduleResponseDto> eventSchedules;
+    private final boolean alaramRequest;
     private final boolean alarmResponse;
     public static EventDetailResponseDto of(Event event) {
         List<EventScheduleResponseDto> EventSchedulesDto = event.getEventSchedules().stream()
@@ -29,6 +30,7 @@ public class EventDetailResponseDto {
                 event.getEventDetail(),
                 event.getEventImage(),
                 EventSchedulesDto,
+                event.getAlarmRequest(),
                 event.getAlarmResponse()
         );
     }

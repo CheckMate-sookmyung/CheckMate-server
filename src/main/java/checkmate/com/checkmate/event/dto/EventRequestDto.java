@@ -3,6 +3,7 @@ package checkmate.com.checkmate.event.dto;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
+import checkmate.com.checkmate.user.domain.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,16 +17,16 @@ public class EventRequestDto {
     private final String eventTitle;
     private final String eventDetail;
     private final List<EventScheduleRequestDto> eventSchedules;
-    private final String eventImage;
     private final Boolean alarmRequest;
 
-    public Event toEntity(List<EventSchedule> eventSchedules){
+    public Event toEntity(User user, String eventImage, List<EventSchedule> eventSchedules){
         return Event.builder()
+                .user(user)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
-                .eventSchedules(eventSchedules)
                 .eventImage(eventImage)
                 .alarmRequest(alarmRequest)
+                .eventSchedules(eventSchedules)
                 .build();
     }
 }
