@@ -33,7 +33,7 @@ public class Event {
 
     private Boolean alarmResponse;
 
-    @OneToMany(mappedBy="event")
+    @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
     private List<EventSchedule> eventSchedules = new ArrayList<>();
 
     @ManyToOne(fetch=FetchType.LAZY)

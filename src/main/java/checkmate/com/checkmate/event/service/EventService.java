@@ -61,4 +61,10 @@ public class EventService {
         return EventDetailResponseDto.of(getEvent);
     }
 
+    @Transactional
+    public void deleteEvent(Long userId, Long eventId){
+        Event deleteEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+        eventRepository.delete(deleteEvent);
+    }
+
 }

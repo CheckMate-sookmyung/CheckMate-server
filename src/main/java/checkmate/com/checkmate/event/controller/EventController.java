@@ -49,12 +49,12 @@ public class EventController {
     public ResponseEntity<?> putEvent(){
 
             }
-
+*/
     @DeleteMapping(value="delete/{userId}/{eventId}")
-    public ResponseEntity<?> deleteEvent(){
-
-    }*/
-
+    public ResponseEntity<?> deleteEvent(@PathVariable Long userId, @PathVariable Long eventId){
+        eventService.deleteEvent(userId, eventId);
+        return ResponseEntity.ok().build();
+    }
 
 }
 
