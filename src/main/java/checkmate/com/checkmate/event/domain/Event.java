@@ -1,10 +1,15 @@
 package checkmate.com.checkmate.event.domain;
 
+import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static lombok.AccessLevel.PROTECTED;
 
@@ -25,24 +30,32 @@ public class Event {
 
     private String eventImage;
 
-    private Boolean alarm;
+    private Boolean alarmRequest;
+
+    private Boolean alarmResponse;
+
+    @OneToMany(mappedBy="event")
+    private List<EventSchedule> eventSchedules = new ArrayList<>();
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarm){
+    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarmRequest, boolean alarmResponse, List<EventSchedule> eventSchedules){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.alarm = alarm;
+        this.alarmRequest = alarmRequest;
+        this.alarmResponse = false;
+        this.eventSchedules = eventSchedules;
     }
 
-    public void update(String eventTitle, String eventDetail, String eventImage){
+    public void update(String eventTitle, String eventDetail, String eventImage, List<EventSchedule> eventSchedules){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
+        this.eventSchedules = eventSchedules;
     }
 
     public void updateAlarm(){
-        this.alarm = true;
+        this.alarmResponse = true;
     }
 
 }
