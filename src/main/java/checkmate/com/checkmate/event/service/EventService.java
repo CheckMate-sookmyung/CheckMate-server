@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,18 +40,15 @@ public class EventService {
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
         Event savedEvent= eventRequestDto.toEntity(user, imageUrl);
         List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
-                .map(eventScheduleRequestDto -> {
-                    EventSchedule eventSchedule = EventSchedule.builder()
+                .map(eventScheduleRequestDto -> EventSchedule.builder()
                             .eventDate(eventScheduleRequestDto.getEventDate())
                             .eventStartTime(eventScheduleRequestDto.getEventStartTime())
                             .eventEndTime(eventScheduleRequestDto.getEventEndTime())
                             .event(savedEvent)
-                            .build();
-                    return eventScheduleRepository.save(eventSchedule);
-                })
+                            .build())
                         .collect(Collectors.toList());
         savedEvent.setEventSchedules(savedEventSchedules);
-        eventRepository.save(savedEvent);
+        eventRepository.save(savedEvent); //왜 필요할까?
 
         return EventDetailResponseDto.of(savedEvent);
     }
