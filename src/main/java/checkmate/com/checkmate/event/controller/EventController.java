@@ -34,11 +34,16 @@ public class EventController {
     public ResponseEntity<?> getEventList(){
 
     }
+    */
 
-    @GetMapping(value="/detail/{userId/{eventId}")
-    public ResponseEntity<?> getEventDetail(){
+    @GetMapping(value="/detail/{userId}/{eventId}")
+    public ResponseEntity<?> getEventDetail(@PathVariable Long userId, @PathVariable Long eventId){
+        EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
+        return ResponseEntity.ok().body(getEvent);
+
 
     }
+    /*
 
     @PutMapping(value="modify/{userId}/{eventId}")
     public ResponseEntity<?> putEvent(){

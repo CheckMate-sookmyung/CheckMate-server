@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.event.service;
 
+import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
@@ -27,6 +28,8 @@ public class EventService {
     private final S3Uploader s3Uploader;
     @Autowired
     private final EventRepository eventRepository;
+    @Autowired
+    private final EventScheduleRepository eventScheduleRepository;
 
     @Transactional
     public EventDetailResponseDto postEvent(MultipartFile eventImage, EventRequestDto eventRequestDto, Long userId){
@@ -34,16 +37,28 @@ public class EventService {
         String imageUrl = null;
         if (!eventImage.isEmpty())
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
-        System.out.println(eventRequestDto.getEventSchedules());
+        Event savedEvent= eventRequestDto.toEntity(user, imageUrl);
         List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
-                .map(eventScheduleRequestDto -> EventSchedule.builder()
-                        .eventDate(eventScheduleRequestDto.getEventDate())
-                        .eventStartTime(eventScheduleRequestDto.getEventStartTime())
-                        .eventEndTime(eventScheduleRequestDto.getEventEndTime())
-                        .build())
+                .map(eventScheduleRequestDto -> {
+                    EventSchedule eventSchedule = EventSchedule.builder()
+                            .eventDate(eventScheduleRequestDto.getEventDate())
+                            .eventStartTime(eventScheduleRequestDto.getEventStartTime())
+                            .eventEndTime(eventScheduleRequestDto.getEventEndTime())
+                            .event(savedEvent)
+                            .build();
+                    return eventScheduleRepository.save(eventSchedule);
+                })
                         .collect(Collectors.toList());
-        Event savedEvent= eventRepository.save(eventRequestDto.toEntity(user, imageUrl, savedEventSchedules));
+        savedEvent.setEventSchedules(savedEventSchedules);
+        eventRepository.save(savedEvent);
+
         return EventDetailResponseDto.of(savedEvent);
+    }
+
+    @Transactional
+    public EventDetailResponseDto getEventDetail(Long userId, Long eventId){
+        Event getEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+        return EventDetailResponseDto.of(getEvent);
     }
 
 }
