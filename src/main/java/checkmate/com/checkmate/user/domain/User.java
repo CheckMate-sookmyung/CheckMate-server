@@ -1,10 +1,7 @@
 package checkmate.com.checkmate.user.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

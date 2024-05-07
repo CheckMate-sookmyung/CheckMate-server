@@ -36,26 +36,28 @@ public class EventController {
     public ResponseEntity<?> getEventList(@PathVariable Long userId){
         List<EventListResponseDto> getEvnetList = eventService.getEventList(userId);
         return ResponseEntity.ok().body(getEvnetList);
-
     }
-
 
     @GetMapping(value="/detail/{userId}/{eventId}")
-    public ResponseEntity<?> getEventDetail(@PathVariable Long userId, @PathVariable Long eventId){
+    public ResponseEntity<?> getEventDetail(@PathVariable Long userId,
+                                            @PathVariable Long eventId){
         EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
         return ResponseEntity.ok().body(getEvent);
-
-
     }
-    /*
+
 
     @PutMapping(value="modify/{userId}/{eventId}")
-    public ResponseEntity<?> putEvent(){
+    public ResponseEntity<?> putEvent(@RequestPart(value="eventImage")MultipartFile eventImage,
+                                      @PathVariable Long userId,
+                                      @PathVariable Long eventId,
+                                      @RequestPart(value="event") EventRequestDto eventRequestDto){
+        EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage, userId, eventId, eventRequestDto);
+        return ResponseEntity.ok().body(updatedEvent);
+    }
 
-            }
-*/
     @DeleteMapping(value="delete/{userId}/{eventId}")
-    public ResponseEntity<?> deleteEvent(@PathVariable Long userId, @PathVariable Long eventId){
+    public ResponseEntity<?> deleteEvent(@PathVariable Long userId,
+                                         @PathVariable Long eventId){
         eventService.deleteEvent(userId, eventId);
         return ResponseEntity.ok().build();
     }

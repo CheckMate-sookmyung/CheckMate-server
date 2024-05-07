@@ -43,10 +43,13 @@ public class EventService {
     @Transactional
     public EventDetailResponseDto postEvent(MultipartFile eventImage, EventRequestDto eventRequestDto, Long userId){
         User user = userRepository.findByUserId(userId);
+
         String imageUrl = null;
         if (!eventImage.isEmpty())
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
+
         Event savedEvent= eventRequestDto.toEntity(user, imageUrl);
+
         List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> EventSchedule.builder()
                             .eventDate(eventScheduleRequestDto.getEventDate())
@@ -55,7 +58,8 @@ public class EventService {
                             .event(savedEvent)
                             .build())
                         .collect(Collectors.toList());
-        savedEvent.setEventSchedules(savedEventSchedules);
+
+        savedEvent.setEventSchedules(savedEventSchedules); //이게 진짜 마음에 안 든다
         eventRepository.save(savedEvent); //왜 필요할까?
 
         return EventDetailResponseDto.of(savedEvent);
@@ -84,8 +88,15 @@ public class EventService {
         amazonS3Client.deleteObject(bucketName, fileName);
         String updatedFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
 
-        List<EventSchedule> updatedEventSchedules = eventScheduleRepository.findEventScheduleByEventId(eventId);
-        //Logic 추가 필요
+        eventScheduleRepository.deleteByEventEventId(eventId);
+        List<EventSchedule> updatedEventSchedules = eventRequestDto.getEventSchedules().stream()
+                .map(eventScheduleRequestDto -> EventSchedule.builder()
+                        .eventDate(eventScheduleRequestDto.getEventDate())
+                        .eventStartTime(eventScheduleRequestDto.getEventStartTime())
+                        .eventEndTime(eventScheduleRequestDto.getEventEndTime())
+                        .event(updateEvent)
+                        .build())
+                .collect(Collectors.toList());
 
         updateEvent.update(
                 eventRequestDto.getEventTitle(),
@@ -93,6 +104,7 @@ public class EventService {
                 updatedFileName,
                 updatedEventSchedules,
                 eventRequestDto.getAlarmRequest());
+        eventRepository.save(updateEvent);
 
         return EventDetailResponseDto.of(updateEvent);
     }
