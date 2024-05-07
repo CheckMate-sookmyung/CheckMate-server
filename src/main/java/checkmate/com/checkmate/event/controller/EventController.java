@@ -36,6 +36,7 @@ public class EventController {
         return ResponseEntity.ok().body(savedEvent);
     }
 
+    @ResponseBody
     @GetMapping(value="/list/{userId}")
     @Operation(summary = "이벤트 목록 조회")
     public ResponseEntity<?> getEventList(@PathVariable Long userId){
@@ -43,6 +44,7 @@ public class EventController {
         return ResponseEntity.ok().body(getEvnetList);
     }
 
+    @ResponseBody
     @GetMapping(value="/detail/{userId}/{eventId}")
     @Operation(summary = "이벤트 상세 조회")
     public ResponseEntity<?> getEventDetail(@PathVariable Long userId,
@@ -51,8 +53,8 @@ public class EventController {
         return ResponseEntity.ok().body(getEvent);
     }
 
-
-    @PutMapping(value="modify/{userId}/{eventId}")
+    @ResponseBody
+    @PutMapping(value="modify/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
     public ResponseEntity<?> putEvent(@PathVariable Long userId,
                                       @PathVariable Long eventId,
