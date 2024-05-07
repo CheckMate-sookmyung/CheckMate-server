@@ -33,7 +33,7 @@ public class Event {
 
     private Boolean alarmResponse;
 
-    @OneToMany(mappedBy="event")
+    @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
     private List<EventSchedule> eventSchedules = new ArrayList<>();
 
     @ManyToOne(fetch=FetchType.LAZY)
@@ -51,11 +51,12 @@ public class Event {
         this.user = user;
     }
 
-    public void update(String eventTitle, String eventDetail, String eventImage, List<EventSchedule> eventSchedules){
+    public void update(String eventTitle, String eventDetail, String eventImage, List<EventSchedule> eventSchedules, Boolean alarmResponse){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
         this.eventSchedules = eventSchedules;
+        this.alarmRequest = alarmResponse;
     }
 
     public void updateAlarm(){

@@ -5,6 +5,15 @@ spring:
     show-sql: true
     properties:
       hibernate.format_sql: true
+
   profiles:
     include: db, s3
 
+  servlet:
+    multipart:
+      max-file-size: 10GB
+      max-request-size: 10GB
+
+server:
+  tomcat:
+    max-http-form-post-size: 10GB

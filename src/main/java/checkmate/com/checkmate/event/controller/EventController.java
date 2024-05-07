@@ -2,6 +2,7 @@ package checkmate.com.checkmate.event.controller;
 
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
+import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,26 +32,35 @@ public class EventController {
         return ResponseEntity.ok().body(savedEvent);
     }
 
-/*    @GetMapping(value="/list/{userId}")
-    public ResponseEntity<?> getEventList(){
-
+    @GetMapping(value="/list/{userId}")
+    public ResponseEntity<?> getEventList(@PathVariable Long userId){
+        List<EventListResponseDto> getEvnetList = eventService.getEventList(userId);
+        return ResponseEntity.ok().body(getEvnetList);
     }
 
-    @GetMapping(value="/detail/{userId/{eventId}")
-    public ResponseEntity<?> getEventDetail(){
-
+    @GetMapping(value="/detail/{userId}/{eventId}")
+    public ResponseEntity<?> getEventDetail(@PathVariable Long userId,
+                                            @PathVariable Long eventId){
+        EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
+        return ResponseEntity.ok().body(getEvent);
     }
+
 
     @PutMapping(value="modify/{userId}/{eventId}")
-    public ResponseEntity<?> putEvent(){
-
-            }
+    public ResponseEntity<?> putEvent(@RequestPart(value="eventImage")MultipartFile eventImage,
+                                      @PathVariable Long userId,
+                                      @PathVariable Long eventId,
+                                      @RequestPart(value="event") EventRequestDto eventRequestDto){
+        EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage, userId, eventId, eventRequestDto);
+        return ResponseEntity.ok().body(updatedEvent);
+    }
 
     @DeleteMapping(value="delete/{userId}/{eventId}")
-    public ResponseEntity<?> deleteEvent(){
-
-    }*/
-
+    public ResponseEntity<?> deleteEvent(@PathVariable Long userId,
+                                         @PathVariable Long eventId){
+        eventService.deleteEvent(userId, eventId);
+        return ResponseEntity.ok().build();
+    }
 
 }
 

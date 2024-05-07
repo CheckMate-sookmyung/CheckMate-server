@@ -19,14 +19,13 @@ public class EventRequestDto {
     private final List<EventScheduleRequestDto> eventSchedules;
     private final Boolean alarmRequest;
 
-    public Event toEntity(User user, String eventImage, List<EventSchedule> eventSchedules){
+    public Event toEntity(User user, String eventImage){
         return Event.builder()
                 .user(user)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
                 .eventImage(eventImage)
                 .alarmRequest(alarmRequest)
-                .eventSchedules(eventSchedules)
                 .build();
     }
 }
