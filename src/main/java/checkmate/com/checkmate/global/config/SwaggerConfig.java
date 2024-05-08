@@ -13,12 +13,12 @@ public class SwaggerConfig {
 
     @Bean
     public OpenApiCustomizer customOpenApiCustomizer() {
-        return openApi -> openApi.info(apiInfo("WHOA API"));
+        return openApi -> openApi.info(apiInfo("checkmate API"));
     }
 
     @Bean
     public OpenApiCustomizer userOpenApiCustomizer() {
-        return openApi -> openApi.info(apiInfo("whoa service"));
+        return openApi -> openApi.info(apiInfo("checkmate service"));
     }
 
     @Bean
