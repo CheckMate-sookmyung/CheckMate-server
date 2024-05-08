@@ -39,4 +39,15 @@ public class EventAttendanceListController {
         return ResponseEntity.ok().body(studentInfo);
     }
 
+    @ResponseBody
+    @PostMapping(value="/sign/{userId}/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "전자서명")
+    public ResponseEntity<?> postSign(@PathVariable("userId") Long userId,
+                                      @PathVariable("eventId") Long eventId,
+                                      @PathVariable("studentInfoId") Long studentInfoId,
+                                      @RequestPart(value="signImage") MultipartFile signImage){
+        eventAttendanceListService.postSign(userId,eventId,studentInfoId,signImage);
+        return ResponseEntity.ok().build();
+    }
+
 }
