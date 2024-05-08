@@ -1,8 +1,6 @@
-package checkmate.com.checkmate.eventattendancelist.dto;
+package checkmate.com.checkmate.eventattendanceList.dto;
 
-import checkmate.com.checkmate.event.domain.Event;
-import checkmate.com.checkmate.eventattendancelist.domain.EventAttendanceList;
-import checkmate.com.checkmate.eventattendancelist.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

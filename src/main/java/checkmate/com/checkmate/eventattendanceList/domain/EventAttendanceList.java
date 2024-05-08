@@ -1,9 +1,7 @@
-package checkmate.com.checkmate.eventattendancelist.domain;
+package checkmate.com.checkmate.eventattendanceList.domain;
 
-import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -24,7 +22,7 @@ public class EventAttendanceList {
     private String major;
     private String phoneNumber;
     private String email;
-    private int attendanceRate;
+    private boolean attendance;
     private String sign;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -32,21 +30,18 @@ public class EventAttendanceList {
     private EventSchedule eventSchedule;
 
     @Builder(toBuilder = true)
-    public EventAttendanceList(final String name, final int studentNumber, final String major, final String phoneNumber, final String email, final int attendanceRate, final String sign){
+    public EventAttendanceList(final String name, final int studentNumber, final String major, final String phoneNumber, final String email, final boolean attendance, final String sign){
         this.name = name;
         this.studentNumber = studentNumber;
         this.major = major;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.attendanceRate = 0;
+        this.attendance = false;
         this.sign = sign;
     }
 
-    /* 알고리즘 수정 필요
-       += 100 / 전체 일정 개수
-       전체 일정 개수 조회하는 메소드 필요
-    */
-    public void updateOneAttendanceRate(){
-        this.attendanceRate += 100;
+    public void updateAttendance(String imageUrl){
+        this.sign = imageUrl;
+        this.attendance = true;
     }
 }

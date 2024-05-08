@@ -1,7 +1,6 @@
-package checkmate.com.checkmate.eventattendancelist.domain.repository;
+package checkmate.com.checkmate.eventattendanceList.domain.repository;
 
-import checkmate.com.checkmate.event.domain.Event;
-import checkmate.com.checkmate.eventattendancelist.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
