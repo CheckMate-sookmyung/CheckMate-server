@@ -37,6 +37,8 @@ dependencies {
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.1.0'
 	implementation group: 'io.swagger.core.v3', name: 'swagger-core-jakarta', version: '2.2.7'
 
+	//excel
+	implementation 'org.apache.poi:poi-ooxml:5.0.0'
 
 }
 

@@ -33,7 +33,7 @@ public class EventController {
     public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
                                        @RequestPart(value="eventImage") MultipartFile eventImage,
                                        @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                       @RequestPart(value="event") EventRequestDto eventRequestDto) {
+                                       @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
         return ResponseEntity.ok().body(savedEvent);
     }
