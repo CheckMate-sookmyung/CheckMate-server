@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/event")
 @Tag(name="이벤트 CRUD", description="이벤트를 등록/조회/수정/삭제 할 수 있습니다.")
@@ -29,7 +30,7 @@ public class EventController {
     @ResponseBody
     @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 등록")
-    public ResponseEntity<?> postEvent(@PathVariable Long userId,
+    public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
                                        @RequestPart(value="eventImage") MultipartFile eventImage,
                                        @RequestPart(value="event") EventRequestDto eventRequestDto) {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, eventRequestDto, userId);
@@ -39,7 +40,7 @@ public class EventController {
     @ResponseBody
     @GetMapping(value="/list/{userId}")
     @Operation(summary = "이벤트 목록 조회")
-    public ResponseEntity<?> getEventList(@PathVariable Long userId){
+    public ResponseEntity<?> getEventList(@PathVariable("userId") Long userId){
         List<EventListResponseDto> getEvnetList = eventService.getEventList(userId);
         return ResponseEntity.ok().body(getEvnetList);
     }
@@ -47,8 +48,8 @@ public class EventController {
     @ResponseBody
     @GetMapping(value="/detail/{userId}/{eventId}")
     @Operation(summary = "이벤트 상세 조회")
-    public ResponseEntity<?> getEventDetail(@PathVariable Long userId,
-                                            @PathVariable Long eventId){
+    public ResponseEntity<?> getEventDetail(@PathVariable("userId") Long userId,
+                                            @PathVariable("eventId") Long eventId){
         EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
         return ResponseEntity.ok().body(getEvent);
     }
@@ -56,8 +57,8 @@ public class EventController {
     @ResponseBody
     @PutMapping(value="modify/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
-    public ResponseEntity<?> putEvent(@PathVariable Long userId,
-                                      @PathVariable Long eventId,
+    public ResponseEntity<?> putEvent(@PathVariable("userId") Long userId,
+                                      @PathVariable("eventId") Long eventId,
                                       @RequestPart(value="eventImage") MultipartFile eventImage,
                                       @RequestPart(value="event") EventRequestDto eventRequestDto){
         EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage, userId, eventId, eventRequestDto);
@@ -66,8 +67,8 @@ public class EventController {
 
     @DeleteMapping(value="delete/{userId}/{eventId}")
     @Operation(summary = "이벤트 삭제")
-    public ResponseEntity<?> deleteEvent(@PathVariable Long userId,
-                                         @PathVariable Long eventId){
+    public ResponseEntity<?> deleteEvent(@PathVariable("userId") Long userId,
+                                         @PathVariable("eventId") Long eventId){
         eventService.deleteEvent(userId, eventId);
         return ResponseEntity.ok().build();
     }
