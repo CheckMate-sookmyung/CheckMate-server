@@ -1,6 +1,7 @@
 package checkmate.com.checkmate.eventattendancelist.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
+import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
@@ -19,7 +20,7 @@ public class EventAttendanceList {
     private Long EventAttendanceListId;
 
     private String name;
-    private String studentNumber;
+    private int studentNumber;
     private String major;
     private String phoneNumber;
     private String email;
@@ -27,11 +28,11 @@ public class EventAttendanceList {
     private String sign;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="event_id")
-    private Event event;
+    @JoinColumn(name="event_schedule_id")
+    private EventSchedule eventSchedule;
 
     @Builder(toBuilder = true)
-    public EventAttendanceList(final String name, final String studentNumber, final String major, final String phoneNumber, final String email, final int attendanceRate, final String sign){
+    public EventAttendanceList(final String name, final int studentNumber, final String major, final String phoneNumber, final String email, final int attendanceRate, final String sign){
         this.name = name;
         this.studentNumber = studentNumber;
         this.major = major;
