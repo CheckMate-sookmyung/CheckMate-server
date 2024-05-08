@@ -40,7 +40,7 @@ public class EventAttendanceListService {
     @Transactional
     public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
         EventAttendanceList eventAttendanceList = eventAttendanceListRepository.findByEventAttendanceListId(studentInfoId);
-        String imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event"+String.valueOf(eventId));
+        String imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/"+String.valueOf(eventId)+"/sign");
         eventAttendanceList.updateAttendance(imageUrl);
     }
 
