@@ -10,4 +10,7 @@ public interface EventAttendanceListRepository extends JpaRepository<EventAttend
 
     @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.studentNumber = :studentNumber")
     EventAttendanceList findByEventIdAndStudentNumber(@Param("eventScheduleId") Long eventScheduleId, @Param("studentNumber") int studentNumber);
+
+    @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.id = :eventAttendanceListId")
+    EventAttendanceList findByEventAttendanceListId(@Param("eventAttendanceListId") Long eventAttendanceListId);
 }
