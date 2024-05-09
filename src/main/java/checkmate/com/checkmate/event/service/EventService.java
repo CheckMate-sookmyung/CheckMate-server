@@ -65,8 +65,10 @@ public class EventService {
                             .eventEndTime(eventScheduleRequestDto.getEventEndTime())
                             .event(savedEvent)
                             .build();
+                    eventScheduleRepository.save(eventSchedule);
                     try {
-                        eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
+                        List<EventAttendanceList> savedEventAttendanceLists = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
+                        eventSchedule.setEventAttendanceLists(savedEventAttendanceLists);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -74,7 +76,8 @@ public class EventService {
                 })
                 .collect(Collectors.toList());
 
-        savedEvent.postFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules);
+        eventRepository.save(savedEvent);
+        savedEvent.postFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules); //이거 해줘야 함
         eventRepository.save(savedEvent);
 
         return EventDetailResponseDto.of(savedEvent);
