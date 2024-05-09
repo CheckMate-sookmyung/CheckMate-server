@@ -29,6 +29,8 @@ public class Event {
 
     private String eventImage;
 
+    private String eventAttendanceListFile;
+
     private Boolean alarmRequest;
 
     private Boolean alarmResponse;
@@ -41,22 +43,27 @@ public class Event {
     private User user;
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, String eventImage, boolean alarmRequest, List<EventSchedule> eventSchedules,User user){
+    public Event(final String eventTitle, String eventDetail, boolean alarmRequest,User user){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
-        this.eventImage = eventImage;
         this.alarmRequest = alarmRequest;
         this.alarmResponse = false;
-        this.eventSchedules = eventSchedules;
         this.user = user;
     }
 
-    public void update(String eventTitle, String eventDetail, String eventImage, List<EventSchedule> eventSchedules, Boolean alarmResponse){
+    public void update(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules, Boolean alarmResponse){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
         this.eventSchedules = eventSchedules;
+        this.eventAttendanceListFile = eventAttendanceListFile;
         this.alarmRequest = alarmResponse;
+    }
+
+    public void postFileAndAttendanceList(String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules){
+        this.eventImage = eventImage;
+        this.eventAttendanceListFile = eventAttendanceListFile;
+        this.eventSchedules = eventSchedules;
     }
 
     public void updateAlarm(){

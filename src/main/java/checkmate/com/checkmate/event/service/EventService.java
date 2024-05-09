@@ -1,6 +1,8 @@
 package checkmate.com.checkmate.event.service;
 
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
+import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
@@ -15,13 +17,17 @@ import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,31 +42,40 @@ public class EventService {
     private final EventRepository eventRepository;
     @Autowired
     private final EventScheduleRepository eventScheduleRepository;
+    @Autowired
+    private final EventAttendanceListService eventAttendanceListService;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
     private final AmazonS3 amazonS3Client;
 
     @Transactional
-    public EventDetailResponseDto postEvent(MultipartFile eventImage, EventRequestDto eventRequestDto, Long userId){
+    public EventDetailResponseDto postEvent(MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
 
-        String imageUrl = null;
-        if (!eventImage.isEmpty())
-            imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
+        Event savedEvent = eventRequestDto.toEntity(user);
+        eventRepository.save(savedEvent);
 
-        Event savedEvent= eventRequestDto.toEntity(user, imageUrl);
-
+        String imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
+        String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
         List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
-                .map(eventScheduleRequestDto -> EventSchedule.builder()
+                .map(eventScheduleRequestDto -> {
+                    EventSchedule eventSchedule = EventSchedule.builder()
                             .eventDate(eventScheduleRequestDto.getEventDate())
                             .eventStartTime(eventScheduleRequestDto.getEventStartTime())
                             .eventEndTime(eventScheduleRequestDto.getEventEndTime())
                             .event(savedEvent)
-                            .build())
-                        .collect(Collectors.toList());
+                            .build();
+                    try {
+                        eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return eventSchedule;
+                })
+                .collect(Collectors.toList());
 
-        savedEvent.setEventSchedules(savedEventSchedules); //이게 진짜 마음에 안 든다
-        eventRepository.save(savedEvent); //왜 필요할까?
+        savedEvent.postFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules);
+        eventRepository.save(savedEvent);
 
         return EventDetailResponseDto.of(savedEvent);
     }
@@ -84,9 +99,14 @@ public class EventService {
     public EventDetailResponseDto updateEvent(MultipartFile eventImage, Long userId, Long eventId, EventRequestDto eventRequestDto){
         Event updateEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
 
-        String fileName = extractFileNameFromUrl(updateEvent.getEventImage());
-        amazonS3Client.deleteObject(bucketName, fileName);
-        String updatedFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event");
+        String ImagefileName = extractFileNameFromUrl(updateEvent.getEventImage());
+        amazonS3Client.deleteObject(bucketName, ImagefileName);
+        String updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/"+String.valueOf(updateEvent.getEventId()));
+
+        String AttendanceListfileName = extractFileNameFromUrl(updateEvent.getEventAttendanceListFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
+        String updatedAttendacneListFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/"+"event/"+String.valueOf(updateEvent.getEventId()));
+
 
         eventScheduleRepository.deleteByEventEventId(eventId);
         List<EventSchedule> updatedEventSchedules = eventRequestDto.getEventSchedules().stream()
@@ -101,7 +121,8 @@ public class EventService {
         updateEvent.update(
                 eventRequestDto.getEventTitle(),
                 eventRequestDto.getEventDetail(),
-                updatedFileName,
+                updatedImageFileName,
+                updatedAttendacneListFileName,
                 updatedEventSchedules,
                 eventRequestDto.getAlarmRequest());
         eventRepository.save(updateEvent);
@@ -112,6 +133,10 @@ public class EventService {
     @Transactional
     public void deleteEvent(Long userId, Long eventId){
         Event deleteEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+        String ImagefileName = extractFileNameFromUrl(deleteEvent.getEventImage());
+        amazonS3Client.deleteObject(bucketName, ImagefileName);
+        String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getEventAttendanceListFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
         eventRepository.delete(deleteEvent);
     }
 

@@ -12,7 +12,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Setter
 @DynamicInsert
 @AllArgsConstructor
-@NoArgsConstructor(access = PROTECTED)
+@NoArgsConstructor
 public class EventAttendanceList {
     @Id @GeneratedValue
     private Long EventAttendanceListId;
@@ -25,19 +25,19 @@ public class EventAttendanceList {
     private boolean attendance;
     private String sign;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="event_schedule_id")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name="eventSchedule_id")
     private EventSchedule eventSchedule;
 
     @Builder(toBuilder = true)
-    public EventAttendanceList(final String name, final int studentNumber, final String major, final String phoneNumber, final String email, final boolean attendance, final String sign){
+    public EventAttendanceList(final String name, final int studentNumber, final String major, final String phoneNumber, final String email, EventSchedule eventSchedule){
         this.name = name;
         this.studentNumber = studentNumber;
         this.major = major;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.eventSchedule = eventSchedule;
         this.attendance = false;
-        this.sign = sign;
     }
 
     public void updateAttendance(String imageUrl){
