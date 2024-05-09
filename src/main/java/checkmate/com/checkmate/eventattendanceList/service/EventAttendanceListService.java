@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -57,14 +58,15 @@ public class EventAttendanceListService {
         eventAttendanceList.updateAttendance(imageUrl);
     }
 
-    @Async
-    public Future<Void> readAndSaveAttendanceList(MultipartFile attendanceListFile, EventSchedule eventSchedule) throws IOException {
+    @Transactional
+    public List<EventAttendanceList> readAndSaveAttendanceList(MultipartFile attendanceListFile, EventSchedule eventSchedule) throws IOException {
+        List<EventAttendanceList> eventAttendanceLists = new ArrayList<>();
         try {
-            excelReader.readAndSaveAttendanceList(eventAttendanceListRepository,convertMultiPartToFile(attendanceListFile), eventSchedule);
+            eventAttendanceLists = excelReader.readAndSaveAttendanceList(eventAttendanceListRepository, convertMultiPartToFile(attendanceListFile), eventSchedule);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new AsyncResult<>(null);
+        return eventAttendanceLists;
     }
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {

@@ -8,13 +8,16 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @Component
 public class ExcelReader {
 
-    public static void readAndSaveAttendanceList(EventAttendanceListRepository eventAttendanceListRepository, File attendanceFile, EventSchedule schedule) throws IOException {
+    public static List<EventAttendanceList> readAndSaveAttendanceList(EventAttendanceListRepository eventAttendanceListRepository, File attendanceFile, EventSchedule schedule) throws IOException {
         EventSchedule eventSchedule = schedule;
+        List<EventAttendanceList> eventAttendanceLists = new ArrayList<>();
 
         Workbook workbook = WorkbookFactory.create(attendanceFile);
         Sheet sheet = workbook.getSheetAt(0); // 첫 번째 시트 가져오기
@@ -75,11 +78,11 @@ public class ExcelReader {
                     .eventSchedule(eventSchedule)
                     .build();
             eventAttendanceListRepository.save(attendanceList);
-            // 생성된 객체를 데이터베이스에 저장
-            System.out.println("ID가"+attendanceList.getEventAttendanceListId());
+            eventAttendanceLists.add(attendanceList);
         }
         workbook.close();
 
+        return eventAttendanceLists;
     }
 
 }
