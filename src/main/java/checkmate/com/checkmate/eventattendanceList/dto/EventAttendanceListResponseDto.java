@@ -12,12 +12,16 @@ public class EventAttendanceListResponseDto {
     private final String studentName;
     private final int studentNumber;
     private final String major;
+    private final boolean attendance;
+    private final String sign;
 
     public static EventAttendanceListResponseDto of(EventAttendanceList eventAttendanceList){
         return new EventAttendanceListResponseDto(
                 eventAttendanceList.getName(),
                 eventAttendanceList.getStudentNumber(),
-                eventAttendanceList.getMajor()
-        );
+                eventAttendanceList.getMajor(),
+                eventAttendanceList.isAttendance(),
+                eventAttendanceList.getSign());
     }
+
 }
