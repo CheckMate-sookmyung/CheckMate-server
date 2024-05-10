@@ -5,6 +5,8 @@ import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +74,15 @@ public class EventController {
                                          @PathVariable("eventId") Long eventId){
         eventService.deleteEvent(userId, eventId);
         return ResponseEntity.ok().build();
+    }
+
+    @ResponseBody
+    @GetMapping(value="/list/{userId}/{eventId}")
+    @Operation(summary="출석명단 확인")
+    public ResponseEntity<?> getAttendanceList(@PathVariable("userId") Long userId,
+                                               @PathVariable("eventId") Long eventId){
+        List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
+        return ResponseEntity.ok().body(eventAttendanceList);
     }
 
 }
