@@ -24,7 +24,7 @@ public class EventAttendanceListController {
     private final EventAttendanceListService eventAttendanceListService;
 
     @ResponseBody
-    @GetMapping(value="/check/{userId}/{eventId}/{studentNumber}")
+    @GetMapping(value = "/check/{userId}/{eventId}/{studentNumber}")
     @Operation(summary = "출석체크")
     public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId,
@@ -41,14 +41,13 @@ public class EventAttendanceListController {
     }
 
     @ResponseBody
-    @PostMapping(value="/sign/{userId}/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/sign/{userId}/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "전자서명")
     public ResponseEntity<?> postSign(@PathVariable("userId") Long userId,
                                       @PathVariable("eventId") Long eventId,
                                       @PathVariable("studentInfoId") Long studentInfoId,
-                                      @RequestPart(value="signImage") MultipartFile signImage){
-        eventAttendanceListService.postSign(userId,eventId,studentInfoId,signImage);
+                                      @RequestPart(value = "signImage") MultipartFile signImage) {
+        eventAttendanceListService.postSign(userId, eventId, studentInfoId, signImage);
         return ResponseEntity.ok().build();
     }
-
 }
