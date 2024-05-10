@@ -1,24 +1,24 @@
 package checkmate.com.checkmate.event.service;
 
-import checkmate.com.checkmate.event.dto.EventListResponseDto;
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
-import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
-import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
-import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
+import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
+import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
+import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
+import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +41,8 @@ public class EventService {
     private final EventRepository eventRepository;
     @Autowired
     private final EventScheduleRepository eventScheduleRepository;
+    @Autowired
+    private final EventAttendanceListRepository eventAttendanceListRespository;
     @Autowired
     private final EventAttendanceListService eventAttendanceListService;
     @Value("${cloud.aws.s3.bucket}")
@@ -152,5 +153,22 @@ public class EventService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public List<EventScheduleResponseDto> getAttendanceList(Long userId, Long eventId){
+        User user = userRepository.findByUserId(userId);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        List<EventScheduleResponseDto> eventScheduleResponseDtos = new ArrayList<>();
+        for (EventSchedule eventSchedule : eventSchedules){
+            Long eventScheduleId = eventSchedule.getEventScheduleId();
+            List<EventAttendanceList> eventAttendanceLists = eventAttendanceListRespository.findEventAttendanceListById(eventScheduleId);
+            List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = eventAttendanceLists.stream()
+                    .map(EventAttendanceListResponseDto::of)
+                    .collect(Collectors.toList());
+            eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule));
+        }
+
+
+        return eventScheduleResponseDtos;
     }
 }
