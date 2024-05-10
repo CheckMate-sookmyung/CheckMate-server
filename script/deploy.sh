@@ -7,7 +7,7 @@ APP_LOG=/home/ubuntu/moduform/application.log
 ERROR_LOG=/home/ubuntu/moduform/error.log
 DEPLOY_LOG=/home/ubuntu/moduform/application.log
 
-APP_NAME=CheckMate-server
+APP_NAME=checkmate
 
 JAR_NAME=$(ls $REPOSITORY | grep 'SNAPSHOT.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/$JAR_NAME
