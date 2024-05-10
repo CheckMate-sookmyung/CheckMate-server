@@ -9,11 +9,9 @@ import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepo
 import checkmate.com.checkmate.global.ExcelReader;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
+import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +36,8 @@ public class EventAttendanceListService {
     private final ExcelReader excelReader;
     @Autowired
     private final S3Uploader s3Uploader;
+    @Autowired
+    private final UserRepository userRepository;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
