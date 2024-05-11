@@ -16,4 +16,9 @@ spring:
 
 server:
   tomcat:
-    max-http-form-post-size: 10GB
+    max-http-form-post-size: 50GB
+
+
+logging:
+  file:
+    name: log/attendanceCheckTest.log
