@@ -42,10 +42,10 @@ public class ExcelReader {
                 case "이름":
                     nameIndex = cell.getColumnIndex();
                     break;
-                case "학번":
+                case "학번/사번":
                     studentNumberIndex = cell.getColumnIndex();
                     break;
-                case "전공":
+                case "학과":
                     majorIndex = cell.getColumnIndex();
                     break;
                 case "전화번호":
@@ -65,8 +65,23 @@ public class ExcelReader {
             String name = row.getCell(nameIndex).getStringCellValue();
             int studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
             String major = row.getCell(majorIndex).getStringCellValue();
-            String phoneNumber = row.getCell(phoneNumberIndex).getStringCellValue();
-            String email = row.getCell(emailIndex).getStringCellValue();
+            String phoneNumber = "";
+            String email = "";
+
+            // 전화번호와 이메일이 있는 경우에만 값을 가져오도록 함
+            if (phoneNumberIndex != -1) {
+                Cell phoneCell = row.getCell(phoneNumberIndex);
+                if (phoneCell != null) {
+                    phoneNumber = phoneCell.getStringCellValue();
+                }
+            }
+
+            if (emailIndex != -1) {
+                Cell emailCell = row.getCell(emailIndex);
+                if (emailCell != null) {
+                    email = emailCell.getStringCellValue();
+                }
+            }
 
             // 여기서 각 필드 값을 사용하여 EventAttendanceList 객체 생성
             attendanceList = EventAttendanceList.builder()

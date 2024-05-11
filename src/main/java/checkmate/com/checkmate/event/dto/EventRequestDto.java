@@ -26,7 +26,6 @@ public class EventRequestDto {
                 .user(user)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
-                .alarmRequest(alarmRequest)
                 .build();
     }
 }

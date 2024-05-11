@@ -29,7 +29,7 @@ public class EventAttendanceListController {
     public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId,
                                             @PathVariable("studentNumber") int studentNumber,
-                                            @RequestHeader("eventDate") String eventDate) throws StudentAlreadyAttendedException {
+                                            @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
         try {
             StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfo(userId, eventId, studentNumber, eventDate);
             return ResponseEntity.ok().body(studentInfo);

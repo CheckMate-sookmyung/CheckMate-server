@@ -10,6 +10,7 @@ import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class EventController {
     private final EventService eventService;
 
     @ResponseBody
-    @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "이벤트 등록")
     public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
                                        @RequestPart(value="eventImage") MultipartFile eventImage,
