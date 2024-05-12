@@ -6,6 +6,9 @@ import checkmate.com.checkmate.global.codes.SuccessCode;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,12 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.GET_STUDENT_INFO_
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/attendance")
 @Tag(name="출석체크", description="출석체크를 할 수 있습니다.")
+@ApiResponses(
+        value = {
+                @ApiResponse(responseCode = "200"),
+                @ApiResponse(responseCode = "404", content = @Content)
+        }
+)
 public class EventAttendanceListController {
 
     @Autowired

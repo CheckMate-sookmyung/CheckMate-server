@@ -9,6 +9,9 @@ import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListRespon
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,12 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/event")
 @Tag(name="이벤트 CRUD", description="이벤트를 등록/조회/수정/삭제 할 수 있습니다.")
+@ApiResponses(
+        value = {
+                @ApiResponse(responseCode = "200"),
+                @ApiResponse(responseCode = "404", content = @Content)
+        }
+)
 public class EventController {
 
     @Autowired
