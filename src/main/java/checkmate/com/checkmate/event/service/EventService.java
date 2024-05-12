@@ -63,10 +63,8 @@ public class EventService {
 
         String imageUrl = null;
         String attendanceListUrl = null;
-        if(!eventImage.isEmpty())
+        if(eventImage != null)
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
-        else
-            throw new GeneralException(IMAGE_IS_NULL);
         if(!attendanceListFile.isEmpty())
             attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
         else

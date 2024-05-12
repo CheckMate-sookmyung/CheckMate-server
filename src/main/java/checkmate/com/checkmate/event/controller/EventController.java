@@ -46,7 +46,7 @@ public class EventController {
     @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "이벤트 등록")
     public BaseResponseDto<EventDetailResponseDto> postEvent(@PathVariable("userId") Long userId,
-                                     @RequestPart(value="eventImage") MultipartFile eventImage,
+                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                      @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
                                      @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
@@ -75,8 +75,8 @@ public class EventController {
     @Operation(summary = "이벤트 수정")
     public BaseResponseDto<EventDetailResponseDto> putEvent(@PathVariable("userId") Long userId,
                                       @PathVariable("eventId") Long eventId,
-                                      @RequestPart(value="eventImage") MultipartFile eventImage,
-                                      @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
+                                      @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
+                                      @RequestPart(value="attendanceListFile", required = false) MultipartFile attendanceListFile,
                                       @RequestPart(value="event") EventRequestDto eventRequestDto){
         EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage,attendanceListFile, userId, eventId, eventRequestDto);
         return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, updatedEvent);
