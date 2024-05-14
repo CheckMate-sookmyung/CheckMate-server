@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.eventattendanceList.service;
 
+import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
@@ -7,7 +8,9 @@ import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.global.ExcelReader;
+import checkmate.com.checkmate.global.codes.ErrorCode;
 import checkmate.com.checkmate.global.config.S3Uploader;
+import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,20 +46,35 @@ public class EventAttendanceListService {
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
-        String eventTitle = eventRepository.findByUserIdAndEventId(userId, eventId).getEventTitle();
-        Long eventSheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
-        EventAttendanceList studentInfoFromEventAttendance =  eventAttendanceListRepository.findByEventIdAndStudentNumber(eventSheduleId, studentId);
-        if (studentInfoFromEventAttendance.isAttendance())
-            throw new StudentAlreadyAttendedException("이미 출석한 학생입니다.");
-        else
-            return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        if (event == null)
+            throw new GeneralException(EVENT_NOT_FOUND);
+        else{
+            String eventTitle = event.getEventTitle();
+            Long eventSheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
+            EventAttendanceList studentInfoFromEventAttendance = eventAttendanceListRepository.findByEventIdAndStudentNumber(eventSheduleId, studentId);
+            if (studentInfoFromEventAttendance == null)
+                throw new GeneralException(STUDENT_NOT_FOUND);
+            else if (studentInfoFromEventAttendance.isAttendance())
+                throw new GeneralException(STUDENT_ALREADY_CHECK);
+            else
+                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+
+        }
     }
 
     @Transactional
     public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
         EventAttendanceList eventAttendanceList = eventAttendanceListRepository.findByEventAttendanceListId(studentInfoId);
-        String imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/"+String.valueOf(eventId)+"/sign");
-        eventAttendanceList.updateAttendance(imageUrl);
+        if (eventAttendanceList == null)
+            throw new GeneralException(STUDENT_NOT_FOUND);
+        String imageUrl = null;
+        if (signImage != null) {
+            imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/" + String.valueOf(eventId) + "/sign");
+            eventAttendanceList.updateAttendance(imageUrl);
+        }
+        else
+            throw new GeneralException(IMAGE_IS_NULL);
     }
 
     @Transactional
@@ -63,7 +83,7 @@ public class EventAttendanceListService {
         try {
             eventAttendanceLists = excelReader.readAndSaveAttendanceList(eventAttendanceListRepository, convertMultiPartToFile(attendanceListFile), eventSchedule);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new GeneralException(IO_EXCEPTION);
         }
         return eventAttendanceLists;
     }

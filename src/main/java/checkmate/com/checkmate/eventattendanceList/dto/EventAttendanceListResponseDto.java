@@ -4,6 +4,9 @@ import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import static lombok.AccessLevel.PRIVATE;
 
 @Getter
@@ -14,6 +17,7 @@ public class EventAttendanceListResponseDto {
     private final String major;
     private final boolean attendance;
     private final String sign;
+    private final LocalDateTime createdDate;
 
     public static EventAttendanceListResponseDto of(EventAttendanceList eventAttendanceList){
         return new EventAttendanceListResponseDto(
@@ -21,7 +25,8 @@ public class EventAttendanceListResponseDto {
                 eventAttendanceList.getStudentNumber(),
                 eventAttendanceList.getMajor(),
                 eventAttendanceList.isAttendance(),
-                eventAttendanceList.getSign());
+                eventAttendanceList.getSign(),
+                eventAttendanceList.getCreatedDate());
     }
 
 }

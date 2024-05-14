@@ -1,0 +1,41 @@
+package checkmate.com.checkmate.global.codes;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum SuccessCode {
+    // 일반적인 응답
+    OK(HttpStatus.OK, "요청에 성공하였습니다."),
+
+    // 인증 & 인가 & 로그인
+    GOOGLE_LOGIN_SUCCESS(HttpStatus.OK, "구글 로그인에 성공하였습니다."),
+    SIGNUP_SUCCESS(HttpStatus.OK, "회원가입에 성공하였습니다."),
+    SIGNOUT_SUCCESS(HttpStatus.OK, "회원 탈퇴에 성공하였습니다."),
+    REISSUE_TOKEN_SUCCESS(HttpStatus.OK, "토큰 갱신에 성공하였습니다."),
+    LOGOUT_SUCCESS(HttpStatus.OK, "로그아웃에 성공하였습니다."),
+
+    // 유저
+    GET_USER_SUCCESS(HttpStatus.OK, "회원 정보 조회 요청에 성공하였습니다."),
+    MODIFY_USER_SUCCESS(HttpStatus.OK, "회원 정보 수정에 성공하였습니다."),
+
+    //행사
+    POST_EVENT_SUCCESS(HttpStatus.OK, "행사 등록에 성공하였습니다."),
+    GET_EVENT_DETAIL_SUCCESS(HttpStatus.OK, "행사 상세 조회에 성공하였습니다."),
+    GET_EVENT_LIST_SUCCESS(HttpStatus.OK, "행사 목록 조회에 성공하였습니다."),
+    MODIFY_EVENT_SUCCESS(HttpStatus.OK, "행사 수정에 성공하였습니다."),
+    DELETE_EVENT_SUCCESS(HttpStatus.OK, "행사 삭제에 성공하였습니다."),
+
+    //출석체크
+    GET_STUDENT_INFO_SUCCESS(HttpStatus.OK, "학생 정보 조회에 성공하였습니다."),
+    ATTENDANCE_CHECK_SUCCESS(HttpStatus.OK,"출석 체크에 성공하였습니다."),
+
+    //출석명단
+    GET_ATTENDANCE_LIST_SUCCESS(HttpStatus.OK, "출석명단 조회에 성공하였습니다.")
+    ;
+
+    private final HttpStatus httpStatus;
+    private final String message;
+}

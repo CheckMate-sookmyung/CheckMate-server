@@ -2,6 +2,7 @@ package checkmate.com.checkmate.event.domain;
 
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
+import checkmate.com.checkmate.global.BaseTimeEntity;
 import checkmate.com.checkmate.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,7 +19,7 @@ import static lombok.AccessLevel.PROTECTED;
 @DynamicInsert
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-public class Event {
+public class Event extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long eventId;

@@ -1,6 +1,7 @@
 package checkmate.com.checkmate.eventattendanceList.domain;
 
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -13,7 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 @DynamicInsert
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventAttendanceList {
+public class EventAttendanceList extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long EventAttendanceListId;
 
