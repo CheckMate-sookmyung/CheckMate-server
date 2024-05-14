@@ -30,11 +30,13 @@ public class Event extends BaseTimeEntity {
 
     private String eventImage;
 
-    private String eventAttendanceListFile;
+    private String beforeAttendanceListFile;
 
     private Boolean alarmRequest;
 
     private Boolean alarmResponse;
+
+    private String afterAttendanceListFile;
 
     @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
     private List<EventSchedule> eventSchedules = new ArrayList<>();
@@ -57,18 +59,22 @@ public class Event extends BaseTimeEntity {
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
         this.eventSchedules = eventSchedules;
-        this.eventAttendanceListFile = eventAttendanceListFile;
+        this.beforeAttendanceListFile = eventAttendanceListFile;
         this.alarmRequest = alarmResponse;
     }
 
     public void postFileAndAttendanceList(String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules){
         this.eventImage = eventImage;
-        this.eventAttendanceListFile = eventAttendanceListFile;
+        this.beforeAttendanceListFile = eventAttendanceListFile;
         this.eventSchedules = eventSchedules;
     }
 
     public void updateAlarm(){
         this.alarmResponse = true;
+    }
+
+    public void updateAttendanceListFileAferEvent(String fileUrl){
+        this.afterAttendanceListFile = fileUrl;
     }
 
 }
