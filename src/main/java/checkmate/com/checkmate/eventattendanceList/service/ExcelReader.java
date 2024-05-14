@@ -1,4 +1,4 @@
-package checkmate.com.checkmate.global;
+package checkmate.com.checkmate.eventattendanceList.service;
 
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
