@@ -1,11 +1,9 @@
 package checkmate.com.checkmate.event.controller;
 
-import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
-import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jcajce.provider.symmetric.util.BaseWrapCipher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/event")
-@Tag(name="이벤트 CRUD", description="이벤트를 등록/조회/수정/삭제 할 수 있습니다.")
+@Tag(name="행사 CRUD", description="행사를 등록/조회/수정/삭제 할 수 있습니다.")
 @ApiResponses(
         value = {
                 @ApiResponse(responseCode = "200"),
@@ -44,11 +42,11 @@ public class EventController {
 
     @ResponseBody
     @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "이벤트 등록")
+    @Operation(summary = "행사 등록")
     public BaseResponseDto<EventDetailResponseDto> postEvent(@PathVariable("userId") Long userId,
-                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
-                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                     @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
+                                    @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
+                                    @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
+                                    @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
         return BaseResponseDto.ofSuccess(POST_EVENT_SUCCESS,savedEvent);
     }
@@ -91,9 +89,9 @@ public class EventController {
     }
 
     @ResponseBody
-    @GetMapping(value="/attendancelist/{userId}/{eventId}")
-    @Operation(summary="출석명단 확인")
-    public BaseResponseDto<EventScheduleResponseDto> getAttendanceList(@PathVariable("userId") Long userId,
+    @GetMapping(value="/list/{userId}/{eventId}")
+    @Operation(summary="행사 출석명단 확인")
+    public BaseResponseDto<?> getAttendanceList(@PathVariable("userId") Long userId,
                                                @PathVariable("eventId") Long eventId){
         List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
         return BaseResponseDto.ofSuccess(GET_ATTENDANCE_LIST_SUCCESS, eventAttendanceList);
