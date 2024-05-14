@@ -2,6 +2,7 @@ package checkmate.com.checkmate.eventschedule.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -19,7 +20,7 @@ import static lombok.AccessLevel.PROTECTED;
 @DynamicInsert
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-public class EventSchedule {
+public class EventSchedule extends BaseTimeEntity {
 
     @Id @GeneratedValue
     private Long eventScheduleId;
