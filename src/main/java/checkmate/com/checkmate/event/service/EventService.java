@@ -131,7 +131,7 @@ public class EventService {
             } else
                 throw new GeneralException(IMAGE_IS_NULL);
             if (!attendanceListFile.isEmpty()) {
-                String AttendanceListfileName = extractFileNameFromUrl(updateEvent.getEventAttendanceListFile());
+                String AttendanceListfileName = extractFileNameFromUrl(updateEvent.getBeforeAttendanceListFile());
                 amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
                 updatedAttendacneListFileName = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(updateEvent.getEventId()));
             } else
@@ -166,11 +166,14 @@ public class EventService {
         Event deleteEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
         if (deleteEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
-        String ImagefileName = extractFileNameFromUrl(deleteEvent.getEventImage());
-        amazonS3Client.deleteObject(bucketName, ImagefileName);
-        String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getEventAttendanceListFile());
+        if (deleteEvent.getEventImage() != null) {
+            String ImagefileName = extractFileNameFromUrl(deleteEvent.getEventImage());
+            amazonS3Client.deleteObject(bucketName, ImagefileName);
+        }
+        String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getBeforeAttendanceListFile());
         amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
         eventRepository.delete(deleteEvent);
+
     }
 
     private static String extractFileNameFromUrl(String imageUrl) {
