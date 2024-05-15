@@ -40,6 +40,13 @@ dependencies {
 	//excel
 	implementation 'org.apache.poi:poi-ooxml:5.0.0'
 
+	//pdf
+	implementation 'com.itextpdf:itext7-core:7.1.16'
+	implementation 'org.springframework:spring-test:6.1.6'
+
+	//email
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
