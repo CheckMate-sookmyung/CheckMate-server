@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.eventattendanceList.service;
 
+import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
@@ -7,12 +8,14 @@ import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttend
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
+import checkmate.com.checkmate.global.component.ExcelReader;
+import checkmate.com.checkmate.global.component.PdfGenerator;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
+import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,13 +42,11 @@ public class EventAttendanceListService {
     @Autowired
     private final S3Uploader s3Uploader;
     @Autowired
-    private final ExcelGenerator excelGenerator;
-    @Autowired
     private final UserRepository userRepository;
     @Autowired
     private final PdfGenerator pdfGenerator;
     @Autowired
-    private final EmailService emailService;
+    private final EmailSender emailSender;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
@@ -91,11 +92,12 @@ public class EventAttendanceListService {
     }
 
     public void sendAttendanceList(Long userId, Long eventId) throws IOException {
+        User user = userRepository.findByUserId(userId);
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         MultipartFile attendanceListMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
-        emailService.sendEmailWithFile(event, attendanceListMultipartFile);
+        emailSender.sendEmailWithFile(user, event, attendanceListMultipartFile);
         String attendanceListUrl = s3Uploader.saveFile(attendanceListMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFileAferEvent(attendanceListUrl);
     }
