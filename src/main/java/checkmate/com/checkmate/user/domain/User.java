@@ -21,6 +21,7 @@ public class User {
     @Id @GeneratedValue
     private Long userId;
     private String userName;
+    private String userMail;
 
     @OneToMany(mappedBy = "user")
     private List<Event> events = new ArrayList<>();
