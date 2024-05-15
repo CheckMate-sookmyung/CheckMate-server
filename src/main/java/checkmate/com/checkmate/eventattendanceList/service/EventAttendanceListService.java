@@ -69,12 +69,14 @@ public class EventAttendanceListService {
     @Transactional
     public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
         EventAttendanceList eventAttendanceList = eventAttendanceListRepository.findByEventAttendanceListId(studentInfoId);
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        int numOfEvents = event.getEventSchedules().size();
         if (eventAttendanceList == null)
             throw new GeneralException(STUDENT_NOT_FOUND);
         String imageUrl = null;
         if (signImage != null) {
             imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/" + String.valueOf(eventId) + "/sign");
-            eventAttendanceList.updateAttendance(imageUrl);
+            eventAttendanceList.updateAttendance(imageUrl, numOfEvents);
         }
         else
             throw new GeneralException(IMAGE_IS_NULL);
