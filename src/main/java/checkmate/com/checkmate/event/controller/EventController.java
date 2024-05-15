@@ -27,7 +27,7 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 @RestController
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/event")
+@RequestMapping("/api/v1/events")
 @Tag(name="행사 CRUD", description="행사를 등록/조회/수정/삭제 할 수 있습니다.")
 @ApiResponses(
         value = {
@@ -41,46 +41,46 @@ public class EventController {
     private final EventService eventService;
 
     @ResponseBody
-    @PostMapping(value="/register/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value="/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "행사 등록")
-    public BaseResponseDto<EventDetailResponseDto> postEvent(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
                                     @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
-        return BaseResponseDto.ofSuccess(POST_EVENT_SUCCESS,savedEvent);
+        return ResponseEntity.ok(savedEvent);
     }
 
     @ResponseBody
-    @GetMapping(value="/list/{userId}")
+    @GetMapping(value="/{userId}")
     @Operation(summary = "이벤트 목록 조회")
-    public BaseResponseDto<EventListResponseDto> getEventList(@PathVariable("userId") Long userId){
+    public ResponseEntity<?> getEventList(@PathVariable("userId") Long userId){
         List<EventListResponseDto> getEventList = eventService.getEventList(userId);
-        return BaseResponseDto.ofSuccess(GET_EVENT_LIST_SUCCESS, getEventList);
+        return ResponseEntity.ok(getEventList);
     }
 
     @ResponseBody
-    @GetMapping(value="/detail/{userId}/{eventId}")
+    @GetMapping(value="/{userId}/{eventId}")
     @Operation(summary = "이벤트 상세 조회")
-    public BaseResponseDto<EventDetailResponseDto> getEventDetail(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getEventDetail(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId){
         EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
-        return BaseResponseDto.ofSuccess(GET_EVENT_DETAIL_SUCCESS, getEvent);
+        return ResponseEntity.ok(getEvent);
     }
 
     @ResponseBody
-    @PutMapping(value="modify/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value="/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
-    public BaseResponseDto<EventDetailResponseDto> putEvent(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> putEvent(@PathVariable("userId") Long userId,
                                       @PathVariable("eventId") Long eventId,
                                       @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                       @RequestPart(value="attendanceListFile", required = false) MultipartFile attendanceListFile,
                                       @RequestPart(value="event") EventRequestDto eventRequestDto){
         EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage,attendanceListFile, userId, eventId, eventRequestDto);
-        return BaseResponseDto.ofSuccess(MODIFY_EVENT_SUCCESS, updatedEvent);
+        return ResponseEntity.ok(updatedEvent);
     }
 
-    @DeleteMapping(value="delete/{userId}/{eventId}")
+    @DeleteMapping(value="/{userId}/{eventId}")
     @Operation(summary = "이벤트 삭제")
     public BaseResponseDto<?> deleteEvent(@PathVariable("userId") Long userId,
                                          @PathVariable("eventId") Long eventId){
@@ -89,12 +89,12 @@ public class EventController {
     }
 
     @ResponseBody
-    @GetMapping(value="/list/{userId}/{eventId}")
+    @GetMapping(value="/attendanceList/{userId}/{eventId}")
     @Operation(summary="행사 출석명단 확인")
-    public BaseResponseDto<?> getAttendanceList(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getAttendanceList(@PathVariable("userId") Long userId,
                                                @PathVariable("eventId") Long eventId){
         List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
-        return BaseResponseDto.ofSuccess(GET_ATTENDANCE_LIST_SUCCESS, eventAttendanceList);
+        return ResponseEntity.ok(eventAttendanceList);
     }
 
 }

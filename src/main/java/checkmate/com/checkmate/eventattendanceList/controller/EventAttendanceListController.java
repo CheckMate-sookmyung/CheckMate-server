@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,14 +37,14 @@ public class EventAttendanceListController {
     private final EventAttendanceListService eventAttendanceListService;
 
     @ResponseBody
-    @GetMapping(value = "/check/{userId}/{eventId}/{studentNumber}")
+    @GetMapping(value = "/check/{userId}/{eventId}")
     @Operation(summary = "출석체크")
-    public BaseResponseDto<StudentInfoResponseDto> getStudentInfo(@PathVariable("userId") Long userId,
-                                                                  @PathVariable("eventId") Long eventId,
-                                                                  @PathVariable("studentNumber") int studentNumber,
-                                                                  @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
+    public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
+                                            @PathVariable("eventId") Long eventId,
+                                            @RequestParam("studentNumber") int studentNumber,
+                                            @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
         StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfo(userId, eventId, studentNumber, eventDate);
-        return BaseResponseDto.ofSuccess(GET_STUDENT_INFO_SUCCESS, studentInfo);
+        return ResponseEntity.ok(studentInfo);
     }
 
     @ResponseBody
