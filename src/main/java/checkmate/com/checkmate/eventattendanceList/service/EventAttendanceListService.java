@@ -42,6 +42,10 @@ public class EventAttendanceListService {
     private final ExcelGenerator excelGenerator;
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final PdfGenerator pdfGenerator;
+    @Autowired
+    private final EmailService emailService;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
@@ -90,11 +94,12 @@ public class EventAttendanceListService {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-        MultipartFile attendanceListMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules);
-        //MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(attendanceListWorkBook, eventTitle+"_참석자명단.xlsx");
+        MultipartFile attendanceListMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
+        emailService.sendEmailWithFile(event, attendanceListMultipartFile);
         String attendanceListUrl = s3Uploader.saveFile(attendanceListMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFileAferEvent(attendanceListUrl);
     }
+
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = File.createTempFile(file.getOriginalFilename(), null);
