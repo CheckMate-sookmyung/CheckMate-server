@@ -23,6 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -37,7 +40,6 @@ public class PdfGenerator {
 
         PdfFont font = PdfFontFactory.createFont("src/main/java/checkmate/com/checkmate/global/NanumGothic.otf", "Identity-H", true);
         PdfFont boldFont = PdfFontFactory.createFont("src/main/java/checkmate/com/checkmate/global/NanumGothic.otf", "Identity-H", true);
-        Color buleColor = new DeviceRgb(0, 0, 255);
 
         document.setTextAlignment(TextAlignment.CENTER);
         document.add(new Paragraph(eventName + " 전체 출석 현황").setFontSize(16).setFont(boldFont));
@@ -101,6 +103,7 @@ public class PdfGenerator {
     private static Table createEachAttendanceListPdf(Table table, EventSchedule eventSchedule) throws MalformedURLException {
         float imageWidth = 50;
         float imageHeight = 15;
+        Color blueColor = new DeviceRgb(0, 0, 255);
 
         table.addCell("순번");
         table.addCell("이름");
@@ -124,8 +127,19 @@ public class PdfGenerator {
             } else {
                 table.addCell(new Cell());
             }
-            String createdDate = attendee.getCreatedDate() != null ? attendee.getCreatedDate().toString() : " ";
-            table.addCell(createdDate);
+            if (attendee.getModifiedDate() != null) {
+                LocalTime attendLocalTime = attendee.getModifiedDate().toLocalTime();
+                String attendTime = attendLocalTime.toString();
+                attendTime = attendTime.substring(0, 5);
+                if (attendLocalTime.isAfter(LocalTime.parse(eventSchedule.getEventStartTime()))) {
+                    Cell cell = new Cell();
+                    cell.add(new Paragraph(attendTime).setFontColor(blueColor));
+                    table.addCell(cell);
+                } else {
+                    table.addCell(attendTime);
+                }
+            } else
+                table.addCell("  ");
         }
         for (int j = 0; j < 4; j++)
             table.addCell(" ");
