@@ -60,7 +60,7 @@ public class PdfGenerator {
             document.setTextAlignment(TextAlignment.CENTER);
             document.add(new Paragraph(eventName + " - " + (i + 1) + "회차(" + eventSchedule.getEventDate() + ")").setFontSize(16).setFont(boldFont));
 
-            table = new Table(6);
+            table = new Table(5);
             table.setWidth(UnitValue.createPercentValue(100));
             table.setHorizontalAlignment(HorizontalAlignment.CENTER);
             table.setFont(font);
@@ -82,7 +82,7 @@ public class PdfGenerator {
         table.addCell("이름");
         table.addCell("학과");
         table.addCell("학번/사번");
-        table.addCell("출석률(%)");
+        table.addCell("출석횟수");
 
         int n = 0;
         for (EventAttendanceList attendee : eventSchedules.get(0).getEventAttendanceLists()) {
@@ -90,12 +90,10 @@ public class PdfGenerator {
             table.addCell(attendee.getName());
             table.addCell(attendee.getMajor());
             table.addCell(String.valueOf(attendee.getStudentNumber()));
-            if (attendee.getAttendanceRate() <= 60){
-                Cell cell = new Cell();
-                cell.add(new Paragraph(String.valueOf(attendee.getAttendanceRate())).setFontColor(redColor));
-                table.addCell(cell);
-            } else
-                table.addCell(String.valueOf(attendee.getAttendanceRate()));
+            int times = 0;
+            if (attendee.isAttendance())
+                times++;
+            table.addCell( String.valueOf(times)+ " / " + String.valueOf(eventSchedules.size()));
         }
         return table;
     }
@@ -110,7 +108,6 @@ public class PdfGenerator {
         table.addCell("학과");
         table.addCell("학번/사번");
         table.addCell("서명");
-        table.addCell("출석 시간");
 
         int n = 0;
         int numOfAttendance = 0;
@@ -127,24 +124,11 @@ public class PdfGenerator {
             } else {
                 table.addCell(new Cell());
             }
-            if (attendee.getModifiedDate() != null) {
-                LocalTime attendLocalTime = attendee.getModifiedDate().toLocalTime();
-                String attendTime = attendLocalTime.toString();
-                attendTime = attendTime.substring(0, 5);
-                if (attendLocalTime.isAfter(LocalTime.parse(eventSchedule.getEventStartTime()))) {
-                    Cell cell = new Cell();
-                    cell.add(new Paragraph(attendTime).setFontColor(blueColor));
-                    table.addCell(cell);
-                } else {
-                    table.addCell(attendTime);
-                }
-            } else
-                table.addCell("  ");
         }
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 3; j++)
             table.addCell(" ");
         table.addCell("출석자 수");
-        table.addCell(String.valueOf(numOfAttendance));
+        table.addCell(String.valueOf(numOfAttendance) + " / " + String.valueOf(n));
 
         return table;
     }
