@@ -2,6 +2,7 @@ package checkmate.com.checkmate.global.component;
 
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -38,8 +39,10 @@ public class PdfGenerator {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf, PageSize.A4);
 
-        PdfFont font = PdfFontFactory.createFont("src/main/java/checkmate/com/checkmate/global/NanumGothic.otf", "Identity-H", true);
-        PdfFont boldFont = PdfFontFactory.createFont("src/main/java/checkmate/com/checkmate/global/NanumGothic.otf", "Identity-H", true);
+        String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
+        String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
+        PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);
+        PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
 
         document.setTextAlignment(TextAlignment.CENTER);
         document.add(new Paragraph(eventName + " 전체 출석 현황").setFontSize(16).setFont(boldFont));
