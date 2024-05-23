@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.eventattendanceList.service;
 
+import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
@@ -7,11 +8,12 @@ import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttend
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.global.ExcelReader;
-import checkmate.com.checkmate.global.codes.ErrorCode;
+import checkmate.com.checkmate.global.component.ExcelReader;
+import checkmate.com.checkmate.global.component.PdfGenerator;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
+import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +43,10 @@ public class EventAttendanceListService {
     private final S3Uploader s3Uploader;
     @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final PdfGenerator pdfGenerator;
+    @Autowired
+    private final EmailSender emailSender;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
@@ -59,19 +63,20 @@ public class EventAttendanceListService {
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             else
                 return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
-
         }
     }
 
     @Transactional
     public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
         EventAttendanceList eventAttendanceList = eventAttendanceListRepository.findByEventAttendanceListId(studentInfoId);
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        int numOfEvents = event.getEventSchedules().size();
         if (eventAttendanceList == null)
             throw new GeneralException(STUDENT_NOT_FOUND);
         String imageUrl = null;
         if (signImage != null) {
             imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/" + String.valueOf(eventId) + "/sign");
-            eventAttendanceList.updateAttendance(imageUrl);
+            eventAttendanceList.updateAttendance(imageUrl, numOfEvents);
         }
         else
             throw new GeneralException(IMAGE_IS_NULL);
@@ -87,6 +92,18 @@ public class EventAttendanceListService {
         }
         return eventAttendanceLists;
     }
+
+    public void sendAttendanceList(Long userId, Long eventId) throws IOException {
+        User user = userRepository.findByUserId(userId);
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        String eventTitle = event.getEventTitle();
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        MultipartFile attendanceListMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
+        emailSender.sendEmailWithFile(user, event, attendanceListMultipartFile);
+        String attendanceListUrl = s3Uploader.saveFile(attendanceListMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
+        event.updateAttendanceListFileAferEvent(attendanceListUrl);
+    }
+
 
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = File.createTempFile(file.getOriginalFilename(), null);

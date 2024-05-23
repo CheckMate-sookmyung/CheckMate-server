@@ -1,4 +1,4 @@
-package checkmate.com.checkmate.global;
+package checkmate.com.checkmate.global.component;
 
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
@@ -23,10 +23,10 @@ public class ExcelReader {
         List<EventAttendanceList> eventAttendanceLists = new ArrayList<>();
 
         Workbook workbook = WorkbookFactory.create(attendanceFile);
-        Sheet sheet = workbook.getSheetAt(0); // 첫 번째 시트 가져오기
+        Sheet sheet = workbook.getSheetAt(0);
 
         Iterator<Row> rowIterator = sheet.iterator();
-        Row headerRow = rowIterator.next(); // 첫 번째 행(헤더) 가져오기
+        Row headerRow = rowIterator.next();
 
         // 각 열의 인덱스 저장
         int nameIndex = -1;
@@ -35,7 +35,6 @@ public class ExcelReader {
         int phoneNumberIndex = -1;
         int emailIndex = -1;
 
-        // 헤더 행의 각 셀을 순회하면서 필드 인덱스 찾기
         Iterator<Cell> cellIterator = headerRow.cellIterator();
         while (cellIterator.hasNext()) {
             Cell cell = cellIterator.next();
@@ -61,7 +60,6 @@ public class ExcelReader {
         }
 
         try {
-            // 데이터 행을 읽어와서 DB에 저장하기
             while (rowIterator.hasNext()) {
                 EventAttendanceList attendanceList = null;
                 Row row = rowIterator.next();
@@ -71,7 +69,6 @@ public class ExcelReader {
                 String phoneNumber = "";
                 String email = "";
 
-                // 전화번호와 이메일이 있는 경우에만 값을 가져오도록 함
                 if (phoneNumberIndex != -1) {
                     Cell phoneCell = row.getCell(phoneNumberIndex);
                     if (phoneCell != null) {
@@ -86,7 +83,6 @@ public class ExcelReader {
                     }
                 }
 
-                // 여기서 각 필드 값을 사용하여 EventAttendanceList 객체 생성
                 attendanceList = EventAttendanceList.builder()
                         .name(name)
                         .studentNumber(studentNumber)

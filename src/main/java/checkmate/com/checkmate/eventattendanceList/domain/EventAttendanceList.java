@@ -25,6 +25,7 @@ public class EventAttendanceList extends BaseTimeEntity {
     private String email;
     private boolean attendance;
     private String sign;
+    private int attendanceRate;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name="eventSchedule_id")
@@ -39,10 +40,12 @@ public class EventAttendanceList extends BaseTimeEntity {
         this.email = email;
         this.eventSchedule = eventSchedule;
         this.attendance = false;
+        this.attendanceRate = 0;
     }
 
-    public void updateAttendance(String imageUrl){
+    public void updateAttendance(String imageUrl, int numOfEvents){
         this.sign = imageUrl;
         this.attendance = true;
+        this.attendanceRate += ( 100 / numOfEvents );
     }
 }

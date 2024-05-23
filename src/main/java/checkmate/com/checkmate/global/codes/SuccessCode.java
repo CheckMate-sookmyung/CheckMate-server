@@ -33,7 +33,8 @@ public enum SuccessCode {
     ATTENDANCE_CHECK_SUCCESS(HttpStatus.OK,"출석 체크에 성공하였습니다."),
 
     //출석명단
-    GET_ATTENDANCE_LIST_SUCCESS(HttpStatus.OK, "출석명단 조회에 성공하였습니다.")
+    GET_ATTENDANCE_LIST_SUCCESS(HttpStatus.OK, "출석명단 조회에 성공하였습니다."),
+    SEND_ATTENDACE_LIST_SUCCESS(HttpStatus.OK, "출석명단 전송에 성공하였습니다.")
     ;
 
     private final HttpStatus httpStatus;

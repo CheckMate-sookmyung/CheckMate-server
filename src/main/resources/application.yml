@@ -7,7 +7,7 @@ spring:
       hibernate.format_sql: true
 
   profiles:
-    include: db, s3
+    include: db, s3, email
 
   servlet:
     multipart:
@@ -17,8 +17,3 @@ spring:
 server:
   tomcat:
     max-http-form-post-size: 50GB
-
-
-logging:
-  file:
-    name: log/attendanceCheckTest.log

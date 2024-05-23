@@ -12,11 +12,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static checkmate.com.checkmate.global.codes.SuccessCode.ATTENDANCE_CHECK_SUCCESS;
-import static checkmate.com.checkmate.global.codes.SuccessCode.GET_STUDENT_INFO_SUCCESS;
+import java.io.IOException;
+
+import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -35,14 +37,14 @@ public class EventAttendanceListController {
     private final EventAttendanceListService eventAttendanceListService;
 
     @ResponseBody
-    @GetMapping(value = "/check/{userId}/{eventId}/{studentNumber}")
+    @GetMapping(value = "/check/{userId}/{eventId}")
     @Operation(summary = "출석체크")
-    public BaseResponseDto<StudentInfoResponseDto> getStudentInfo(@PathVariable("userId") Long userId,
-                                                                  @PathVariable("eventId") Long eventId,
-                                                                  @PathVariable("studentNumber") int studentNumber,
-                                                                  @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
+    public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
+                                            @PathVariable("eventId") Long eventId,
+                                            @RequestParam("studentNumber") int studentNumber,
+                                            @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
         StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfo(userId, eventId, studentNumber, eventDate);
-        return BaseResponseDto.ofSuccess(GET_STUDENT_INFO_SUCCESS, studentInfo);
+        return ResponseEntity.ok(studentInfo);
     }
 
     @ResponseBody
@@ -54,5 +56,14 @@ public class EventAttendanceListController {
                                       @RequestPart(value = "signImage") MultipartFile signImage) {
         eventAttendanceListService.postSign(userId, eventId, studentInfoId, signImage);
         return BaseResponseDto.ofSuccess(ATTENDANCE_CHECK_SUCCESS);
+    }
+
+    @ResponseBody
+    @GetMapping(value="/list/{userId}/{eventId}")
+    @Operation(summary="출석명단 전송")
+    public BaseResponseDto<?> sendAttendanceList(@PathVariable("userId") Long userId,
+                                                @PathVariable("eventId") Long eventId) throws IOException {
+        eventAttendanceListService.sendAttendanceList(userId, eventId);
+        return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
     }
 }
