@@ -29,6 +29,10 @@ jobs:
       - name : Set up S3 file
         run : echo "${{ secrets.DEV_S3 }}" > ./src/main/resources/application-s3.yml
 
+      - name : Set up Email file
+        run : echo "${{ secrets.DEV_EMAIL }}" > ./src/main/resources/application-email.yml
+
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
