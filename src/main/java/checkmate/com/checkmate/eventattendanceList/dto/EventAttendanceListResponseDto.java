@@ -15,6 +15,8 @@ public class EventAttendanceListResponseDto {
     private final String studentName;
     private final int studentNumber;
     private final String major;
+    private final String phoneNumber;
+    private final String email;
     private final boolean attendance;
     private final String sign;
     private final LocalDateTime createdDate;
@@ -24,6 +26,8 @@ public class EventAttendanceListResponseDto {
                 eventAttendanceList.getName(),
                 eventAttendanceList.getStudentNumber(),
                 eventAttendanceList.getMajor(),
+                eventAttendanceList.getPhoneNumber(),
+                eventAttendanceList.getEmail(),
                 eventAttendanceList.isAttendance(),
                 eventAttendanceList.getSign(),
                 eventAttendanceList.getCreatedDate());
