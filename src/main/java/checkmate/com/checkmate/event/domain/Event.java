@@ -3,6 +3,7 @@ package checkmate.com.checkmate.event.domain;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.BaseTimeEntity;
+import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +28,9 @@ public class Event extends BaseTimeEntity {
     private String eventTitle;
 
     private String eventDetail;
+
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
 
     private String eventImage;
 
