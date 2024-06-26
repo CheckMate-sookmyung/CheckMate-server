@@ -8,6 +8,7 @@ import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttend
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
+import checkmate.com.checkmate.global.component.ExcelGenerator;
 import checkmate.com.checkmate.global.component.ExcelReader;
 import checkmate.com.checkmate.global.component.PdfGenerator;
 import checkmate.com.checkmate.global.config.S3Uploader;
@@ -47,6 +48,8 @@ public class EventAttendanceListService {
     private final PdfGenerator pdfGenerator;
     @Autowired
     private final EmailSender emailSender;
+    @Autowired
+    private final ExcelGenerator excelGenerator;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
@@ -98,10 +101,15 @@ public class EventAttendanceListService {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-        MultipartFile attendanceListMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
-        emailSender.sendEmailWithFile(user, event, attendanceListMultipartFile);
-        String attendanceListUrl = s3Uploader.saveFile(attendanceListMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
-        event.updateAttendanceListFileAferEvent(attendanceListUrl);
+        MultipartFile attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
+        MultipartFile attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules);
+        List<MultipartFile> files = new ArrayList<>();
+        files.add(attendanceListEachMultipartFile);
+        files.add(attendanceListTotalMultipartFile);
+        emailSender.sendEmailWithFile(user, event, files);
+        String attendanceListEachUrl = s3Uploader.saveFile(attendanceListEachMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
+        String attendanceTotalListUrl = s3Uploader.saveFile(attendanceListTotalMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
+        event.updateAttendanceListFileAferEvent(attendanceListEachUrl, attendanceTotalListUrl);
     }
 
 
