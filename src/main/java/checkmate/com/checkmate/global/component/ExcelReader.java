@@ -50,10 +50,10 @@ public class ExcelReader {
                 case "학과":
                     majorIndex = cell.getColumnIndex();
                     break;
-                case "전화번호":
+                case "휴대전화번호":
                     phoneNumberIndex = cell.getColumnIndex();
                     break;
-                case "이메일":
+                case "이메일주소":
                     emailIndex = cell.getColumnIndex();
                     break;
             }
