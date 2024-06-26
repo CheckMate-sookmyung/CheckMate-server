@@ -19,6 +19,7 @@ public class EventRequestDto {
     private final String eventTitle;
     private final String eventDetail;
     private final List<EventScheduleRequestDto> eventSchedules;
+    private final int minCompletionTimes;
     private final Boolean alarmRequest;
 
     public Event toEntity(User user){
@@ -26,6 +27,7 @@ public class EventRequestDto {
                 .user(user)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
+                .minCompletionTimes(minCompletionTimes)
                 .build();
     }
 }

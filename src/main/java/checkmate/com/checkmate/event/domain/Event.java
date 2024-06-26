@@ -40,6 +40,8 @@ public class Event extends BaseTimeEntity {
 
     private Boolean alarmResponse;
 
+    private int minCompletionTimes;
+
     private String afterAttendanceListFile;
 
     @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
@@ -50,10 +52,11 @@ public class Event extends BaseTimeEntity {
     private User user;
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, boolean alarmRequest,User user){
+    public Event(final String eventTitle, String eventDetail, int minCompletionTimes, boolean alarmRequest,User user){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
+        this.minCompletionTimes = minCompletionTimes;
         this.alarmResponse = false;
         this.user = user;
     }
