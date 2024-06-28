@@ -62,7 +62,7 @@ public class EventAttendanceListService {
             EventAttendanceList studentInfoFromEventAttendance = eventAttendanceListRepository.findByEventIdAndStudentNumber(eventSheduleId, studentId);
             if (studentInfoFromEventAttendance == null)
                 throw new GeneralException(STUDENT_NOT_FOUND);
-            else if (studentInfoFromEventAttendance.isAttendance())
+            else if (!studentInfoFromEventAttendance.getSign().isEmpty())
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             else
                 return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
@@ -102,7 +102,8 @@ public class EventAttendanceListService {
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         MultipartFile attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
-        MultipartFile attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules);
+        int completion = event.getMinCompletionTimes();
+        MultipartFile attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules, completion);
         List<MultipartFile> files = new ArrayList<>();
         files.add(attendanceListEachMultipartFile);
         files.add(attendanceListTotalMultipartFile);
