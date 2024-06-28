@@ -25,7 +25,7 @@ public class EmailSender {
 
             helper.setTo(user.getUserMail());
             helper.setSubject("체크메이트 : ["+event.getEventTitle() + "] 참석자 명단");
-            helper.setText("안녕하세요. " + user.getUserName()+"님\n"+"체크메이트에서 보내드리는 " + event.getEventTitle() + " 참석자 명단 이메일입니다. \n 감사합니다.");
+            helper.setText("안녕하세요. " + user.getUserName()+"님\n"+"체크메이트에서 보내드리는 " + event.getEventTitle() + " 참석자 명단 이메일입니다. \n감사합니다.");
             for (MultipartFile file : files) {
                 helper.addAttachment(file.getOriginalFilename(), new ByteArrayResource(file.getBytes()));
             }

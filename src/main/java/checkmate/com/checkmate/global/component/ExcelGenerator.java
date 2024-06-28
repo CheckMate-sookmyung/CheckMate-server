@@ -3,15 +3,15 @@ package checkmate.com.checkmate.global.component;
 
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
-import com.amazonaws.util.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ExcelGenerator {
@@ -21,67 +21,77 @@ public class ExcelGenerator {
         this.workbookToMultipartFileConverter = workbookToMultipartFileConverter;
     }
 
-    public MultipartFile generateExcel(String eventName, List<EventSchedule> eventSchedules) {
+    public MultipartFile generateExcel(String eventName, List<EventSchedule> eventSchedules, int completion) {
         Workbook workbook = new XSSFWorkbook();
         try {
+            Sheet sheet = workbook.createSheet(eventName + " 참석자 명단");
+
+            Row headerRow = sheet.createRow(0);
+            String[] baseColumns = {"이름", "학과", "학번"};
+            for (int j = 0; j < baseColumns.length; j++) {
+                Cell cell = headerRow.createCell(j);
+                cell.setCellValue(baseColumns[j]);
+            }
+            for (int i = 0; i < eventSchedules.size(); i++) {
+                Cell cell = headerRow.createCell(baseColumns.length + i);
+                cell.setCellValue((i + 1) + "회차");
+            }
+            Cell totalAttendanceCell = headerRow.createCell(baseColumns.length + eventSchedules.size());
+            totalAttendanceCell.setCellValue("이수여부");
+
+            Map<String, String[]> attendanceMap = new HashMap<>();
+
             for (int i = 0; i < eventSchedules.size(); i++) {
                 EventSchedule eventSchedule = eventSchedules.get(i);
-                String sheetName = (i + 1) + "회차(" + eventSchedule.getEventDate() + ")";
-                Sheet sheet = workbook.createSheet(sheetName);
-
-                Row headerRow = sheet.createRow(0);
-                String[] columns = {"이름", "학과", "학번", "참석여부", "출석시간", "싸인"};
-                for (int j = 0; j < columns.length; j++) {
-                    Cell cell = headerRow.createCell(j);
-                    cell.setCellValue(columns[j]);
-                }
-
                 List<EventAttendanceList> attendanceLists = eventSchedule.getEventAttendanceLists();
-                int rowNum = 1;
                 for (EventAttendanceList attendance : attendanceLists) {
-                    Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(attendance.getName());
-                    row.createCell(1).setCellValue(attendance.getMajor());
-                    row.createCell(2).setCellValue(attendance.getStudentNumber());
-                    row.createCell(3).setCellValue(attendance.isAttendance() ? "O" : "X");
-                    row.createCell(4).setCellValue(attendance.getCreatedDate());
-
-/*                    if (attendance.getSign() != null && !attendance.getSign().isEmpty()) {
-                        try {
-                            URL signUrl = new URL(attendance.getSign());
-                            byte[] bytes = IOUtils.toByteArray(signUrl.openStream());
-                            int pictureIdx = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
-                            CreationHelper helper = workbook.getCreationHelper();
-                            Drawing<?> drawing = sheet.createDrawingPatriarch();
-                            ClientAnchor anchor = helper.createClientAnchor();
-                            anchor.setCol1(5);
-                            anchor.setRow1(rowNum - 1);
-                            anchor.setCol2(6);
-                            anchor.setRow2(rowNum);
-                            Picture pict = drawing.createPicture(anchor, pictureIdx);
-                            pict.resize(7,14);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }*/
+                    String key = attendance.getName() + "_" + attendance.getStudentNumber();
+                    if (!attendanceMap.containsKey(key)) {
+                        String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
+                        info[0] = attendance.getName();
+                        info[1] = attendance.getMajor();
+                        info[2] = String.valueOf(attendance.getStudentNumber());
+                        attendanceMap.put(key, info);
+                    }
+                    String[] info = attendanceMap.get(key);
+                    info[baseColumns.length + i] = attendance.isAttendance() ? "O" : "X";
                 }
-
             }
+
+            int rowNum = 1;
+            for (String[] info : attendanceMap.values()) {
+                int attendanceCount = 0;
+                for (int j = baseColumns.length; j < baseColumns.length + eventSchedules.size(); j++) {
+                    if ("O".equals(info[j])) {
+                        attendanceCount++;
+                    }
+                }
+                info[baseColumns.length + eventSchedules.size()] = attendanceCount >= completion ? "이수" : "미이수";
+
+                Row row = sheet.createRow(rowNum++);
+                for (int j = 0; j < info.length; j++) {
+                    Cell cell = row.createCell(j);
+                    cell.setCellValue(info[j]);
+                }
+            }
+
             String fileName = eventName + "_참석자명단_전체.xlsx";
             try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
                 workbook.write(outputStream);
-                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, eventName+"_참석자명단.xlsx");
+                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, eventName + "_참석자명단.xlsx");
                 return attendanceListMultipartFile;
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                workbook.close(); // Workbook 닫기
+                workbook.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
+
+
 }
