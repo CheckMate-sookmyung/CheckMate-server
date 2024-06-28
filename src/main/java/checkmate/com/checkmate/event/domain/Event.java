@@ -42,7 +42,9 @@ public class Event extends BaseTimeEntity {
 
     private int minCompletionTimes;
 
-    private String afterAttendanceListFile;
+    private String afterAttendanceListEachFile;
+
+    private String afterAttendanceListTotalFile;
 
     @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
     private List<EventSchedule> eventSchedules = new ArrayList<>();
@@ -52,11 +54,12 @@ public class Event extends BaseTimeEntity {
     private User user;
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, int minCompletionTimes, boolean alarmRequest,User user){
+    public Event(final String eventTitle, String eventDetail, int minCompletionTimes, EventType eventType, boolean alarmRequest,User user){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
         this.minCompletionTimes = minCompletionTimes;
+        this.eventType = eventType;
         this.alarmResponse = false;
         this.user = user;
     }
@@ -80,8 +83,9 @@ public class Event extends BaseTimeEntity {
         this.alarmResponse = true;
     }
 
-    public void updateAttendanceListFileAferEvent(String fileUrl){
-        this.afterAttendanceListFile = fileUrl;
+    public void updateAttendanceListFileAferEvent(String eachFileUrl, String totalFileUrl){
+        this.afterAttendanceListEachFile = eachFileUrl;
+        this.afterAttendanceListTotalFile = totalFileUrl;
     }
 
 }

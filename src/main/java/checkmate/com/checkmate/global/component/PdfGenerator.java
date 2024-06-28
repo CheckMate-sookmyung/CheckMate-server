@@ -39,31 +39,23 @@ public class PdfGenerator {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf, PageSize.A4);
 
+        /* Local Test
+        String fontPath = "src/main/resources/NanumGothic.otf";
+        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
+        */
         String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
         String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
         PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);
         PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
 
-        document.setTextAlignment(TextAlignment.CENTER);
-        document.add(new Paragraph(eventName + " 전체 출석 현황").setFontSize(16).setFont(boldFont));
-
-        Table table = new Table(5);
-        table.setWidth(UnitValue.createPercentValue(100));
-        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
-        table.setFont(font);
-        table.setFontSize(8);
-        table.setTextAlignment(TextAlignment.CENTER);
-
-        document.add(createTotalAttendanceListPdf(table, eventSchedules));
-
-
         for (int i = 0; i < eventSchedules.size(); i++) {
-            document.add(new AreaBreak());
+            if (i>0)
+                document.add(new AreaBreak());
             EventSchedule eventSchedule = eventSchedules.get(i);
             document.setTextAlignment(TextAlignment.CENTER);
             document.add(new Paragraph(eventName + " - " + (i + 1) + "회차(" + eventSchedule.getEventDate() + ")").setFontSize(16).setFont(boldFont));
 
-            table = new Table(5);
+            Table table = new Table(5);
             table.setWidth(UnitValue.createPercentValue(100));
             table.setHorizontalAlignment(HorizontalAlignment.CENTER);
             table.setFont(font);
@@ -76,29 +68,6 @@ public class PdfGenerator {
 
         MultipartFile multipartFileOfPDF = convertDocumnetToMultipartFile(baos, eventName);
         return multipartFileOfPDF;
-    }
-
-    private static Table createTotalAttendanceListPdf(Table table, List<EventSchedule> eventSchedules) {
-        Color redColor = new DeviceRgb(255, 0, 0);
-
-        table.addCell("순번");
-        table.addCell("이름");
-        table.addCell("학과");
-        table.addCell("학번/사번");
-        table.addCell("출석횟수");
-
-        int n = 0;
-        for (EventAttendanceList attendee : eventSchedules.get(0).getEventAttendanceLists()) {
-            table.addCell(String.valueOf(++n));
-            table.addCell(attendee.getName());
-            table.addCell(attendee.getMajor());
-            table.addCell(String.valueOf(attendee.getStudentNumber()));
-            int times = 0;
-            if (attendee.isAttendance())
-                times++;
-            table.addCell( String.valueOf(times)+ " / " + String.valueOf(eventSchedules.size()));
-        }
-        return table;
     }
 
     private static Table createEachAttendanceListPdf(Table table, EventSchedule eventSchedule) throws MalformedURLException {
