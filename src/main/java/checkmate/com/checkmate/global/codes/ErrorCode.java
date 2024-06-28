@@ -38,7 +38,7 @@ public enum ErrorCode {
 
     //출석체크
     STUDENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 학생 정보입니다."),
-    STUDENT_ALREADY_CHECK(HttpStatus.ALREADY_REPORTED, "이미 출석체크한 학생입니다.");
+    STUDENT_ALREADY_CHECK(HttpStatus.CONFLICT, "이미 출석체크한 학생입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
