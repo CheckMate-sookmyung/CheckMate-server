@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedMethods(ALLOWED_METHOD_NAMES.split(","))
                 .exposedHeaders(HttpHeaders.LOCATION)
-                .allowedOrigins("https://check-mate-sookmyung-xi.vercel.app", "https://dev-check-mate-sookmyung-xi.vercel.app", "http://3.37.229.221/swagger-ui/index.html#/");
+                .allowedOrigins("*");
+        //.allowedOrigins("https://check-mate-sookmyung-xi.vercel.app", "https://dev-check-mate-sookmyung-xi.vercel.app", "http://3.37.229.221/swagger-ui/index.html#/");
     }
 
     @Component
