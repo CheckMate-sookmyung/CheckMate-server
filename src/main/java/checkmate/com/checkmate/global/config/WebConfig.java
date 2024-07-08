@@ -18,11 +18,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedMethods(ALLOWED_METHOD_NAMES.split(","))
-                .exposedHeaders(HttpHeaders.LOCATION)
+                //.exposedHeaders("*")
                 .allowedOrigins("*");
-        //.allowedOrigins("https://check-mate-sookmyung-xi.vercel.app", "https://dev-check-mate-sookmyung-xi.vercel.app", "http://3.37.229.221/swagger-ui/index.html#/");
+                //.allowCredentials(true)
+                //.maxAge(3600);
     }
 
     @Component
