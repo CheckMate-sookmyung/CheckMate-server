@@ -2,6 +2,7 @@ package checkmate.com.checkmate.event.controller;
 
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
+import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
@@ -126,6 +127,23 @@ public class EventController {
                                                @PathVariable("eventId") Long eventId){
         List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
         return ResponseEntity.ok(eventAttendanceList);
+    }
+
+    @ResponseBody
+    @PostMapping(value="/manager/{userId}/{eventId}")
+    @Operation(summary = "행사 담당자 등록")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventScheduleResponseDto.class))),
+            }
+    )
+    public BaseResponseDto<?> registerManager(@PathVariable("userId") Long userId,
+                                             @PathVariable("eventId") Long eventId,
+                                             @RequestPart(value="manager") EventManagerRequestDto eventManagerRequestDto){
+        eventService.registerManager(userId, eventId, eventManagerRequestDto);
+        return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
+
+
     }
 
 }

@@ -4,6 +4,7 @@ import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
+import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
@@ -204,5 +205,11 @@ public class EventService {
             return eventScheduleResponseDtos;
 
         }
+    }
+
+    public void registerManager(Long userId, Long eventId, EventManagerRequestDto eventManagerRequestDto) {
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());
+        eventRepository.save(event);
     }
 }

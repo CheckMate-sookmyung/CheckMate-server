@@ -27,6 +27,7 @@ public enum SuccessCode {
     GET_EVENT_LIST_SUCCESS(HttpStatus.OK, "행사 목록 조회에 성공하였습니다."),
     MODIFY_EVENT_SUCCESS(HttpStatus.OK, "행사 수정에 성공하였습니다."),
     DELETE_EVENT_SUCCESS(HttpStatus.OK, "행사 삭제에 성공하였습니다."),
+    REGISTER_EVENT_MANAGER_SUCCESS(HttpStatus.OK, "행사 담당자 등록에 성공하였습니다."),
 
     //출석체크
     GET_STUDENT_INFO_SUCCESS(HttpStatus.OK, "학생 정보 조회에 성공하였습니다."),
