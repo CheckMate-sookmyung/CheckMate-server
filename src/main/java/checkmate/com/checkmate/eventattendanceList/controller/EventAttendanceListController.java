@@ -1,11 +1,14 @@
 package checkmate.com.checkmate.eventattendanceList.controller;
 
+import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
+import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,14 +24,13 @@ import java.io.IOException;
 import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/attendance")
 @Tag(name="출석체크", description="출석체크를 할 수 있습니다.")
 @ApiResponses(
         value = {
-                @ApiResponse(responseCode = "200"),
-                @ApiResponse(responseCode = "404", content = @Content)
+                @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
         }
 )
 public class EventAttendanceListController {
@@ -39,6 +41,11 @@ public class EventAttendanceListController {
     @ResponseBody
     @GetMapping(value = "/check/{userId}/{eventId}")
     @Operation(summary = "출석체크")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentInfoResponseDto.class))),
+            }
+    )
     public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("studentNumber") int studentNumber,
@@ -50,6 +57,11 @@ public class EventAttendanceListController {
     @ResponseBody
     @PostMapping(value = "/sign/{userId}/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "전자서명")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+            }
+    )
     public BaseResponseDto<?> postSign(@PathVariable("userId") Long userId,
                                       @PathVariable("eventId") Long eventId,
                                       @PathVariable("studentInfoId") Long studentInfoId,
@@ -61,6 +73,11 @@ public class EventAttendanceListController {
     @ResponseBody
     @GetMapping(value="/list/{userId}/{eventId}")
     @Operation(summary="출석명단 전송")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+            }
+    )
     public BaseResponseDto<?> sendAttendanceList(@PathVariable("userId") Long userId,
                                                 @PathVariable("eventId") Long eventId) throws IOException {
         eventAttendanceListService.sendAttendanceList(userId, eventId);
