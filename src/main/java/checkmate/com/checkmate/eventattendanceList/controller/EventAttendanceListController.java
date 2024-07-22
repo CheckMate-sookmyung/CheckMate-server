@@ -75,13 +75,27 @@ public class EventAttendanceListController {
 
     @ResponseBody
     @GetMapping(value="/list/{userId}/{eventId}")
-    @Operation(summary="출석명단 전송")
+    @Operation(summary="출석명단 다운")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content),
             }
     )
-    public BaseResponseDto<?> sendAttendanceList(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> sendAttendanceListManually(@PathVariable("userId") Long userId,
+                                                 @PathVariable("eventId") Long eventId) throws IOException {
+        String eventAttendanceListUrl = eventAttendanceListService.downloadAttendanceList(userId, eventId);
+        return ResponseEntity.ok(eventAttendanceListUrl);
+    }
+
+    @ResponseBody
+    //@GetMapping(value="/list/{userId}/{eventId}")
+    @Operation(summary="출석명단 자동 전송")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+            }
+    )
+    public BaseResponseDto<?> sendAttendanceListAutomatically(@PathVariable("userId") Long userId,
                                                 @PathVariable("eventId") Long eventId) throws IOException {
         eventAttendanceListService.sendAttendanceList(userId, eventId);
         return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
