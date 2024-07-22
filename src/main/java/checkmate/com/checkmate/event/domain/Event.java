@@ -50,6 +50,12 @@ public class Event extends BaseTimeEntity {
 
     private String afterAttendanceListTotalFile;
 
+    private String managerName;
+
+    private String managerPhoneNumber;
+
+    private String managerEmail;
+
     @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
     private List<EventSchedule> eventSchedules = new ArrayList<>();
 
@@ -96,6 +102,12 @@ public class Event extends BaseTimeEntity {
 
     public void updateAttendanceListFileBetweenEvent(String eachFileUrl){
         this.afterAttendanceListEachFile = eachFileUrl;
+    }
+
+    public void registerEventManager(String managerName, String managerPhoneNumber, String managerEmail){
+        this.managerName = managerName;
+        this.managerPhoneNumber = managerPhoneNumber;
+        this.managerEmail = managerEmail;
     }
 
 }

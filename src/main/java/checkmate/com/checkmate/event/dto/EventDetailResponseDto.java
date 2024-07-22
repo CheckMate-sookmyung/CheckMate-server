@@ -26,6 +26,9 @@ public class EventDetailResponseDto {
     private final List<EventScheduleResponseDto> eventSchedules;
     private final boolean alaramRequest;
     private final boolean alarmResponse;
+    private final String managerName;
+    private final String managerPhoneNumber;
+    private final String managerEmail;
     public static EventDetailResponseDto of(Event event) {
         List<EventScheduleResponseDto> EventSchedulesDto = event.getEventSchedules().stream()
                 .map(EventScheduleResponseDto::of)
@@ -39,7 +42,10 @@ public class EventDetailResponseDto {
                 event.getEventTarget(),
                 EventSchedulesDto,
                 event.getAlarmRequest(),
-                event.getAlarmResponse()
+                event.getAlarmResponse(),
+                event.getManagerName(),
+                event.getManagerPhoneNumber(),
+                event.getManagerEmail()
         );
     }
 }
