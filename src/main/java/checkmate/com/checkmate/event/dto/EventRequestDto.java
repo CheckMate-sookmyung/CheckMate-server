@@ -31,6 +31,7 @@ public class EventRequestDto {
                 .user(user)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
+                .eventType(eventType)
                 .minCompletionTimes(minCompletionTimes)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
