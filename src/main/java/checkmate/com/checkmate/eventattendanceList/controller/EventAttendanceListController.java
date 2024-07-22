@@ -1,6 +1,8 @@
 package checkmate.com.checkmate.eventattendanceList.controller;
 
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListRequestDto;
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 
@@ -82,5 +85,20 @@ public class EventAttendanceListController {
                                                 @PathVariable("eventId") Long eventId) throws IOException {
         eventAttendanceListService.sendAttendanceList(userId, eventId);
         return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
+    }
+
+    @ResponseBody
+    @PutMapping(value="/list/{userId}/{eventId}")
+    @Operation(summary = "출석명단 수정")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+            }
+    )
+    public ResponseEntity<?> updateAttendanceList(@PathVariable("userId") Long userId,
+                                                   @PathVariable("eventId") Long eventId,
+                                                   @RequestPart("attendanceList") List<EventAttendanceListRequestDto> eventAttendanceListRequestDto){
+        List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = eventAttendanceListService.updateAttendanceList(userId, eventId, eventAttendanceListRequestDto);
+        return ResponseEntity.ok(eventAttendanceListResponseDtos);
     }
 }

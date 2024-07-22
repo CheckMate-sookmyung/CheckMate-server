@@ -43,9 +43,17 @@ public class EventAttendanceList extends BaseTimeEntity {
         this.attendanceRate = 0;
     }
 
-    public void updateAttendance(String imageUrl, int numOfEvents){
+    public void updateAttendanceByAttendanceCheck(String imageUrl, int numOfEvents){
         this.sign = imageUrl;
         this.attendance = true;
         this.attendanceRate += ( 100 / numOfEvents );
+    }
+
+    public void updateAttendanceByManager(boolean attendance, int numOfEvents){
+        this.attendance = attendance;
+        if (attendance == true)
+            this.attendanceRate -= (100/numOfEvents);
+        else
+            this.attendanceRate += (100/numOfEvents);
     }
 }
