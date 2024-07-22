@@ -188,6 +188,7 @@ public class EventService {
         }
     }
 
+    @Transactional
     public List<EventScheduleResponseDto> getAttendanceList(Long userId, Long eventId){
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         if (eventSchedules.isEmpty())
@@ -207,6 +208,7 @@ public class EventService {
         }
     }
 
+    @Transactional
     public void registerManager(Long userId, Long eventId, EventManagerRequestDto eventManagerRequestDto) {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());

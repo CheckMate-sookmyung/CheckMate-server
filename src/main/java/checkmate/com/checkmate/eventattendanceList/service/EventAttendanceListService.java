@@ -54,7 +54,7 @@ public class EventAttendanceListService {
     private final ExcelGenerator excelGenerator;
 
     @Transactional
-    public StudentInfoResponseDto getStudentInfo(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
+    public StudentInfoResponseDto getStudentInfoByStudentNumber(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         if (event == null)
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -68,6 +68,27 @@ public class EventAttendanceListService {
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             else
                 return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+        }
+    }
+
+    @Transactional
+    public StudentInfoResponseDto getStudentInfoByPhoneNumberSuffix(Long userId, Long eventId, String phoneNumberSuffix, String eventDate) throws StudentAlreadyAttendedException {
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        if (event == null) {
+            throw new GeneralException(EVENT_NOT_FOUND);
+        } else {
+            String eventTitle = event.getEventTitle();
+            Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
+
+            EventAttendanceList studentInfoFromEventAttendance = eventAttendanceListRepository.findByEventIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
+
+            if (studentInfoFromEventAttendance == null) {
+                throw new GeneralException(STUDENT_NOT_FOUND);
+            } else if (studentInfoFromEventAttendance.isAttendance()) {
+                throw new GeneralException(STUDENT_ALREADY_CHECK);
+            } else {
+                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+            }
         }
     }
 
@@ -98,6 +119,7 @@ public class EventAttendanceListService {
         return eventAttendanceLists;
     }
 
+    @Transactional
     public String downloadAttendanceList(Long userId, Long eventId) throws IOException {
         User user = userRepository.findByUserId(userId);
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
@@ -140,6 +162,7 @@ public class EventAttendanceListService {
         return convFile;
     }
 
+    @Transactional
     public List<EventAttendanceListResponseDto> updateAttendanceList(Long userId, Long eventId, List<EventAttendanceListRequestDto> eventAttendanceListRequestDtos) {
         //eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
@@ -153,5 +176,6 @@ public class EventAttendanceListService {
         }
         return eventAttendanceListResponseDtos;
     }
+
 
 }
