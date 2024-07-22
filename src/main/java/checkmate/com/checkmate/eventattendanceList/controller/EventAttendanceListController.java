@@ -42,18 +42,34 @@ public class EventAttendanceListController {
     private final EventAttendanceListService eventAttendanceListService;
 
     @ResponseBody
-    @GetMapping(value = "/check/{userId}/{eventId}")
-    @Operation(summary = "출석체크")
+    @GetMapping(value = "/check/studentNumber/{userId}/{eventId}")
+    @Operation(summary = "출석체크(학번용)")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentInfoResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getStudentInfo(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getStudentInfoByStudentNumber(@PathVariable("userId") Long userId,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("studentNumber") int studentNumber,
                                             @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
-        StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfo(userId, eventId, studentNumber, eventDate);
+        StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfoByStudentNumber(userId, eventId, studentNumber, eventDate);
+        return ResponseEntity.ok(studentInfo);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/check/phoneNumber/{userId}/{eventId}")
+    @Operation(summary = "출석체크(전번용)")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentInfoResponseDto.class))),
+            }
+    )
+    public ResponseEntity<?> getStudentInfoByPhoneNumber(@PathVariable("userId") Long userId,
+                                            @PathVariable("eventId") Long eventId,
+                                            @RequestParam("phoneNumber") String phoneNumber,
+                                            @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
+        StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfoByPhoneNumberSuffix(userId, eventId, phoneNumber, eventDate);
         return ResponseEntity.ok(studentInfo);
     }
 
@@ -76,11 +92,6 @@ public class EventAttendanceListController {
     @ResponseBody
     @GetMapping(value="/list/{userId}/{eventId}")
     @Operation(summary="출석명단 다운")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
-            }
-    )
     public ResponseEntity<?> sendAttendanceListManually(@PathVariable("userId") Long userId,
                                                  @PathVariable("eventId") Long eventId) throws IOException {
         String eventAttendanceListUrl = eventAttendanceListService.downloadAttendanceList(userId, eventId);
@@ -106,7 +117,7 @@ public class EventAttendanceListController {
     @Operation(summary = "출석명단 수정")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventAttendanceListResponseDto.class))),
             }
     )
     public ResponseEntity<?> updateAttendanceList(@PathVariable("userId") Long userId,

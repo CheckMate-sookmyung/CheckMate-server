@@ -56,4 +56,11 @@ public class EventAttendanceList extends BaseTimeEntity {
         else
             this.attendanceRate += (100/numOfEvents);
     }
+
+    public String getPhoneNumberSuffix() {
+        if (phoneNumber != null && phoneNumber.length() >= 4) {
+            return phoneNumber.substring(phoneNumber.length() - 4);
+        }
+        return null;
+    }
 }
