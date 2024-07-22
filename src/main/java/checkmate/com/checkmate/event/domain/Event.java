@@ -4,6 +4,7 @@ import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.BaseTimeEntity;
 import checkmate.com.checkmate.global.domain.EventType;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,6 +33,9 @@ public class Event extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
+    @Enumerated(EnumType.STRING)
+    private EventTarget eventTarget;
+
     private String eventImage;
 
     private String beforeAttendanceListFile;
@@ -54,7 +58,7 @@ public class Event extends BaseTimeEntity {
     private User user;
 
     @Builder(toBuilder = true)
-    public Event(final String eventTitle, String eventDetail, int minCompletionTimes, EventType eventType, boolean alarmRequest,User user){
+    public Event(String eventTitle, String eventDetail, int minCompletionTimes, boolean alarmRequest, User user, EventType eventType, EventTarget eventTarget){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
@@ -62,6 +66,8 @@ public class Event extends BaseTimeEntity {
         this.eventType = eventType;
         this.alarmResponse = false;
         this.user = user;
+        this.eventType = eventType;
+        this.eventTarget = eventTarget;
     }
 
     public void update(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules, Boolean alarmResponse){

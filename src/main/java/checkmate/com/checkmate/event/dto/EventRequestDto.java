@@ -4,6 +4,7 @@ import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.domain.EventType;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.user.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class EventRequestDto {
     private final int minCompletionTimes;
     private final Boolean alarmRequest;
     private final EventType eventType;
+    private final EventTarget eventTarget;
 
     public Event toEntity(User user){
         return Event.builder()
@@ -31,6 +33,8 @@ public class EventRequestDto {
                 .eventDetail(eventDetail)
                 .eventType(eventType)
                 .minCompletionTimes(minCompletionTimes)
+                .eventType(eventType)
+                .eventTarget(eventTarget)
                 .build();
     }
 }
