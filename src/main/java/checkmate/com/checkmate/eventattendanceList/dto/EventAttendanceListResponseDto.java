@@ -12,6 +12,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
 public class EventAttendanceListResponseDto {
+    private final Long studentInfoId;
     private final String studentName;
     private final int studentNumber;
     private final String major;
@@ -23,6 +24,7 @@ public class EventAttendanceListResponseDto {
 
     public static EventAttendanceListResponseDto of(EventAttendanceList eventAttendanceList){
         return new EventAttendanceListResponseDto(
+                eventAttendanceList.getEventAttendanceListId(),
                 eventAttendanceList.getName(),
                 eventAttendanceList.getStudentNumber(),
                 eventAttendanceList.getMajor(),

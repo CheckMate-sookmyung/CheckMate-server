@@ -1,5 +1,7 @@
 package checkmate.com.checkmate.eventattendanceList.service;
 
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListRequestDto;
+import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
 import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
@@ -79,7 +81,7 @@ public class EventAttendanceListService {
         String imageUrl = null;
         if (signImage != null) {
             imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/" + String.valueOf(eventId) + "/sign");
-            eventAttendanceList.updateAttendance(imageUrl, numOfEvents);
+            eventAttendanceList.updateAttendanceByAttendanceCheck(imageUrl, numOfEvents);
         }
         else
             throw new GeneralException(IMAGE_IS_NULL);
@@ -120,6 +122,20 @@ public class EventAttendanceListService {
             fos.write(file.getBytes());
         }
         return convFile;
+    }
+
+    public List<EventAttendanceListResponseDto> updateAttendanceList(Long userId, Long eventId, List<EventAttendanceListRequestDto> eventAttendanceListRequestDtos) {
+        //eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        int numOfEvents = event.getEventSchedules().size();
+        List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = new ArrayList<>();
+        for (EventAttendanceListRequestDto eventAttendanceListrequestDto : eventAttendanceListRequestDtos) {
+            EventAttendanceList eventAttendanceList = eventAttendanceListRepository.findByEventAttendanceListId(eventAttendanceListrequestDto.getStudentInfoId());
+            eventAttendanceList.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace(), numOfEvents);
+            eventAttendanceListRepository.save(eventAttendanceList);
+            eventAttendanceListResponseDtos.add(EventAttendanceListResponseDto.of(eventAttendanceList));
+        }
+        return eventAttendanceListResponseDtos;
     }
 
 }
