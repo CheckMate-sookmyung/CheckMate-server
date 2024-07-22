@@ -39,10 +39,10 @@ public class PdfGenerator {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf, PageSize.A4);
 
+
         /* Local Test
         String fontPath = "src/main/resources/NanumGothic.otf";
-        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
-        */
+        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";*/
         String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
         String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
         PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);

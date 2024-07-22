@@ -98,6 +98,22 @@ public class EventAttendanceListService {
         return eventAttendanceLists;
     }
 
+    public String downloadAttendanceList(Long userId, Long eventId) throws IOException {
+        User user = userRepository.findByUserId(userId);
+        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        String eventTitle = event.getEventTitle();
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        MultipartFile attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
+        int completion = event.getMinCompletionTimes();
+        MultipartFile attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules, completion);
+        List<MultipartFile> files = new ArrayList<>();
+        files.add(attendanceListEachMultipartFile);
+        files.add(attendanceListTotalMultipartFile);
+        String attendanceListEachUrl = s3Uploader.saveFile(attendanceListEachMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
+        event.updateAttendanceListFileBetweenEvent(attendanceListEachUrl);
+        return attendanceListEachUrl;
+    }
+
     public void sendAttendanceList(Long userId, Long eventId) throws IOException {
         User user = userRepository.findByUserId(userId);
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);

@@ -94,4 +94,8 @@ public class Event extends BaseTimeEntity {
         this.afterAttendanceListTotalFile = totalFileUrl;
     }
 
+    public void updateAttendanceListFileBetweenEvent(String eachFileUrl){
+        this.afterAttendanceListEachFile = eachFileUrl;
+    }
+
 }
