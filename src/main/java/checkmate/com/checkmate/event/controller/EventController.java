@@ -132,11 +132,6 @@ public class EventController {
     @ResponseBody
     @PostMapping(value="/manager/{userId}/{eventId}")
     @Operation(summary = "행사 담당자 등록")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventScheduleResponseDto.class))),
-            }
-    )
     public BaseResponseDto<?> registerManager(@PathVariable("userId") Long userId,
                                              @PathVariable("eventId") Long eventId,
                                              @RequestPart(value="manager") EventManagerRequestDto eventManagerRequestDto){
