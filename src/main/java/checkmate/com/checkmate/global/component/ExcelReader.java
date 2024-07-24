@@ -64,7 +64,8 @@ public class ExcelReader {
                 EventAttendanceList attendanceList = null;
                 Row row = rowIterator.next();
                 String name = row.getCell(nameIndex).getStringCellValue();
-                int studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
+                //int studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
+                int studentNumber = 0;
                 String major = row.getCell(majorIndex).getStringCellValue();
                 String phoneNumber = "";
                 String email = "";
@@ -82,6 +83,15 @@ public class ExcelReader {
                         email = emailCell.getStringCellValue();
                     }
                 }
+
+
+                if (studentNumberIndex != -1) {
+                    Cell studentNumberCell = row.getCell(studentNumberIndex);
+                    if (studentNumberCell != null) {
+                        email = studentNumberCell.getStringCellValue();
+                    }
+                }
+                
 
                 attendanceList = EventAttendanceList.builder()
                         .name(name)
