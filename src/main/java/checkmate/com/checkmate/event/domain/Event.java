@@ -6,6 +6,7 @@ import checkmate.com.checkmate.global.BaseTimeEntity;
 import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.user.domain.User;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -50,10 +51,13 @@ public class Event extends BaseTimeEntity {
 
     private String afterAttendanceListTotalFile;
 
+    @Nullable
     private String managerName;
 
+    @Nullable
     private String managerPhoneNumber;
 
+    @Nullable
     private String managerEmail;
 
     @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
