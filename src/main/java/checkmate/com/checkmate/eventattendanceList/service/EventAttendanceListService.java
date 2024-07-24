@@ -67,12 +67,12 @@ public class EventAttendanceListService {
             else if (!studentInfoFromEventAttendance.getSign().isEmpty())
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             else
-                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle, studentInfoFromEventAttendance.getName());
         }
     }
 
     @Transactional
-    public StudentInfoResponseDto getStudentInfoByPhoneNumberSuffix(Long userId, Long eventId, String phoneNumberSuffix, String eventDate) throws StudentAlreadyAttendedException {
+    public List<StudentInfoResponseDto> getStudentInfoByPhoneNumberSuffix(Long userId, Long eventId, String phoneNumberSuffix, String eventDate) throws StudentAlreadyAttendedException {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         if (event == null) {
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -80,17 +80,28 @@ public class EventAttendanceListService {
             String eventTitle = event.getEventTitle();
             Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
 
-            EventAttendanceList studentInfoFromEventAttendance = eventAttendanceListRepository.findByEventIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
+            List<EventAttendanceList> studentInfosFromEventAttendance = eventAttendanceListRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
 
-            if (studentInfoFromEventAttendance == null) {
+            if (studentInfosFromEventAttendance == null || studentInfosFromEventAttendance.isEmpty()) {
                 throw new GeneralException(STUDENT_NOT_FOUND);
-            } else if (studentInfoFromEventAttendance.isAttendance()) {
-                throw new GeneralException(STUDENT_ALREADY_CHECK);
             } else {
-                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle);
+                List<StudentInfoResponseDto> responseList = new ArrayList<>();
+                for (EventAttendanceList studentInfo : studentInfosFromEventAttendance) {
+                    if (studentInfo.isAttendance()) {
+                        throw new StudentAlreadyAttendedException("STUDENT_ALREADY_CHECK");
+                    }
+
+                    // 이름 가운데 글자를 'O'로 변경
+                    String maskedName = maskMiddleName(studentInfo.getName());
+
+                    // 변경된 이름을 사용하여 DTO 생성
+                    responseList.add(StudentInfoResponseDto.of(studentInfo, eventTitle, maskedName));
+                }
+                return responseList;
             }
         }
     }
+
 
     @Transactional
     public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
@@ -120,7 +131,8 @@ public class EventAttendanceListService {
     }
 
     @Transactional
-    public String downloadAttendanceList(Long userId, Long eventId) throws IOException {
+    public List<String> downloadAttendanceList(Long userId, Long eventId) throws IOException {
+        List<String> filenames = new ArrayList<>();
         User user = userRepository.findByUserId(userId);
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         String eventTitle = event.getEventTitle();
@@ -131,9 +143,12 @@ public class EventAttendanceListService {
         List<MultipartFile> files = new ArrayList<>();
         files.add(attendanceListEachMultipartFile);
         files.add(attendanceListTotalMultipartFile);
+        String originalFilename = attendanceListEachMultipartFile.getOriginalFilename();
         String attendanceListEachUrl = s3Uploader.saveFile(attendanceListEachMultipartFile, String.valueOf(userId), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFileBetweenEvent(attendanceListEachUrl);
-        return attendanceListEachUrl;
+        filenames.add(attendanceListEachUrl);
+        filenames.add(originalFilename);
+        return filenames;
     }
 
     public void sendAttendanceList(Long userId, Long eventId) throws IOException {
@@ -175,6 +190,20 @@ public class EventAttendanceListService {
             eventAttendanceListResponseDtos.add(EventAttendanceListResponseDto.of(eventAttendanceList));
         }
         return eventAttendanceListResponseDtos;
+    }
+
+    private String maskMiddleName(String name) {
+        if (name == null || name.length() < 2) {
+            return name;
+        }
+
+        if (name.length() == 2) {
+            return name.charAt(0) + "O";
+        }
+
+        char[] nameChars = name.toCharArray();
+        nameChars[1] = 'O';
+        return new String(nameChars);
     }
 
 

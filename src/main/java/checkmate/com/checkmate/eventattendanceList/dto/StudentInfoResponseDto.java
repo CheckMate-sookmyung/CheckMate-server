@@ -15,11 +15,11 @@ public class StudentInfoResponseDto {
     private final int studentNumber;
     private final String major;
 
-    public static StudentInfoResponseDto of(EventAttendanceList eventAttendanceList, String eventTitle){
+    public static StudentInfoResponseDto of(EventAttendanceList eventAttendanceList, String eventTitle, String maskedName) {
         return new StudentInfoResponseDto(
                 eventAttendanceList.getEventAttendanceListId(),
                 eventTitle,
-                eventAttendanceList.getName(),
+                maskedName,
                 eventAttendanceList.getStudentNumber(),
                 eventAttendanceList.getMajor()
         );

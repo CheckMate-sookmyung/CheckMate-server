@@ -5,6 +5,7 @@ import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListReques
 import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
 import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
+import checkmate.com.checkmate.global.config.S3Download;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
@@ -40,6 +41,7 @@ public class EventAttendanceListController {
 
     @Autowired
     private final EventAttendanceListService eventAttendanceListService;
+    private final S3Download s3Download;
 
     @ResponseBody
     @GetMapping(value = "/check/studentNumber/{userId}/{eventId}")
@@ -69,7 +71,7 @@ public class EventAttendanceListController {
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("phoneNumber") String phoneNumber,
                                             @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
-        StudentInfoResponseDto studentInfo = eventAttendanceListService.getStudentInfoByPhoneNumberSuffix(userId, eventId, phoneNumber, eventDate);
+        List<StudentInfoResponseDto> studentInfo = eventAttendanceListService.getStudentInfoByPhoneNumberSuffix(userId, eventId, phoneNumber, eventDate);
         return ResponseEntity.ok(studentInfo);
     }
 
@@ -94,12 +96,12 @@ public class EventAttendanceListController {
     @Operation(summary="출석명단 다운")
     public ResponseEntity<?> sendAttendanceListManually(@PathVariable("userId") Long userId,
                                                  @PathVariable("eventId") Long eventId) throws IOException {
-        String eventAttendanceListUrl = eventAttendanceListService.downloadAttendanceList(userId, eventId);
-        return ResponseEntity.ok(eventAttendanceListUrl);
+        List<String> filenames = eventAttendanceListService.downloadAttendanceList(userId, eventId);
+        return s3Download.getObject(filenames.get(0), filenames.get(1));
     }
 
     @ResponseBody
-    //@GetMapping(value="/list/{userId}/{eventId}")
+    @GetMapping(value="/list/sending/{userId}/{eventId}")
     @Operation(summary="출석명단 자동 전송")
     @ApiResponses(
             value = {
