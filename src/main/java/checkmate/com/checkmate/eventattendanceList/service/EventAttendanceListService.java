@@ -76,30 +76,36 @@ public class EventAttendanceListService {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         if (event == null) {
             throw new GeneralException(EVENT_NOT_FOUND);
-        } else {
-            String eventTitle = event.getEventTitle();
-            Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
-
-            List<EventAttendanceList> studentInfosFromEventAttendance = eventAttendanceListRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
-
-            if (studentInfosFromEventAttendance == null || studentInfosFromEventAttendance.isEmpty()) {
-                throw new GeneralException(STUDENT_NOT_FOUND);
-            } else {
-                List<StudentInfoResponseDto> responseList = new ArrayList<>();
-                for (EventAttendanceList studentInfo : studentInfosFromEventAttendance) {
-                    if (studentInfo.isAttendance()) {
-                        throw new StudentAlreadyAttendedException("STUDENT_ALREADY_CHECK");
-                    }
-
-                    // 이름 가운데 글자를 'O'로 변경
-                    String maskedName = maskMiddleName(studentInfo.getName());
-
-                    // 변경된 이름을 사용하여 DTO 생성
-                    responseList.add(StudentInfoResponseDto.of(studentInfo, eventTitle, maskedName));
-                }
-                return responseList;
-            }
         }
+
+        String eventTitle = event.getEventTitle();
+        Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
+
+        List<EventAttendanceList> studentInfosFromEventAttendance = eventAttendanceListRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
+
+        if (studentInfosFromEventAttendance == null || studentInfosFromEventAttendance.isEmpty()) {
+            throw new GeneralException(STUDENT_NOT_FOUND);
+        }
+
+        // 출석한 학생 제거
+        studentInfosFromEventAttendance.removeIf(EventAttendanceList::isAttendance);
+
+        // 모든 학생이 이미 출석했다면 예외 발생
+        if (studentInfosFromEventAttendance.isEmpty()) {
+            throw new StudentAlreadyAttendedException("STUDENT_ALREADY_CHECK");
+        }
+
+        List<StudentInfoResponseDto> responseList = new ArrayList<>();
+        for (EventAttendanceList studentInfo : studentInfosFromEventAttendance) {
+            // 이름 가운데 글자를 'O'로 변경
+            String maskedName = maskMiddleName(studentInfo.getName());
+
+            // 변경된 이름을 사용하여 DTO 생성
+            responseList.add(StudentInfoResponseDto.of(studentInfo, eventTitle, maskedName));
+        }
+
+        return responseList;
+
     }
 
 
