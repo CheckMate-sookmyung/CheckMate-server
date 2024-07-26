@@ -49,7 +49,7 @@ public class PdfGenerator {
         PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
 
         for (int i = 0; i < eventSchedules.size(); i++) {
-            if (i>0)
+            if (i > 0)
                 document.add(new AreaBreak());
             EventSchedule eventSchedule = eventSchedules.get(i);
             document.setTextAlignment(TextAlignment.CENTER);
@@ -105,7 +105,7 @@ public class PdfGenerator {
         return table;
     }
 
-    private static MultipartFile convertDocumnetToMultipartFile(ByteArrayOutputStream baos, String eventName){
+    private static MultipartFile convertDocumnetToMultipartFile(ByteArrayOutputStream baos, String eventName) {
 
         ByteArrayResource resource = new ByteArrayResource(baos.toByteArray()) {
             @Override
@@ -157,4 +157,75 @@ public class PdfGenerator {
         };
         return multipartFile;
     }
+
+    public static MultipartFile generateEventAttendanceListPdfAboutExternalEvent(String eventName, List<EventSchedule> eventSchedules) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf, PageSize.A4);
+
+        /* Local Test*/
+        String fontPath = "src/main/resources/NanumGothic.otf";
+        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
+/*        String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
+        String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";*/
+        PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);
+        PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
+
+        for (int i = 0; i < eventSchedules.size(); i++) {
+            if (i > 0)
+                document.add(new AreaBreak());
+            EventSchedule eventSchedule = eventSchedules.get(i);
+            document.setTextAlignment(TextAlignment.CENTER);
+            document.add(new Paragraph(eventName + " - " + (i + 1) + "회차(" + eventSchedule.getEventDate() + ")").setFontSize(16).setFont(boldFont));
+
+            Table table = new Table(4);
+            table.setWidth(UnitValue.createPercentValue(100));
+            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            table.setFont(font);
+            table.setFontSize(8);
+            table.setTextAlignment(TextAlignment.CENTER);
+
+            document.add(createEachAttendanceListPdfAboutExternalEvent(table, eventSchedule));
+        }
+        document.close();
+
+        return convertDocumnetToMultipartFile(baos, eventName);
+    }
+
+    private static Table createEachAttendanceListPdfAboutExternalEvent(Table table, EventSchedule eventSchedule) throws IOException {
+        float imageWidth = 50;
+        float imageHeight = 15;
+
+        table.addCell(new Cell().add(new Paragraph("순번").setFont(PdfFontFactory.createFont())));
+        table.addCell(new Cell().add(new Paragraph("이름").setFont(PdfFontFactory.createFont())));
+        table.addCell(new Cell().add(new Paragraph("소속").setFont(PdfFontFactory.createFont())));
+        // Removed "학번/사번" column
+        table.addCell(new Cell().add(new Paragraph("서명").setFont(PdfFontFactory.createFont())));
+
+        int n = 0;
+        int numOfAttendance = 0;
+        for (EventAttendanceList attendee : eventSchedule.getEventAttendanceLists()) {
+            table.addCell(String.valueOf(++n));
+            table.addCell(attendee.getName());
+            table.addCell(attendee.getMajor());
+            // Removed cell for student number
+            if (attendee.getSign() != null) {
+                Image signImage = new Image(ImageDataFactory.create(attendee.getSign()));
+                signImage.scaleToFit(imageWidth, imageHeight);
+                table.addCell(signImage);
+                numOfAttendance++;
+            } else {
+                table.addCell(new Cell());
+            }
+        }
+        for (int j = 0; j < 2; j++)
+            table.addCell(" ");
+        table.addCell("출석자 수");
+        table.addCell(String.valueOf(numOfAttendance) + " / " + String.valueOf(n));
+
+        return table;
+    }
 }
+

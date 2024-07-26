@@ -14,6 +14,8 @@ import checkmate.com.checkmate.global.component.ExcelGenerator;
 import checkmate.com.checkmate.global.component.ExcelReader;
 import checkmate.com.checkmate.global.component.PdfGenerator;
 import checkmate.com.checkmate.global.config.S3Uploader;
+import checkmate.com.checkmate.global.domain.EventTarget;
+import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.user.domain.User;
@@ -162,9 +164,19 @@ public class EventAttendanceListService {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-        MultipartFile attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
-        int completion = event.getMinCompletionTimes();
-        MultipartFile attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules, completion);
+        MultipartFile attendanceListEachMultipartFile = null;
+        MultipartFile attendanceListTotalMultipartFile = null;
+        if(event.getEventTarget() == EventTarget.EXTERNAL) {
+            System.out.println("외부행사임ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ");
+            attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdfAboutExternalEvent(eventTitle, eventSchedules);
+            int completion = event.getMinCompletionTimes();
+            attendanceListTotalMultipartFile = excelGenerator.generateExcelAboutExternalEvent(eventTitle, eventSchedules, completion);
+        }
+        else {
+            attendanceListEachMultipartFile = pdfGenerator.generateEventAttendanceListPdf(eventTitle, eventSchedules);
+            int completion = event.getMinCompletionTimes();
+            attendanceListTotalMultipartFile = excelGenerator.generateExcel(eventTitle, eventSchedules, completion);
+        }
         List<MultipartFile> files = new ArrayList<>();
         files.add(attendanceListEachMultipartFile);
         files.add(attendanceListTotalMultipartFile);
