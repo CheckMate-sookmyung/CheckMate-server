@@ -165,11 +165,11 @@ public class PdfGenerator {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf, PageSize.A4);
 
-        /* Local Test*/
+        /* Local Test
         String fontPath = "src/main/resources/NanumGothic.otf";
-        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
-/*        String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
-        String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";*/
+        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";*/
+        String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
+        String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
         PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);
         PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
 
@@ -198,11 +198,10 @@ public class PdfGenerator {
         float imageWidth = 50;
         float imageHeight = 15;
 
-        table.addCell(new Cell().add(new Paragraph("순번").setFont(PdfFontFactory.createFont())));
-        table.addCell(new Cell().add(new Paragraph("이름").setFont(PdfFontFactory.createFont())));
-        table.addCell(new Cell().add(new Paragraph("소속").setFont(PdfFontFactory.createFont())));
-        // Removed "학번/사번" column
-        table.addCell(new Cell().add(new Paragraph("서명").setFont(PdfFontFactory.createFont())));
+        table.addCell("순번");
+        table.addCell("이름");
+        table.addCell("소속");
+        table.addCell("서명");
 
         int n = 0;
         int numOfAttendance = 0;
