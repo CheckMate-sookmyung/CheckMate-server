@@ -25,10 +25,13 @@ public class EventSchedule extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long eventScheduleId;
 
+    @Column(nullable = false)
     private String eventDate;
 
+    @Column(nullable = false)
     private String eventStartTime;
 
+    @Column(nullable = false)
     private String eventEndTime;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -46,7 +49,7 @@ public class EventSchedule extends BaseTimeEntity {
         this.event = event;
     }
 
-    public void update(final String eventDate, final String eventStartTime, final String eventEndTime) {
+    public void updateEventSchedule(final String eventDate, final String eventStartTime, final String eventEndTime) {
         this.eventDate = eventDate;
         this.eventStartTime = eventStartTime;
         this.eventEndTime = eventEndTime;
