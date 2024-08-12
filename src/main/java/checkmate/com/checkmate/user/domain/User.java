@@ -20,7 +20,11 @@ import static lombok.AccessLevel.PROTECTED;
 public class User {
     @Id @GeneratedValue
     private Long userId;
+
+    @Column(nullable = false)
     private String userName;
+
+    @Column(nullable = false)
     private String userMail;
 
     @OneToMany(mappedBy = "user")
