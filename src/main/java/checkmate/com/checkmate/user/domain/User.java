@@ -1,6 +1,7 @@
 package checkmate.com.checkmate.user.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
+import checkmate.com.checkmate.student.domain.Student;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,9 +37,6 @@ public class User {
 
     @Column(nullable = false)
     private String socialRefreshToken;
-
-    @OneToMany(mappedBy = "user")
-    private List<Event> events = new ArrayList<>();
 
     @Builder
     public User(final String userName,

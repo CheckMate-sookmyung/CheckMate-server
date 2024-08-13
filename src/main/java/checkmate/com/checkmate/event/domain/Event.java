@@ -33,8 +33,6 @@ public class Event extends BaseTimeEntity {
     @Column
     private String eventDetail;
 
-
-
     @Column
     private String eventImage;
 
@@ -73,10 +71,6 @@ public class Event extends BaseTimeEntity {
     @Column
     private String managerPhoneNumber;
 
-
-    @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
-    private List<EventSchedule> eventSchedules = new ArrayList<>();
-
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="user_id", nullable = false)
     private User user;
@@ -92,17 +86,15 @@ public class Event extends BaseTimeEntity {
         this.user = user;
     }
 
-    public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules){
+    public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile){
         this.eventImage = eventImage;
         this.beforeAttendanceListFile = eventAttendanceListFile;
-        this.eventSchedules = eventSchedules;
     }
 
-    public void updateEvent(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules, Boolean alarmResponse){
+    public void updateEvent(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, Boolean alarmResponse){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.eventSchedules = eventSchedules;
         this.beforeAttendanceListFile = eventAttendanceListFile;
         this.alarmRequest = alarmResponse;
     }
