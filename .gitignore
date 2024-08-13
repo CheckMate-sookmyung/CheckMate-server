@@ -37,9 +37,4 @@ out/
 .vscode/
 
 ## Key Files ##
-src/main/resources/application-db.yml
-src/main/resources/application-s3.yml
-src/main/resources/application-email.yml
-CheckMate-server/log/attendanceCheckTest.log
-log/attendanceCheckTest.log
-log/*.gz
+src/main/resources/*.yml
