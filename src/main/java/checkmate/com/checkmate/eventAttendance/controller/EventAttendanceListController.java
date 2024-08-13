@@ -1,10 +1,9 @@
-package checkmate.com.checkmate.eventattendanceList.controller;
+package checkmate.com.checkmate.eventAttendance.controller;
 
-import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
-import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListRequestDto;
-import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
-import checkmate.com.checkmate.eventattendanceList.dto.StudentInfoResponseDto;
-import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListRequestDto;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
+import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
 import checkmate.com.checkmate.global.config.S3Download;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;

@@ -1,7 +1,7 @@
 
 package checkmate.com.checkmate.global.component;
 
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -43,8 +43,8 @@ public class ExcelGenerator {
 
             for (int i = 0; i < eventSchedules.size(); i++) {
                 EventSchedule eventSchedule = eventSchedules.get(i);
-                List<EventAttendanceList> attendanceLists = eventSchedule.getEventAttendanceLists();
-                for (EventAttendanceList attendance : attendanceLists) {
+                List<EventAttendance> attendanceLists = eventSchedule.getEventAttendances();
+                for (EventAttendance attendance : attendanceLists) {
                     String key = attendance.getName() + "_" + attendance.getStudentNumber();
                     if (!attendanceMap.containsKey(key)) {
                         String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
@@ -115,8 +115,8 @@ public class ExcelGenerator {
 
             for (int i = 0; i < eventSchedules.size(); i++) {
                 EventSchedule eventSchedule = eventSchedules.get(i);
-                List<EventAttendanceList> attendanceLists = eventSchedule.getEventAttendanceLists();
-                for (EventAttendanceList attendance : attendanceLists) {
+                List<EventAttendance> attendanceLists = eventSchedule.getEventAttendances();
+                for (EventAttendance attendance : attendanceLists) {
                     String key = attendance.getName();
                     if (!attendanceMap.containsKey(key)) {
                         String[] info = new String[baseColumns.length + eventSchedules.size() + 1];

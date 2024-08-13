@@ -1,7 +1,7 @@
 package checkmate.com.checkmate.global.component;
 
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
-import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceListRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import org.apache.poi.ss.usermodel.*;
@@ -18,9 +18,8 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.FILE_READ_FAIL;
 @Component
 public class ExcelReader {
 
-    public static List<EventAttendanceList> readAndSaveAttendanceList(EventAttendanceListRepository eventAttendanceListRepository, File attendanceFile, EventSchedule schedule) throws IOException {
-        EventSchedule eventSchedule = schedule;
-        List<EventAttendanceList> eventAttendanceLists = new ArrayList<>();
+    public static List<EventAttendance> readAndSaveAttendanceListAboutStudent(EventAttendanceListRepository eventAttendanceListRepository, File attendanceFile, EventSchedule eventSchedule) throws IOException {
+        List<EventAttendance> eventAttendances = new ArrayList<>();
 
         Workbook workbook = WorkbookFactory.create(attendanceFile);
         Sheet sheet = workbook.getSheetAt(0);
@@ -28,7 +27,6 @@ public class ExcelReader {
         Iterator<Row> rowIterator = sheet.iterator();
         Row headerRow = rowIterator.next();
 
-        // 각 열의 인덱스 저장
         int nameIndex = -1;
         int studentNumberIndex = -1;
         int majorIndex = -1;
@@ -61,7 +59,7 @@ public class ExcelReader {
 
         try {
             while (rowIterator.hasNext()) {
-                EventAttendanceList attendanceList = null;
+                EventAttendance attendanceList = null;
                 Row row = rowIterator.next();
                 String name = row.getCell(nameIndex).getStringCellValue();
                 //int studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
@@ -93,7 +91,7 @@ public class ExcelReader {
                 }
                 
 
-                attendanceList = EventAttendanceList.builder()
+                attendanceList = EventAttendance.builder()
                         .name(name)
                         .studentNumber(studentNumber)
                         .major(major)
@@ -102,11 +100,11 @@ public class ExcelReader {
                         .eventSchedule(eventSchedule)
                         .build();
                 eventAttendanceListRepository.save(attendanceList);
-                eventAttendanceLists.add(attendanceList);
+                eventAttendances.add(attendanceList);
             }
             workbook.close();
 
-            return eventAttendanceLists;
+            return eventAttendances;
         } catch (Exception e) {
             throw new GeneralException(FILE_READ_FAIL);
         }

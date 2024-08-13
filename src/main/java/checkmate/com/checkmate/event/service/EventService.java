@@ -6,10 +6,10 @@ import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
-import checkmate.com.checkmate.eventattendanceList.dto.EventAttendanceListResponseDto;
-import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
-import checkmate.com.checkmate.eventattendanceList.domain.repository.EventAttendanceListRepository;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListResponseDto;
+import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceListRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
@@ -19,7 +19,6 @@ import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,39 +36,28 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 @RequiredArgsConstructor
 public class EventService {
 
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final S3Uploader s3Uploader;
-    @Autowired
     private final EventRepository eventRepository;
-    @Autowired
     private final EventScheduleRepository eventScheduleRepository;
-    @Autowired
     private final EventAttendanceListRepository eventAttendanceListRespository;
-    @Autowired
     private final EventAttendanceListService eventAttendanceListService;
+    private final AmazonS3 amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
-    private final AmazonS3 amazonS3Client;
 
     @Transactional
     public EventDetailResponseDto postEvent(MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto, Long userId) throws IOException {
         User user = userRepository.findByUserId(userId);
         if (user == null)
             throw new GeneralException(USER_NOT_FOUND);
-
         Event savedEvent = eventRequestDto.toEntity(user);
         eventRepository.save(savedEvent);
 
         String imageUrl = null;
-        String attendanceListUrl = null;
         if(eventImage != null)
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
-        if(!attendanceListFile.isEmpty())
-            attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
-        else
-            throw new GeneralException(FILE_IS_NULL);
+        String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
 
         List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
@@ -81,8 +69,8 @@ public class EventService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-                        List<EventAttendanceList> savedEventAttendanceLists = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
-                        eventSchedule.setEventAttendanceLists(savedEventAttendanceLists);
+                        List<EventAttendance> savedEventAttendances = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
+                        eventSchedule.setEventAttendances(savedEventAttendances);
                     } catch (IOException e) {
                         throw new GeneralException(IO_EXCEPTION);
                     }
@@ -91,7 +79,7 @@ public class EventService {
                 .collect(Collectors.toList());
 
         eventRepository.save(savedEvent);
-        savedEvent.postFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules); //이거 해줘야 함
+        savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules); //이거 해줘야 함
         eventRepository.save(savedEvent);
 
         return EventDetailResponseDto.of(savedEvent);
@@ -148,7 +136,7 @@ public class EventService {
                             .build())
                     .collect(Collectors.toList());
 
-            updateEvent.update(
+            updateEvent.updateEvent(
                     eventRequestDto.getEventTitle(),
                     eventRequestDto.getEventDetail(),
                     updatedImageFileName,
@@ -197,8 +185,8 @@ public class EventService {
             List<EventScheduleResponseDto> eventScheduleResponseDtos = new ArrayList<>();
             for (EventSchedule eventSchedule : eventSchedules) {
                 Long eventScheduleId = eventSchedule.getEventScheduleId();
-                List<EventAttendanceList> eventAttendanceLists = eventAttendanceListRespository.findEventAttendanceListById(eventScheduleId);
-                List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = eventAttendanceLists.stream()
+                List<EventAttendance> eventAttendances = eventAttendanceListRespository.findEventAttendanceListById(eventScheduleId);
+                List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = eventAttendances.stream()
                         .map(EventAttendanceListResponseDto::of)
                         .collect(Collectors.toList());
                 eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule));

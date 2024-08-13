@@ -50,10 +50,10 @@ public class EventController {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
+    public ResponseEntity<EventDetailResponseDto> postEvent(@PathVariable("userId") Long userId,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                    @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
+                                    @RequestPart(value="eventDetail") EventRequestDto eventRequestDto) throws IOException {
         EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
         return ResponseEntity.ok(savedEvent);
     }

@@ -1,6 +1,6 @@
 package checkmate.com.checkmate.global.component;
 
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -17,16 +17,12 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
-import com.itextpdf.layout.property.VerticalAlignment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.MalformedURLException;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -83,7 +79,7 @@ public class PdfGenerator {
 
         int n = 0;
         int numOfAttendance = 0;
-        for (EventAttendanceList attendee : eventSchedule.getEventAttendanceLists()) {
+        for (EventAttendance attendee : eventSchedule.getEventAttendances()) {
             table.addCell(String.valueOf(++n));
             table.addCell(attendee.getName());
             table.addCell(attendee.getMajor());
@@ -205,7 +201,7 @@ public class PdfGenerator {
 
         int n = 0;
         int numOfAttendance = 0;
-        for (EventAttendanceList attendee : eventSchedule.getEventAttendanceLists()) {
+        for (EventAttendance attendee : eventSchedule.getEventAttendances()) {
             table.addCell(String.valueOf(++n));
             table.addCell(attendee.getName());
             table.addCell(attendee.getMajor());

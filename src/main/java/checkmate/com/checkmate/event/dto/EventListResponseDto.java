@@ -1,13 +1,11 @@
 package checkmate.com.checkmate.event.dto;
 
 import checkmate.com.checkmate.event.domain.Event;
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 
 import static lombok.AccessLevel.PRIVATE;

@@ -3,14 +3,12 @@ package checkmate.com.checkmate.eventschedule.service;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
-import checkmate.com.checkmate.eventattendanceList.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.exception.GeneralException;
-import checkmate.com.checkmate.user.domain.User;
-import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,8 +45,8 @@ public class EventScheduleService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-                        List<EventAttendanceList> savedEventAttendanceLists = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
-                        eventSchedule.setEventAttendanceLists(savedEventAttendanceLists);
+                        List<EventAttendance> savedEventAttendances = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
+                        eventSchedule.setEventAttendances(savedEventAttendances);
                     } catch (IOException e) {
                         throw new GeneralException(IO_EXCEPTION);
                     }
