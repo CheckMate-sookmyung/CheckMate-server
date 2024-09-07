@@ -18,15 +18,15 @@ public class EventListResponseDto {
     private final List<String> eventSchedules;
     private final String eventImage;
 
-    public static EventListResponseDto of(Event event){
-        List<String> eventSchedules = new ArrayList<>();
-        for (EventSchedule eventSchedule : event.getEventSchedules())
-            eventSchedules.add(eventSchedule.getEventDate());
+    public static EventListResponseDto of(Event event, List<EventSchedule> eventSchedules){
+        List<String> eventScheduleDate = new ArrayList<>();
+        for (EventSchedule eventSchedule : eventSchedules)
+            eventScheduleDate.add(eventSchedule.getEventDate());
 
         return new EventListResponseDto(
                 event.getEventId(),
                 event.getEventTitle(),
-                eventSchedules,
+                eventScheduleDate,
                 event.getEventImage());
     }
 }

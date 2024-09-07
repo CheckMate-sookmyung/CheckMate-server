@@ -17,11 +17,11 @@ public class StudentInfoResponseDto {
 
     public static StudentInfoResponseDto of(EventAttendance eventAttendance, String eventTitle, String maskedName) {
         return new StudentInfoResponseDto(
-                eventAttendance.getEventAttendanceListId(),
+                eventAttendance.getEventAttendanceId(),
                 eventTitle,
                 maskedName,
-                eventAttendance.getStudentNumber(),
-                eventAttendance.getMajor()
+                eventAttendance.getStudent().getStudentNumber(),
+                eventAttendance.getStudent().getStudentMajor()
         );
     }
 }

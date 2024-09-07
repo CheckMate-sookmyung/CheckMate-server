@@ -1,7 +1,9 @@
 package checkmate.com.checkmate.eventAttendance.service;
 
+import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.StrangerInfoResponseDto;
 import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
@@ -17,6 +19,8 @@ import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
+import checkmate.com.checkmate.member.domain.Member;
+import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +46,8 @@ public class EventAttendanceService {
     @Autowired
     private final EventAttendanceRepository eventAttendanceRepository;
     @Autowired
+    private final MemberRepository memberRepository;
+    @Autowired
     private final ExcelReader excelReader;
     @Autowired
     private final S3Uploader s3Uploader;
@@ -55,55 +61,52 @@ public class EventAttendanceService {
     private final ExcelGenerator excelGenerator;
 
     @Transactional
-    public StudentInfoResponseDto getStudentInfoByStudentNumber(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
-        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public StudentInfoResponseDto getStudentInfoByStudentNumber(Accessor accessor, Long eventId, int studentNumber, String eventDate) throws StudentAlreadyAttendedException {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(accessor.getMemberId(), eventId);
         if (event == null) {
             throw new GeneralException(EVENT_NOT_FOUND);
         } else {
             String eventTitle = event.getEventTitle();
-            Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
-            EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventScheduleIdAndStudentNumber(eventScheduleId, studentId);
+            Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate); //하루에 두 번 하는 행사는 없겠지..?
+            EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventIdAndStudentNumber(eventScheduleId, studentNumber);
             if (studentInfoFromEventAttendance == null) {
                 throw new GeneralException(STUDENT_NOT_FOUND);
             } else if (!studentInfoFromEventAttendance.getSign().isEmpty()) {
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             } else {
-                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle, studentInfoFromEventAttendance.getName());
+                String maskedName = maskMiddleName(studentInfoFromEventAttendance.getStudent().getStudentName());
+                return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle, maskedName);
             }
         }
     }
 
     @Transactional
-    public List<StudentInfoResponseDto> getStudentInfoByPhoneNumberSuffix(Long userId, Long eventId, String phoneNumberSuffix, String eventDate) throws StudentAlreadyAttendedException {
-        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public List<StrangerInfoResponseDto> getStrangerInfoByPhoneNumberSuffix(Accessor accessor, Long eventId, String phoneNumberSuffix, String eventDate) throws StudentAlreadyAttendedException {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         if (event == null) {
             throw new GeneralException(EVENT_NOT_FOUND);
         }
 
         String eventTitle = event.getEventTitle();
         Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
-
-        List<EventAttendance> studentInfosFromEventAttendance = eventAttendanceRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
-
-        if (studentInfosFromEventAttendance == null || studentInfosFromEventAttendance.isEmpty()) {
+        List<EventAttendance> strangerInfosFromEventAttendance = eventAttendanceRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
+        if (strangerInfosFromEventAttendance == null || strangerInfosFromEventAttendance.isEmpty()) {
             throw new GeneralException(STUDENT_NOT_FOUND);
         }
 
         // 출석한 학생 제거
-        studentInfosFromEventAttendance.removeIf(EventAttendance::isAttendance);
-
+        strangerInfosFromEventAttendance.removeIf(EventAttendance::isAttendance);
         // 모든 학생이 이미 출석했다면 예외 발생
-        if (studentInfosFromEventAttendance.isEmpty()) {
+        if (strangerInfosFromEventAttendance.isEmpty()) {
             throw new StudentAlreadyAttendedException("STUDENT_ALREADY_CHECK");
         }
 
-        List<StudentInfoResponseDto> responseList = new ArrayList<>();
-        for (EventAttendance studentInfo : studentInfosFromEventAttendance) {
-            // 이름 가운데 글자를 'O'로 변경
-            String maskedName = maskMiddleName(studentInfo.getStudentName());
-
-            // 변경된 이름을 사용하여 DTO 생성
-            responseList.add(StudentInfoResponseDto.of(studentInfo, eventTitle, maskedName));
+        List<StrangerInfoResponseDto> responseList = new ArrayList<>();
+        for (EventAttendance strangerInfo : strangerInfosFromEventAttendance) {
+            String maskedName = maskMiddleName(strangerInfo.getStranger().getStrangerName());
+            responseList.add(StrangerInfoResponseDto.of(strangerInfo, eventTitle, maskedName));
         }
 
         return responseList;

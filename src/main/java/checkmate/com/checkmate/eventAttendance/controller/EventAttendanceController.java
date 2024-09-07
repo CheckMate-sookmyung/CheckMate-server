@@ -1,5 +1,7 @@
 package checkmate.com.checkmate.eventAttendance.controller;
 
+import checkmate.com.checkmate.auth.Auth;
+import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
 import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
@@ -43,88 +45,88 @@ public class EventAttendanceController {
     private final S3Download s3Download;
 
     @ResponseBody
-    @GetMapping(value = "/check/studentNumber/{userId}/{eventId}")
+    @GetMapping(value = "/check/studentNumber/{eventId}")
     @Operation(summary = "출석체크(학번용)")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentInfoResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getStudentInfoByStudentNumber(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getStudentInfoByStudentNumber(@Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("studentNumber") int studentNumber,
                                             @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
-        StudentInfoResponseDto studentInfo = eventAttendanceService.getStudentInfoByStudentNumber(userId, eventId, studentNumber, eventDate);
+        StudentInfoResponseDto studentInfo = eventAttendanceService.getStudentInfoByStudentNumber(accessor, eventId, studentNumber, eventDate);
         return ResponseEntity.ok(studentInfo);
     }
 
     @ResponseBody
-    @GetMapping(value = "/check/phoneNumber/{userId}/{eventId}")
+    @GetMapping(value = "/check/phoneNumber/{eventId}")
     @Operation(summary = "출석체크(전번용)")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentInfoResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getStudentInfoByPhoneNumber(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getStudentInfoByPhoneNumber(@Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("phoneNumber") String phoneNumber,
                                             @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
-        List<StudentInfoResponseDto> studentInfo = eventAttendanceService.getStudentInfoByPhoneNumberSuffix(userId, eventId, phoneNumber, eventDate);
+        List<StudentInfoResponseDto> studentInfo = eventAttendanceService.getStrangerInfoByPhoneNumberSuffix(accessor, eventId, phoneNumber, eventDate);
         return ResponseEntity.ok(studentInfo);
     }
 
     @ResponseBody
-    @PostMapping(value = "/sign/{userId}/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/sign/{eventId}/{studentInfoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "전자서명")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content),
             }
     )
-    public BaseResponseDto<?> postSign(@PathVariable("userId") Long userId,
+    public BaseResponseDto<?> postSign(@Auth final Accessor accessor,
                                       @PathVariable("eventId") Long eventId,
                                       @PathVariable("studentInfoId") Long studentInfoId,
                                       @RequestPart(value = "signImage") MultipartFile signImage) {
-        eventAttendanceService.postSign(userId, eventId, studentInfoId, signImage);
+        eventAttendanceService.postSign(accessor, eventId, studentInfoId, signImage);
         return BaseResponseDto.ofSuccess(ATTENDANCE_CHECK_SUCCESS);
     }
 
     @ResponseBody
-    @GetMapping(value="/list/{userId}/{eventId}")
+    @GetMapping(value="/list/{eventId}")
     @Operation(summary="출석명단 다운")
-    public ResponseEntity<?> sendAttendanceListManually(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> sendAttendanceListManually(@Auth final Accessor accessor,
                                                  @PathVariable("eventId") Long eventId) throws IOException {
-        List<String> filenames = eventAttendanceService.downloadAttendanceList(userId, eventId);
+        List<String> filenames = eventAttendanceService.downloadAttendanceList(accessor, eventId);
         return s3Download.getObject(filenames.get(0), filenames.get(1));
     }
 
     @ResponseBody
-    @GetMapping(value="/list/sending/{userId}/{eventId}")
+    @GetMapping(value="/list/sending/{eventId}")
     @Operation(summary="출석명단 자동 전송")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content),
             }
     )
-    public BaseResponseDto<?> sendAttendanceListAutomatically(@PathVariable("userId") Long userId,
+    public BaseResponseDto<?> sendAttendanceListAutomatically(@Auth final Accessor accessor,
                                                 @PathVariable("eventId") Long eventId) throws IOException {
-        eventAttendanceService.sendAttendanceList(userId, eventId);
+        eventAttendanceService.sendAttendanceList(accessor, eventId);
         return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
     }
 
     @ResponseBody
-    @PutMapping(value="/list/{userId}/{eventId}")
+    @PutMapping(value="/list/{eventId}")
     @Operation(summary = "출석명단 수정")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventAttendanceResponseDto.class))),
             }
     )
-    public ResponseEntity<?> updateAttendanceList(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> updateAttendanceList(@Auth final Accessor accessor,
                                                    @PathVariable("eventId") Long eventId,
                                                    @RequestPart("attendanceList") List<EventAttendanceRequestDto> eventAttendanceRequestDto){
-        List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(userId, eventId, eventAttendanceRequestDto);
+        List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, eventAttendanceRequestDto);
         return ResponseEntity.ok(eventAttendanceResponseDtos);
     }
 }
