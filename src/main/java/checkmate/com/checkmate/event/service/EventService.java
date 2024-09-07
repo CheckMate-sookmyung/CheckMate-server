@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.event.service;
 
+import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
@@ -17,6 +18,8 @@ import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.student.domain.Student;
+import checkmate.com.checkmate.member.domain.Member;
+import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
@@ -46,11 +49,13 @@ public class EventService {
     private final EventAttendanceRepository eventAttendanceRespository;
     private final EventAttendanceListService eventAttendanceListService;
     private final AmazonS3 amazonS3Client;
+    @Autowired
+    private final MemberRepository memberRepository;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     @Transactional
-    public EventDetailResponseDto postEvent(MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto, Long userId) throws IOException {
+    public EventDetailResponseDto postEvent(Long userId, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
         User user = userRepository.findByUserId(userId);
         if (user == null)
             throw new GeneralException(USER_NOT_FOUND);

@@ -8,7 +8,7 @@ spring:
     group:
       dev: "dev, db-dev, s3-dev"
       prod: "prod, db-prod, s3-prod"
-    include: email
+    include: email, jwt, oauth
 
   servlet:
     multipart:

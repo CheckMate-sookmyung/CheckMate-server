@@ -5,6 +5,7 @@ import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
+import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.user.domain.User;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

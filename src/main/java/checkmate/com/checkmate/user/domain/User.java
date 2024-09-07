@@ -58,4 +58,6 @@ public class User {
     public void updateRefreshToken(final String refreshToken){
         this.refreshToken = refreshToken;
     }
+/*    @OneToMany(mappedBy = "user")
+    private List<Event> events = new ArrayList<>();*/
 }
