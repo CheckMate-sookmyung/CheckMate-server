@@ -36,7 +36,8 @@ public class Stranger {
     private String strangerAffiliation;
 
     @Builder
-    public void Stranger(final String strangerName,
+    public Stranger(final String strangerName,
+
                          final String strangerPhoneNumber,
                          final String strangerEmail,
                          final String strangerAffiliation){

@@ -6,7 +6,8 @@ import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
-import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceListRepository;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
@@ -20,6 +21,7 @@ import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.Even;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +42,7 @@ public class EventAttendanceListService {
     @Autowired
     private final EventScheduleRepository eventScheduleRepository;
     @Autowired
-    private final EventAttendanceListRepository eventAttendanceListRepository;
+    private final EventAttendanceRepository eventAttendanceRepository;
     @Autowired
     private final ExcelReader excelReader;
     @Autowired
@@ -57,18 +59,19 @@ public class EventAttendanceListService {
     @Transactional
     public StudentInfoResponseDto getStudentInfoByStudentNumber(Long userId, Long eventId, int studentId, String eventDate) throws StudentAlreadyAttendedException {
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
-        if (event == null)
+        if (event == null) {
             throw new GeneralException(EVENT_NOT_FOUND);
-        else{
+        } else {
             String eventTitle = event.getEventTitle();
-            Long eventSheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
-            EventAttendance studentInfoFromEventAttendance = eventAttendanceListRepository.findByEventIdAndStudentNumber(eventSheduleId, studentId);
-            if (studentInfoFromEventAttendance == null)
+            Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
+            EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventScheduleIdAndStudentNumber(eventScheduleId, studentId);
+            if (studentInfoFromEventAttendance == null) {
                 throw new GeneralException(STUDENT_NOT_FOUND);
-            else if (!studentInfoFromEventAttendance.getSign().isEmpty())
+            } else if (!studentInfoFromEventAttendance.getSign().isEmpty()) {
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
-            else
+            } else {
                 return StudentInfoResponseDto.of(studentInfoFromEventAttendance, eventTitle, studentInfoFromEventAttendance.getName());
+            }
         }
     }
 
@@ -82,7 +85,7 @@ public class EventAttendanceListService {
         String eventTitle = event.getEventTitle();
         Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate);
 
-        List<EventAttendance> studentInfosFromEventAttendance = eventAttendanceListRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
+        List<EventAttendance> studentInfosFromEventAttendance = eventAttendanceRepository.findAllByEventScheduleIdAndPhoneNumberSuffix(eventScheduleId, phoneNumberSuffix);
 
         if (studentInfosFromEventAttendance == null || studentInfosFromEventAttendance.isEmpty()) {
             throw new GeneralException(STUDENT_NOT_FOUND);
@@ -99,20 +102,19 @@ public class EventAttendanceListService {
         List<StudentInfoResponseDto> responseList = new ArrayList<>();
         for (EventAttendance studentInfo : studentInfosFromEventAttendance) {
             // 이름 가운데 글자를 'O'로 변경
-            String maskedName = maskMiddleName(studentInfo.getName());
+            String maskedName = maskMiddleName(studentInfo.getStudentName());
 
             // 변경된 이름을 사용하여 DTO 생성
             responseList.add(StudentInfoResponseDto.of(studentInfo, eventTitle, maskedName));
         }
 
         return responseList;
-
     }
 
 
     @Transactional
-    public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage){
-        EventAttendance eventAttendance = eventAttendanceListRepository.findByEventAttendanceListId(studentInfoId);
+    public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage) {
+        EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(studentInfoId);
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         int numOfEvents = event.getEventSchedules().size();
         if (eventAttendance == null)
@@ -121,21 +123,25 @@ public class EventAttendanceListService {
         if (signImage != null) {
             imageUrl = s3Uploader.saveFile(signImage, String.valueOf(userId), "event/" + String.valueOf(eventId) + "/sign");
             eventAttendance.updateAttendanceByAttendanceCheck(imageUrl, numOfEvents);
-        }
-        else
+        } else
             throw new GeneralException(IMAGE_IS_NULL);
     }
 
     @Transactional
-    public List<EventAttendance> readAndSaveAttendanceList(MultipartFile attendanceListFile, EventSchedule eventSchedule) throws IOException {
+    public List<EventAttendance> readAndSaveAttendanceList(MultipartFile attendanceListFile, EventSchedule eventSchedule, EventTarget eventTarget) throws IOException {
         List<EventAttendance> eventAttendances = new ArrayList<>();
         try {
-            eventAttendances = excelReader.readAndSaveAttendanceListAboutStudent(eventAttendanceListRepository, convertMultiPartToFile(attendanceListFile), eventSchedule);
+            if (eventTarget == EventTarget.INTERNAL) {
+                eventAttendances = excelReader.readAndSaveAttendanceListAboutStudent(convertMultiPartToFile(attendanceListFile), eventSchedule);
+            } else {
+                eventAttendances = excelReader.readAndSaveAttendanceListAboutStranger(convertMultiPartToFile(attendanceListFile), eventSchedule);
+            }
         } catch (IOException e) {
             throw new GeneralException(IO_EXCEPTION);
         }
         return eventAttendances;
     }
+
 
     @Transactional
     public List<String> downloadAttendanceList(Long userId, Long eventId) throws IOException {
@@ -196,16 +202,18 @@ public class EventAttendanceListService {
 
     @Transactional
     public List<EventAttendanceListResponseDto> updateAttendanceList(Long userId, Long eventId, List<EventAttendanceListRequestDto> eventAttendanceListRequestDtos) {
-        //eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
+        // eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         int numOfEvents = event.getEventSchedules().size();
         List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = new ArrayList<>();
+
         for (EventAttendanceListRequestDto eventAttendanceListrequestDto : eventAttendanceListRequestDtos) {
-            EventAttendance eventAttendance = eventAttendanceListRepository.findByEventAttendanceListId(eventAttendanceListrequestDto.getStudentInfoId());
+            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceListId(eventAttendanceListrequestDto.getStudentInfoId());
             eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace(), numOfEvents);
-            eventAttendanceListRepository.save(eventAttendance);
+            eventAttendanceRepository.save(eventAttendance);
             eventAttendanceListResponseDtos.add(EventAttendanceListResponseDto.of(eventAttendance));
         }
+
         return eventAttendanceListResponseDtos;
     }
 

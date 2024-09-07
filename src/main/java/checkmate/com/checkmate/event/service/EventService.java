@@ -7,18 +7,21 @@ import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListResponseDto;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
-import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceListRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
+import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +43,7 @@ public class EventService {
     private final S3Uploader s3Uploader;
     private final EventRepository eventRepository;
     private final EventScheduleRepository eventScheduleRepository;
-    private final EventAttendanceListRepository eventAttendanceListRespository;
+    private final EventAttendanceRepository eventAttendanceRespository;
     private final EventAttendanceListService eventAttendanceListService;
     private final AmazonS3 amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
@@ -59,7 +62,7 @@ public class EventService {
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
         String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
 
-        List<EventSchedule> savedEventSchedules = eventRequestDto.getEventSchedules().stream()
+        eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
                     EventSchedule eventSchedule = EventSchedule.builder()
                             .eventDate(eventScheduleRequestDto.getEventDate())
@@ -69,8 +72,9 @@ public class EventService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-                        List<EventAttendance> savedEventAttendances = eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule);
-                        eventSchedule.setEventAttendances(savedEventAttendances);
+
+                        eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
+
                     } catch (IOException e) {
                         throw new GeneralException(IO_EXCEPTION);
                     }
@@ -78,8 +82,7 @@ public class EventService {
                 })
                 .collect(Collectors.toList());
 
-        eventRepository.save(savedEvent);
-        savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl, savedEventSchedules); //이거 해줘야 함
+        savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
 
         return EventDetailResponseDto.of(savedEvent);
@@ -105,7 +108,7 @@ public class EventService {
         else
             return EventDetailResponseDto.of(getEvent);
     }
-
+/*
     @Transactional
     public EventDetailResponseDto updateEvent(MultipartFile eventImage, MultipartFile attendanceListFile, Long userId, Long eventId, EventRequestDto eventRequestDto){
         Event updateEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
@@ -148,7 +151,7 @@ public class EventService {
             return EventDetailResponseDto.of(updateEvent);
         } else
             throw new GeneralException(EVENT_NOT_FOUND);
-    }
+    }*/
 
     @Transactional
     public void deleteEvent(Long userId, Long eventId){

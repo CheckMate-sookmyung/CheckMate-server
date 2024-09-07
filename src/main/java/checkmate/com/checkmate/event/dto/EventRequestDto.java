@@ -36,7 +36,11 @@ public class EventRequestDto {
     @Min(value = 1, message = "최소이수기준은 1 이상이어야 합니다.")
     private final int minCompletionTimes;
 
-    @NotNull(message="행사 일정은 하나 이상 입력해주세요.")
+
+    @Min(value = 1, message = "최소이수기준은 1 이상이어야 합니다.")
+    private final int completionTimes;
+
+    @NotNull(message="리마인드 알람 전송 여부를 입력해주세요.")
     private final Boolean alarmRequest;
 
     @NotBlank(message="행사 유형을 선택해주세요.")
@@ -51,7 +55,7 @@ public class EventRequestDto {
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
                 .eventType(eventType)
-                .minCompletionTimes(minCompletionTimes)
+                .completionTime(completionTimes)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
                 .build();

@@ -38,3 +38,8 @@ out/
 
 ## Key Files ##
 src/main/resources/*.yml
+src/main/resources/application-db-dev.yml
+src/main/resources/application-db-prod.yml
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
+src/main/resources/application-s3-dev.yml

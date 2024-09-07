@@ -32,7 +32,7 @@ public class EventScheduleService {
     @Autowired
     private final EventAttendanceListService eventAttendanceListService;
 
-    @Transactional
+/*    @Transactional
     public EventDetailResponseDto postEventSchedule(MultipartFile attendanceListFile, List<EventScheduleRequestDto> eventScheduleRequestDto, Long userId, Long eventId){
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         List<EventSchedule> savedEventSchedules = eventScheduleRequestDto.stream()
@@ -56,5 +56,5 @@ public class EventScheduleService {
         eventRepository.save(event);
 
         return EventDetailResponseDto.of(event);
-    }
+    }*/
 }

@@ -85,7 +85,7 @@ public class EventController {
         return ResponseEntity.ok(getEvent);
     }
 
-    @ResponseBody
+/*    @ResponseBody
     @PutMapping(value="/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
     @ApiResponses(
@@ -127,7 +127,7 @@ public class EventController {
                                                @PathVariable("eventId") Long eventId){
         List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
         return ResponseEntity.ok(eventAttendanceList);
-    }
+    }*/
 
     @ResponseBody
     @PostMapping(value="/manager/{userId}/{eventId}")

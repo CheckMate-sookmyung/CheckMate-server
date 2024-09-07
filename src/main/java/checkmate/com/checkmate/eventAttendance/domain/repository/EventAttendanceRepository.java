@@ -7,7 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface EventAttendanceListRepository extends JpaRepository<EventAttendance, Long> {
+
+public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
 
     @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.studentNumber = :studentNumber")
     EventAttendance findByEventIdAndStudentNumber(@Param("eventScheduleId") Long eventScheduleId, @Param("studentNumber") int studentNumber);

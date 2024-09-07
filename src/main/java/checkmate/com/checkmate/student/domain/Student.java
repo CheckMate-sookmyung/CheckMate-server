@@ -24,7 +24,7 @@ public class Student {
     private String studentName;
 
     @Column(nullable = false)
-    private String studentNumber;
+    private int studentNumber;
 
     @Column
     private String studentMajor;
@@ -44,16 +44,16 @@ public class Student {
     @Column
     private int applicationTime;
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Builder
-    public void Student(final String studentName,
-                        final String studentNumber,
-                        final String studentMajor,
-                        final String studentPhoneNumber,
-                        final String studentEmail){
+    public Student(final String studentName,
+                   final int studentNumber,
+                   final String studentMajor,
+                   final String studentPhoneNumber,
+                   final String studentEmail) {
         this.studentName = studentName;
         this.studentNumber = studentNumber;
         this.studentMajor = studentMajor;
@@ -64,13 +64,12 @@ public class Student {
         this.applicationTime = 1;
     }
 
-    public void updateApplication(){
+    public void updateApplication() {
         this.applicationTime += 1;
     }
 
-    public void updateAttendance(final int attendance){
-        this.attendanceRate += (float) (this.attendanceTime+attendance) / this.applicationTime * 100;
+    public void updateAttendance(final int attendance) {
+        this.attendanceRate = (float) (this.attendanceTime + attendance) / this.applicationTime * 100;
         this.attendanceTime += attendance;
     }
-
 }
