@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.event.service;
 
+import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
@@ -15,6 +16,8 @@ import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepo
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
+import checkmate.com.checkmate.member.domain.Member;
+import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
@@ -49,25 +52,26 @@ public class EventService {
     private final EventAttendanceListRepository eventAttendanceListRespository;
     @Autowired
     private final EventAttendanceListService eventAttendanceListService;
+    @Autowired
+    private final MemberRepository memberRepository;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
     private final AmazonS3 amazonS3Client;
 
     @Transactional
-    public EventDetailResponseDto postEvent(MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto, Long userId) throws IOException {
+    public EventDetailResponseDto postEvent(Long userId, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
         User user = userRepository.findByUserId(userId);
         if (user == null)
             throw new GeneralException(USER_NOT_FOUND);
-
         Event savedEvent = eventRequestDto.toEntity(user);
         eventRepository.save(savedEvent);
 
         String imageUrl = null;
         String attendanceListUrl = null;
         if(eventImage != null)
-            imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
+            imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(user.getUserId()), "event/" + String.valueOf(savedEvent.getEventId()));
         if(!attendanceListFile.isEmpty())
-            attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
+            attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(user.getUserId()), "event/" + String.valueOf(savedEvent.getEventId()));
         else
             throw new GeneralException(FILE_IS_NULL);
 

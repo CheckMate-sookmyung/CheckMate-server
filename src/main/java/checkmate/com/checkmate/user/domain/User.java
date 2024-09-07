@@ -23,6 +23,6 @@ public class User {
     private String userName;
     private String userMail;
 
-    @OneToMany(mappedBy = "user")
-    private List<Event> events = new ArrayList<>();
+/*    @OneToMany(mappedBy = "user")
+    private List<Event> events = new ArrayList<>();*/
 }

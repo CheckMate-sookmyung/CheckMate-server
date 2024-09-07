@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.event.controller;
 
+import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import checkmate.com.checkmate.auth.Auth;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,10 +53,10 @@ public class EventController {
             }
     )
     public ResponseEntity<?> postEvent(@PathVariable("userId") Long userId,
-                                    @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
-                                    @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                    @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
-        EventDetailResponseDto savedEvent = eventService.postEvent(eventImage, attendanceListFile, eventRequestDto, userId);
+                                       @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
+                                       @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
+                                       @RequestPart(value="event") EventRequestDto eventRequestDto) throws IOException {
+        EventDetailResponseDto savedEvent = eventService.postEvent(userId, eventImage, attendanceListFile, eventRequestDto);
         return ResponseEntity.ok(savedEvent);
     }
 
