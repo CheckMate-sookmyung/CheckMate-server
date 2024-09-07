@@ -4,6 +4,7 @@ import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.StrangerInfoResponseDto;
 import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.global.config.S3Download;
@@ -72,8 +73,8 @@ public class EventAttendanceController {
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("phoneNumber") String phoneNumber,
                                             @RequestParam("eventDate") String eventDate) throws StudentAlreadyAttendedException {
-        List<StudentInfoResponseDto> studentInfo = eventAttendanceService.getStrangerInfoByPhoneNumberSuffix(accessor, eventId, phoneNumber, eventDate);
-        return ResponseEntity.ok(studentInfo);
+        List<StrangerInfoResponseDto> strangerInfo = eventAttendanceService.getStrangerInfoByPhoneNumberSuffix(accessor, eventId, phoneNumber, eventDate);
+        return ResponseEntity.ok(strangerInfo);
     }
 
     @ResponseBody

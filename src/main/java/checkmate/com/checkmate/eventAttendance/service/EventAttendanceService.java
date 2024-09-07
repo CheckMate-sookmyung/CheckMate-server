@@ -114,9 +114,10 @@ public class EventAttendanceService {
 
 
     @Transactional
-    public void postSign(Long userId, Long eventId, Long studentInfoId, MultipartFile signImage) {
+    public void postSign(Accessor accessor, Long eventId, Long studentInfoId, MultipartFile signImage) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(studentInfoId);
-        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+        Event event = eventRepository.findByMemberIdAndEventId(accessor.getMemberId(), eventId);
         int numOfEvents = event.getEventSchedules().size();
         if (eventAttendance == null)
             throw new GeneralException(STUDENT_NOT_FOUND);

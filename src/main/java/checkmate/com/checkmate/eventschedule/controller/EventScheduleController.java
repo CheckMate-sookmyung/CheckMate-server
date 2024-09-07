@@ -21,7 +21,7 @@ public class EventScheduleController {
     @Autowired
     private final EventScheduleService eventScheduleService;
 
-    @ResponseBody
+/*    @ResponseBody
     @PostMapping(value="{userId}/{eventId}")
     public ResponseEntity<?> postEventSchedule(@PathVariable("userId") Long userId,
                                                @PathVariable("eventId") Long eventId,
@@ -30,6 +30,6 @@ public class EventScheduleController {
 
         EventDetailResponseDto event = eventScheduleService.postEventSchedule(attendanceListFile,eventScheduleRequestDto, userId, eventId);
         return ResponseEntity.ok(event);
-    }
+    }*/
 }
 
