@@ -48,12 +48,12 @@ public class OAuthController {
         return BaseResponseDto.ofSuccess(LOGOUT_SUCCESS);
     }
 
-    @DeleteMapping("/api/v2/signout")
+/*    @DeleteMapping("/api/v2/signout")
     @MemberOnly
     public BaseResponseDto<?> signout(
             @Auth Accessor accessor
     ) {
         oAuthService.signout(accessor.getMemberId());
         return BaseResponseDto.ofSuccess(LOGOUT_SUCCESS);
-    }
+    }*/
 }

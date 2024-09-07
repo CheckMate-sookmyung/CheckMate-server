@@ -72,10 +72,10 @@ public class OAuthService {
         member.updateRefreshToken(null);
     }
 
-    public void signout(final Long id) {
+/*    public void signout(final Long id) {
         final Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(INVALID_ACCESS_TOKEN));
 
         memberRepository.deleteMemberByMemberId(member.getMemberId());
-    }
+    }*/
 }

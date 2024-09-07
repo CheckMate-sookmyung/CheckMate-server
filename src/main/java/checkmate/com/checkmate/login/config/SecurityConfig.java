@@ -1,7 +1,7 @@
 package checkmate.com.checkmate.login.config;
 
-import com.apps.pochak.login.filter.JwtAuthorizationFilter;
-import com.apps.pochak.login.provider.JwtProvider;
+import checkmate.com.checkmate.login.filter.JwtAuthorizationFilter;
+import checkmate.com.checkmate.login.provider.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

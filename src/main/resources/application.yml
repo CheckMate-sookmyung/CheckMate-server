@@ -7,7 +7,7 @@ spring:
       hibernate.format_sql: true
 
   profiles:
-    include: db, s3, email
+    include: db, s3, email, jwt, oauth
 
   servlet:
     multipart:

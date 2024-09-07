@@ -5,6 +5,7 @@ import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.BaseTimeEntity;
 import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
+import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.user.domain.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -73,7 +74,6 @@ public class Event extends BaseTimeEntity {
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
         this.minCompletionTimes = minCompletionTimes;
-        this.eventType = eventType;
         this.alarmResponse = false;
         this.user = user;
         this.eventType = eventType;
