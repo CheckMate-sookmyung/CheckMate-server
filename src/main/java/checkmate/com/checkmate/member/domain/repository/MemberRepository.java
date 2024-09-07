@@ -16,15 +16,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findMemberBySocialId(String socialId);
     Optional<Member> findMemberByRefreshToken(String refreshToken);
 
-/*
+    /*
     @Modifying
     @Query("update Member member set member.status = 'DELETED' where member.id = :memberId")
     void deleteMemberByMemberId(@Param("memberId") final Long memberId);
 */
 
-/*    default Member findMemberByMemberId(
+    default Member findMemberByMemberId(
             final Long id
     ) {
         return findById(id).orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-    }*/
+    }
 }

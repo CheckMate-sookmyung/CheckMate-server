@@ -73,21 +73,19 @@ public class Event extends BaseTimeEntity {
     private String managerPhoneNumber;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable = false)
-    private User user;
+    @JoinColumn(name="member_id", nullable = false)
+    private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, User user, EventType eventType, EventTarget eventTarget){
+    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
         this.completionTime = completionTime;
-        this.minCompletionTimes = minCompletionTimes;
         this.alarmResponse = false;
-        this.user = user;
+        this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
-        this.user = user;
     }
 
     public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile){

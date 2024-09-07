@@ -55,17 +55,16 @@ public class EventService {
     private String bucketName;
 
     @Transactional
-    public EventDetailResponseDto postEvent(Long userId, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
-        User user = userRepository.findByUserId(userId);
-        if (user == null)
+    public EventDetailResponseDto postEvent(Accessor accessor, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());        if (user == null)
             throw new GeneralException(USER_NOT_FOUND);
-        Event savedEvent = eventRequestDto.toEntity(user);
+        Event savedEvent = eventRequestDto.toEntity(loginMember);
         eventRepository.save(savedEvent);
 
         String imageUrl = null;
         if(eventImage != null)
-            imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
-        String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(savedEvent.getEventId()));
+            imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
+        String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
 
         eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
@@ -77,7 +76,6 @@ public class EventService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-
                         eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
 
                     } catch (IOException e) {

@@ -35,10 +35,6 @@ public class EventRequestDto {
     private final List<EventScheduleRequestDto> eventSchedules;
 
     @Min(value = 1, message = "최소이수기준은 1 이상이어야 합니다.")
-    private final int minCompletionTimes;
-
-
-    @Min(value = 1, message = "최소이수기준은 1 이상이어야 합니다.")
     private final int completionTimes;
 
     @NotNull(message="리마인드 알람 전송 여부를 입력해주세요.")
@@ -50,9 +46,9 @@ public class EventRequestDto {
     @NotBlank(message="행사 대상을 선택해주세요.")
     private final EventTarget eventTarget;
 
-    public Event toEntity(User user){
+    public Event toEntity(Member member){
         return Event.builder()
-                .user(user)
+                .member(member)
                 .eventTitle(eventTitle)
                 .eventDetail(eventDetail)
                 .eventType(eventType)
