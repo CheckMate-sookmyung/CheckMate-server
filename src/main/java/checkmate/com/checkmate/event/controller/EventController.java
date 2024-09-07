@@ -45,7 +45,7 @@ public class EventController {
     private final EventService eventService;
 
     @ResponseBody
-    @PostMapping(value="/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value="", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "행사 등록")
     @ApiResponses(
             value = {
@@ -53,16 +53,16 @@ public class EventController {
             }
     )
 
-    public ResponseEntity<EventDetailResponseDto> postEvent(@Auth final Accessor accessor,
+    public BaseResponseDto<?> postEvent(@Auth final Accessor accessor,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
                                     @RequestPart(value="eventDetail") EventRequestDto eventRequestDto) throws IOException {
-        EventDetailResponseDto savedEvent = eventService.postEvent(accessor, eventImage, attendanceListFile, eventRequestDto);
-        return ResponseEntity.ok(savedEvent);
+        eventService.postEvent(accessor, eventImage, attendanceListFile, eventRequestDto);
+        return BaseResponseDto.ofSuccess(POST_EVENT_SUCCESS);
     }
 
     @ResponseBody
-    @GetMapping(value="/{userId}")
+    @GetMapping("")
     @Operation(summary = "이벤트 목록 조회")
     @ApiResponses(
             value = {
@@ -75,7 +75,7 @@ public class EventController {
     }
 
     @ResponseBody
-    @GetMapping(value="/{userId}/{eventId}")
+    @GetMapping(value="/{eventId}")
     @Operation(summary = "이벤트 상세 조회")
     @ApiResponses(
             value = {
@@ -105,40 +105,40 @@ public class EventController {
         return ResponseEntity.ok(updatedEvent);
     }*/
 
-    @DeleteMapping(value="/{userId}/{eventId}")
+    @DeleteMapping(value="/{eventId}")
     @Operation(summary = "이벤트 삭제")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content),
             }
     )
-    public BaseResponseDto<?> deleteEvent(@PathVariable("userId") Long userId,
+    public BaseResponseDto<?> deleteEvent(@Auth final Accessor accessor,
                                          @PathVariable("eventId") Long eventId){
-        eventService.deleteEvent(userId, eventId);
+        eventService.deleteEvent(accessor, eventId);
         return BaseResponseDto.ofSuccess(DELETE_EVENT_SUCCESS);
     }
 
     @ResponseBody
-    @GetMapping(value="/attendanceList/{userId}/{eventId}")
-    @Operation(summary="행사 출석명단 확인")
+    @GetMapping(value="/attendanceList/{eventId}")
+    @Operation(summary="행사 출석 명단 확인")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventScheduleResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getAttendanceList(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getAttendanceList(@Auth final Accessor accessor,
                                                @PathVariable("eventId") Long eventId){
-        List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
+        List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(accessor, eventId);
         return ResponseEntity.ok(eventAttendanceList);
     }
 
     @ResponseBody
-    @PostMapping(value="/manager/{userId}/{eventId}")
+    @PostMapping(value="/manager/{eventId}")
     @Operation(summary = "행사 담당자 등록")
-    public BaseResponseDto<?> registerManager(@PathVariable("userId") Long userId,
+    public BaseResponseDto<?> registerManager(@Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,
                                              @RequestPart(value="manager") EventManagerRequestDto eventManagerRequestDto){
-        eventService.registerManager(userId, eventId, eventManagerRequestDto);
+        eventService.registerManager(accessor, eventId, eventManagerRequestDto);
         return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
 
 

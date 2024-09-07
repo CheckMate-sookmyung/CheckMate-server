@@ -1,5 +1,6 @@
 package checkmate.com.checkmate.eventschedule.dto;
 
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import lombok.Getter;
@@ -19,8 +20,8 @@ public class EventScheduleResponseDto {
     private final String eventEndTime;
     private final List<EventAttendanceResponseDto> attendanceListResponseDtos;
 
-    public static EventScheduleResponseDto of(EventSchedule eventSchedule){
-        List<EventAttendanceResponseDto> eventAttendanceListResponses = eventSchedule.getEventAttendances().stream()
+    public static EventScheduleResponseDto of(EventSchedule eventSchedule, List<EventAttendance> eventAttendances){
+        List<EventAttendanceResponseDto> eventAttendanceListResponses = eventAttendances.stream()
                 .map(EventAttendanceResponseDto::of)
                 .collect(Collectors.toList());
         return new EventScheduleResponseDto(

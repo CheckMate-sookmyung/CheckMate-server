@@ -206,7 +206,7 @@ public class EventAttendanceService {
         List<EventAttendanceResponseDto> eventAttendanceResponseDtos = new ArrayList<>();
 
         for (EventAttendanceRequestDto eventAttendanceListrequestDto : eventAttendanceRequestDtos) {
-            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceListId(eventAttendanceListrequestDto.getStudentInfoId());
+            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(eventAttendanceListrequestDto.getStudentInfoId());
             eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace(), numOfEvents);
             eventAttendanceRepository.save(eventAttendance);
             eventAttendanceResponseDtos.add(EventAttendanceResponseDto.of(eventAttendance));

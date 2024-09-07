@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.member.id = :memberId AND e.id = :eventId")
-    Event findByUserIdAndEventId(@Param("memberId") Long memberId, @Param("eventId") Long eventId);
+    Event findByMemberIdAndEventId(@Param("memberId") Long memberId, @Param("eventId") Long eventId);
 
     @Query("SELECT e FROM Event e WHERE e.member.id = :memberId")
     List<Event> findByMemberId(@Param("memberId") Long memberId);

@@ -10,16 +10,16 @@ import java.util.List;
 
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
 
-    @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.studentNumber = :studentNumber")
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.studentNumber = :studentNumber")
     EventAttendance findByEventIdAndStudentNumber(@Param("eventScheduleId") Long eventScheduleId, @Param("studentNumber") int studentNumber);
 
-    @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.id = :eventAttendanceListId")
-    EventAttendance findByEventAttendanceListId(@Param("eventAttendanceListId") Long eventAttendanceListId);
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.id = :eventAttendanceId")
+    EventAttendance findByEventAttendanceId(@Param("eventAttendanceId") Long eventAttendanceId);
 
-    @Query("SELECT ea FROM EventAttendanceList ea WHERE ea.eventSchedule.id= :eventScheduleId")
-    List<EventAttendance> findEventAttendanceListById(@Param("eventScheduleId") Long eventScheduleId);
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id= :eventScheduleId")
+    List<EventAttendance> findEventAttendanceById(@Param("eventScheduleId") Long eventScheduleId);
 
-    @Query(value = "SELECT * FROM event_attendance_list WHERE event_schedule_id = :eventScheduleId AND SUBSTRING(phone_number, -4) = :phoneNumberSuffix", nativeQuery = true)
+    @Query(value = "SELECT * FROM event_attendance WHERE event_schedule_id = :eventScheduleId AND SUBSTRING(phone_number, -4) = :phoneNumberSuffix", nativeQuery = true)
     List<EventAttendance> findAllByEventScheduleIdAndPhoneNumberSuffix(@Param("eventScheduleId") Long eventScheduleId, @Param("phoneNumberSuffix") String phoneNumberSuffix);
 
 }

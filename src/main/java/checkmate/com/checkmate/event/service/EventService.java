@@ -43,6 +43,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventScheduleRepository eventScheduleRepository;
     private final EventAttendanceService eventAttendanceService;
+    private final EventAttendanceRepository eventAttendanceRepository;
     private final AmazonS3 amazonS3Client;
     @Autowired
     private final MemberRepository memberRepository;
@@ -50,7 +51,7 @@ public class EventService {
     private String bucketName;
 
     @Transactional
-    public EventDetailResponseDto postEvent(Accessor accessor, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
+    public void postEvent(Accessor accessor, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event savedEvent = eventRequestDto.toEntity(loginMember);
         eventRepository.save(savedEvent);
@@ -81,8 +82,6 @@ public class EventService {
 
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
-
-        return EventDetailResponseDto.of(savedEvent);
     }
 
     @Transactional
@@ -101,7 +100,7 @@ public class EventService {
     @Transactional
     public EventDetailResponseDto getEventDetail(Accessor accessor, Long eventId){
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        Event getEvent = eventRepository.findByUserIdAndEventId(loginMember.getMemberId(), eventId);
+        Event getEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         if (getEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
         else {
@@ -155,8 +154,9 @@ public class EventService {
     }*/
 
     @Transactional
-    public void deleteEvent(Long userId, Long eventId){
-        Event deleteEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public void deleteEvent(Accessor accessor, Long eventId){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event deleteEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         if (deleteEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
         if (deleteEvent.getEventImage() != null) {
@@ -166,7 +166,6 @@ public class EventService {
         String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getBeforeAttendanceListFile());
         amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
         eventRepository.delete(deleteEvent);
-
     }
 
     private static String extractFileNameFromUrl(String imageUrl) {
@@ -181,7 +180,8 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventScheduleResponseDto> getAttendanceList(Long userId, Long eventId){
+    public List<EventScheduleResponseDto> getAttendanceList(Accessor accessor, Long eventId){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         if (eventSchedules.isEmpty())
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -189,11 +189,11 @@ public class EventService {
             List<EventScheduleResponseDto> eventScheduleResponseDtos = new ArrayList<>();
             for (EventSchedule eventSchedule : eventSchedules) {
                 Long eventScheduleId = eventSchedule.getEventScheduleId();
-                List<EventAttendance> eventAttendances = eventAttendanceListRespository.findEventAttendanceListById(eventScheduleId);
-                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
+                List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendanceById(eventScheduleId);
+/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
                         .map(EventAttendanceResponseDto::of)
-                        .collect(Collectors.toList());
-                eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule));
+                        .collect(Collectors.toList());*/
+                eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule, eventAttendances));
             }
             return eventScheduleResponseDtos;
 
@@ -201,8 +201,9 @@ public class EventService {
     }
 
     @Transactional
-    public void registerManager(Long userId, Long eventId, EventManagerRequestDto eventManagerRequestDto) {
-        Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public void registerManager(Accessor accessor, Long eventId, EventManagerRequestDto eventManagerRequestDto) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());
         eventRepository.save(event);
     }
