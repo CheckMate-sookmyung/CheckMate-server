@@ -1,25 +1,11 @@
 package checkmate.com.checkmate.eventschedule.service;
 
-import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
-import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
-import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
-import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
-import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
-import checkmate.com.checkmate.global.exception.GeneralException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static checkmate.com.checkmate.global.codes.ErrorCode.IO_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +16,7 @@ public class EventScheduleService {
     @Autowired
     private final EventScheduleRepository eventScheduleRepository;
     @Autowired
-    private final EventAttendanceListService eventAttendanceListService;
+    private final EventAttendanceService eventAttendanceService;
 
 /*    @Transactional
     public EventDetailResponseDto postEventSchedule(MultipartFile attendanceListFile, List<EventScheduleRequestDto> eventScheduleRequestDto, Long userId, Long eventId){

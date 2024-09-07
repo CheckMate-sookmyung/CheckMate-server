@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
-public class EventAttendanceListRequestDto {
+public class EventAttendanceRequestDto {
     private final Long studentInfoId;
     private final Boolean attendace;
 }

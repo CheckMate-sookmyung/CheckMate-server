@@ -1,11 +1,10 @@
 package checkmate.com.checkmate.eventAttendance.service;
 
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListRequestDto;
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
 import checkmate.com.checkmate.global.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
-import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
@@ -21,7 +20,6 @@ import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.formula.functions.Even;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +33,7 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class EventAttendanceListService {
+public class EventAttendanceService {
 
     @Autowired
     private final EventRepository eventRepository;
@@ -201,20 +199,20 @@ public class EventAttendanceListService {
     }
 
     @Transactional
-    public List<EventAttendanceListResponseDto> updateAttendanceList(Long userId, Long eventId, List<EventAttendanceListRequestDto> eventAttendanceListRequestDtos) {
+    public List<EventAttendanceResponseDto> updateAttendanceList(Long userId, Long eventId, List<EventAttendanceRequestDto> eventAttendanceRequestDtos) {
         // eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
         Event event = eventRepository.findByUserIdAndEventId(userId, eventId);
         int numOfEvents = event.getEventSchedules().size();
-        List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = new ArrayList<>();
+        List<EventAttendanceResponseDto> eventAttendanceResponseDtos = new ArrayList<>();
 
-        for (EventAttendanceListRequestDto eventAttendanceListrequestDto : eventAttendanceListRequestDtos) {
+        for (EventAttendanceRequestDto eventAttendanceListrequestDto : eventAttendanceRequestDtos) {
             EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceListId(eventAttendanceListrequestDto.getStudentInfoId());
             eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace(), numOfEvents);
             eventAttendanceRepository.save(eventAttendance);
-            eventAttendanceListResponseDtos.add(EventAttendanceListResponseDto.of(eventAttendance));
+            eventAttendanceResponseDtos.add(EventAttendanceResponseDto.of(eventAttendance));
         }
 
-        return eventAttendanceListResponseDtos;
+        return eventAttendanceResponseDtos;
     }
 
     private String maskMiddleName(String name) {

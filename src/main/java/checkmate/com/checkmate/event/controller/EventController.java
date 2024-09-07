@@ -69,8 +69,8 @@ public class EventController {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getEventList(@PathVariable("userId") Long userId){
-        List<EventListResponseDto> getEventList = eventService.getEventList(userId);
+    public ResponseEntity<?> getEventList(@Auth final Accessor accessor){
+        List<EventListResponseDto> getEventList = eventService.getEventList(accessor);
         return ResponseEntity.ok(getEventList);
     }
 
@@ -82,9 +82,9 @@ public class EventController {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getEventDetail(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> getEventDetail(@Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId){
-        EventDetailResponseDto getEvent = eventService.getEventDetail(userId, eventId);
+        EventDetailResponseDto getEvent = eventService.getEventDetail(accessor, eventId);
         return ResponseEntity.ok(getEvent);
     }
 
@@ -103,7 +103,7 @@ public class EventController {
                                       @RequestPart(value="event") EventRequestDto eventRequestDto){
         EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage,attendanceListFile, userId, eventId, eventRequestDto);
         return ResponseEntity.ok(updatedEvent);
-    }
+    }*/
 
     @DeleteMapping(value="/{userId}/{eventId}")
     @Operation(summary = "이벤트 삭제")
@@ -130,7 +130,7 @@ public class EventController {
                                                @PathVariable("eventId") Long eventId){
         List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(userId, eventId);
         return ResponseEntity.ok(eventAttendanceList);
-    }*/
+    }
 
     @ResponseBody
     @PostMapping(value="/manager/{userId}/{eventId}")

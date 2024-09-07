@@ -9,18 +9,15 @@ import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceListResponseDto;
-import checkmate.com.checkmate.eventAttendance.service.EventAttendanceListService;
+import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
+import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
-import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.exception.GeneralException;
-import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
-import checkmate.com.checkmate.user.domain.User;
 import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +39,10 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 @RequiredArgsConstructor
 public class EventService {
 
-    private final UserRepository userRepository;
     private final S3Uploader s3Uploader;
     private final EventRepository eventRepository;
     private final EventScheduleRepository eventScheduleRepository;
-    private final EventAttendanceRepository eventAttendanceRespository;
-    private final EventAttendanceListService eventAttendanceListService;
+    private final EventAttendanceService eventAttendanceService;
     private final AmazonS3 amazonS3Client;
     @Autowired
     private final MemberRepository memberRepository;
@@ -56,8 +51,7 @@ public class EventService {
 
     @Transactional
     public EventDetailResponseDto postEvent(Accessor accessor, MultipartFile eventImage, MultipartFile attendanceListFile, EventRequestDto eventRequestDto) throws IOException {
-        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());        if (user == null)
-            throw new GeneralException(USER_NOT_FOUND);
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event savedEvent = eventRequestDto.toEntity(loginMember);
         eventRepository.save(savedEvent);
 
@@ -76,7 +70,7 @@ public class EventService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-                        eventAttendanceListService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
+                        eventAttendanceService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
 
                     } catch (IOException e) {
                         throw new GeneralException(IO_EXCEPTION);
@@ -92,8 +86,9 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventListResponseDto> getEventList(Long userId){
-        List<Event> events = eventRepository.findByUserId(userId);
+    public List<EventListResponseDto> getEventList(Accessor accessor){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        List<Event> events = eventRepository.findByMemberId(loginMember.getMemberId());
         if (!events.isEmpty()) {
             List<EventListResponseDto> eventListResponseDtos = events.stream()
                     .map(EventListResponseDto::of)
@@ -104,12 +99,15 @@ public class EventService {
     }
 
     @Transactional
-    public EventDetailResponseDto getEventDetail(Long userId, Long eventId){
-        Event getEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public EventDetailResponseDto getEventDetail(Accessor accessor, Long eventId){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event getEvent = eventRepository.findByUserIdAndEventId(loginMember.getMemberId(), eventId);
         if (getEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
-        else
-            return EventDetailResponseDto.of(getEvent);
+        else {
+            List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+            return EventDetailResponseDto.of(getEvent, eventSchedules);
+        }
     }
 /*
     @Transactional
@@ -192,8 +190,8 @@ public class EventService {
             for (EventSchedule eventSchedule : eventSchedules) {
                 Long eventScheduleId = eventSchedule.getEventScheduleId();
                 List<EventAttendance> eventAttendances = eventAttendanceListRespository.findEventAttendanceListById(eventScheduleId);
-                List<EventAttendanceListResponseDto> eventAttendanceListResponseDtos = eventAttendances.stream()
-                        .map(EventAttendanceListResponseDto::of)
+                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
+                        .map(EventAttendanceResponseDto::of)
                         .collect(Collectors.toList());
                 eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule));
             }
