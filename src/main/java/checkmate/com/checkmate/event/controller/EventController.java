@@ -6,7 +6,7 @@ import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
-import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.bouncycastle.jcajce.provider.symmetric.util.BaseWrapCipher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -123,17 +122,17 @@ public class EventController {
     @Operation(summary="행사 출석 명단 확인")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventScheduleResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventScheduleResponseDto.class))),
             }
     )
     public ResponseEntity<?> getAttendanceList(@Auth final Accessor accessor,
                                                @PathVariable("eventId") Long eventId){
-        List<EventScheduleResponseDto> eventAttendanceList = eventService.getAttendanceList(accessor, eventId);
+        List<Object> eventAttendanceList = eventService.getAttendanceList(accessor, eventId);
         return ResponseEntity.ok(eventAttendanceList);
     }
 
     @ResponseBody
-    @PostMapping(value="/manager/{eventId}")
+    @PutMapping(value="/manager/{eventId}")
     @Operation(summary = "행사 담당자 등록")
     public BaseResponseDto<?> registerManager(@Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,

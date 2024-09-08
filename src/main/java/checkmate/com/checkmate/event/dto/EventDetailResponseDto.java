@@ -3,6 +3,7 @@ package checkmate.com.checkmate.event.dto;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.domain.EventType;
 import lombok.Getter;

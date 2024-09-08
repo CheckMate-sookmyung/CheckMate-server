@@ -3,7 +3,7 @@ package checkmate.com.checkmate.eventAttendance.controller;
 import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.StudentEventAttendanceResponseDto;
 import checkmate.com.checkmate.eventAttendance.dto.StrangerInfoResponseDto;
 import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
@@ -121,13 +121,13 @@ public class EventAttendanceController {
     @Operation(summary = "출석명단 수정")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventAttendanceResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventAttendanceResponseDto.class))),
             }
     )
     public ResponseEntity<?> updateAttendanceList(@Auth final Accessor accessor,
                                                    @PathVariable("eventId") Long eventId,
                                                    @RequestPart("attendanceList") List<EventAttendanceRequestDto> eventAttendanceRequestDto){
-        List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, eventAttendanceRequestDto);
-        return ResponseEntity.ok(eventAttendanceResponseDtos);
+        List<?> studentEventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, eventAttendanceRequestDto);
+        return ResponseEntity.ok(studentEventAttendanceResponseDtos);
     }
 }

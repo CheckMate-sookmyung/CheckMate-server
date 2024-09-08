@@ -55,6 +55,7 @@ public class EventRequestDto {
                 .completionTime(completionTimes)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
+                .managerEmail(member.getMemberEmail())
                 .build();
     }
 }

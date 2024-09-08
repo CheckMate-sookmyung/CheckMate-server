@@ -26,7 +26,6 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.FILE_READ_FAIL;
 @Service
 @RequiredArgsConstructor
 public class ExcelReader {
-
     @Autowired
     private final EventAttendanceRepository eventAttendanceRepository;
     @Autowired

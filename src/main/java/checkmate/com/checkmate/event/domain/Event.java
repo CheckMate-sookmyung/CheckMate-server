@@ -77,7 +77,7 @@ public class Event extends BaseTimeEntity {
     private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget){
+    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
@@ -86,6 +86,7 @@ public class Event extends BaseTimeEntity {
         this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
+        this.managerEmail = managerEmail;
     }
 
     public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile){

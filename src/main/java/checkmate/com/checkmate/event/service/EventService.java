@@ -9,16 +9,16 @@ import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceResponseDto;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StrangerEventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.config.S3Uploader;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
-import checkmate.com.checkmate.user.domain.repository.UserRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,17 +85,22 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventListResponseDto> getEventList(Accessor accessor){
+    public List<EventListResponseDto> getEventList(Accessor accessor) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         List<Event> events = eventRepository.findByMemberId(loginMember.getMemberId());
         if (!events.isEmpty()) {
             List<EventListResponseDto> eventListResponseDtos = events.stream()
-                    .map(EventListResponseDto::of)
+                    .map(event -> {
+                        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(event.getEventId());
+                        return EventListResponseDto.of(event, eventSchedules);
+                    })
                     .collect(Collectors.toList());
             return eventListResponseDtos;
-        } else
+        } else {
             throw new GeneralException(EVENT_LIST_NOT_FOUND);
+        }
     }
+
 
     @Transactional
     public EventDetailResponseDto getEventDetail(Accessor accessor, Long eventId){
@@ -180,20 +185,33 @@ public class EventService {
     }
 
     @Transactional
-    public List<EventScheduleResponseDto> getAttendanceList(Accessor accessor, Long eventId){
+    public List<Object> getAttendanceList(Accessor accessor, Long eventId){
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        List<Object> eventScheduleResponseDtos = new ArrayList<>();
         if (eventSchedules.isEmpty())
             throw new GeneralException(EVENT_NOT_FOUND);
         else {
-            List<EventScheduleResponseDto> eventScheduleResponseDtos = new ArrayList<>();
-            for (EventSchedule eventSchedule : eventSchedules) {
-                Long eventScheduleId = eventSchedule.getEventScheduleId();
-                List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendanceById(eventScheduleId);
+            if(event.getEventTarget() == EventTarget.INTERNAL) {
+                for (EventSchedule eventSchedule : eventSchedules) {
+                    Long eventScheduleId = eventSchedule.getEventScheduleId();
+                    List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
 /*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
                         .map(EventAttendanceResponseDto::of)
                         .collect(Collectors.toList());*/
-                eventScheduleResponseDtos.add(EventScheduleResponseDto.of(eventSchedule, eventAttendances));
+                    eventScheduleResponseDtos.add(StudentEventScheduleResponseDto.of(eventSchedule, eventAttendances));
+                }
+            }
+            else{
+                for (EventSchedule eventSchedule : eventSchedules) {
+                    Long eventScheduleId = eventSchedule.getEventScheduleId();
+                    List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
+/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
+                        .map(EventAttendanceResponseDto::of)
+                        .collect(Collectors.toList());*/
+                    eventScheduleResponseDtos.add(StrangerEventScheduleResponseDto.of(eventSchedule, eventAttendances));
+                }
             }
             return eventScheduleResponseDtos;
 

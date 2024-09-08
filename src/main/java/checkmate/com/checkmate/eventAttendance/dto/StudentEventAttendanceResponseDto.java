@@ -10,7 +10,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
-public class EventAttendanceResponseDto {
+public class StudentEventAttendanceResponseDto {
     private final Long studentInfoId;
     private final String studentName;
     private final int studentNumber;
@@ -21,14 +21,14 @@ public class EventAttendanceResponseDto {
     private final String sign;
     private final LocalDateTime createdDate;
 
-    public static EventAttendanceResponseDto of(EventAttendance eventAttendance){
-        return new EventAttendanceResponseDto(
-                eventAttendance.getEventAttendanceListId(),
-                eventAttendance.getName(),
-                eventAttendance.getStudentNumber(),
-                eventAttendance.getMajor(),
-                eventAttendance.getPhoneNumber(),
-                eventAttendance.getEmail(),
+    public static StudentEventAttendanceResponseDto of(EventAttendance eventAttendance){
+        return new StudentEventAttendanceResponseDto(
+                eventAttendance.getEventAttendanceId(),
+                eventAttendance.getStudent().getStudentName(),
+                eventAttendance.getStudent().getStudentNumber(),
+                eventAttendance.getStudent().getStudentMajor(),
+                eventAttendance.getStudent().getStudentPhoneNumber(),
+                eventAttendance.getStudent().getStudentEmail(),
                 eventAttendance.isAttendance(),
                 eventAttendance.getSign(),
                 eventAttendance.getCreatedDate());
