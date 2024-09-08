@@ -62,7 +62,7 @@ public class EventAttendanceService {
         } else {
             String eventTitle = event.getEventTitle();
             Long eventScheduleId = eventScheduleRepository.findEventScheduleIdByEvent(eventId, eventDate); //하루에 두 번 하는 행사는 없겠지..?
-            EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventIdAndStudentNumber(eventScheduleId, studentNumber);
+            EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventScheduleIdAndStudentNumber(eventScheduleId, studentNumber);
             if (studentInfoFromEventAttendance == null) {
                 throw new GeneralException(STUDENT_NOT_FOUND);
             } else if (!studentInfoFromEventAttendance.getSign().isEmpty()) {

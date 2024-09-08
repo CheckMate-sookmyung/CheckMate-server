@@ -10,9 +10,11 @@ import java.util.List;
 
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long> {
 
-    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.studentNumber = :studentNumber")
-    EventAttendance findByEventIdAndStudentNumber(@Param("eventScheduleId") Long eventScheduleId, @Param("studentNumber") int studentNumber);
-
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.student.studentNumber = :studentNumber")
+    EventAttendance findByEventScheduleIdAndStudentNumber(
+            @Param("eventScheduleId") Long eventScheduleId,
+            @Param("studentNumber") int studentNumber
+    );
     @Query("SELECT ea FROM EventAttendance ea WHERE ea.id = :eventAttendanceId")
     EventAttendance findByEventAttendanceId(@Param("eventAttendanceId") Long eventAttendanceId);
 

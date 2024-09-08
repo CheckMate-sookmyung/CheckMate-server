@@ -1,14 +1,13 @@
 spring:
   jpa:
-    hibernate:
-      ddl-auto: update
+    detabase-platform: org.hibernate.dialect.MySQL8Dialect
+    database: mysql
     show-sql: true
+    properties:
+      hibernate.format_sql: true
 
   profiles:
-    group:
-      dev: "dev, db-dev, s3-dev"
-      prod: "prod, db-prod, s3-prod"
-    include: email, jwt, oauth
+    include: db, s3, email, jwt, oauth
 
   servlet:
     multipart:
