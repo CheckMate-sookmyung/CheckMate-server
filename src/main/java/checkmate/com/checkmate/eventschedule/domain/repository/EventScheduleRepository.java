@@ -18,6 +18,5 @@ public interface EventScheduleRepository extends JpaRepository<EventSchedule, Lo
     List<EventSchedule> findEventScheduleListByEventId(@Param("eventId") Long eventId);
 
     void deleteByEventEventId(Long eventId);
-
 }
 

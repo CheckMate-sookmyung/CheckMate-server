@@ -1,6 +1,6 @@
-package checkmate.com.checkmate.eventattendanceList.dto;
+package checkmate.com.checkmate.eventAttendance.dto;
 
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,13 +15,13 @@ public class StudentInfoResponseDto {
     private final int studentNumber;
     private final String major;
 
-    public static StudentInfoResponseDto of(EventAttendanceList eventAttendanceList, String eventTitle, String maskedName) {
+    public static StudentInfoResponseDto of(EventAttendance eventAttendance, String eventTitle, String maskedName) {
         return new StudentInfoResponseDto(
-                eventAttendanceList.getEventAttendanceListId(),
+                eventAttendance.getEventAttendanceId(),
                 eventTitle,
                 maskedName,
-                eventAttendanceList.getStudentNumber(),
-                eventAttendanceList.getMajor()
+                eventAttendance.getStudent().getStudentNumber(),
+                eventAttendance.getStudent().getStudentMajor()
         );
     }
 }

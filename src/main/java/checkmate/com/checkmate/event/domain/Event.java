@@ -28,84 +28,87 @@ public class Event extends BaseTimeEntity {
     @Id @GeneratedValue
     private Long eventId;
 
+    @Column(nullable = false)
     private String eventTitle;
 
+    @Column
     private String eventDetail;
 
-    @Enumerated(EnumType.STRING)
-    private EventType eventType;
-
-    @Enumerated(EnumType.STRING)
-    private EventTarget eventTarget;
-
+    @Column
     private String eventImage;
 
+    @Column
     private String beforeAttendanceListFile;
 
+    @Column
+    private String afterAttendanceListExcelFile;
+
+    @Column
+    private String afterAttendanceListPDFFile;
+
+    @Column(nullable = false)
     private Boolean alarmRequest;
 
+    @Column
     private Boolean alarmResponse;
 
-    private int minCompletionTimes;
+    @Column(nullable = false)
+    private int completionTime;
 
-    private String afterAttendanceListEachFile;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventTarget eventTarget;
 
-    private String afterAttendanceListTotalFile;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventType eventType;
 
-    @Nullable
+    @Column
     private String managerName;
 
-    @Nullable
-    private String managerPhoneNumber;
-
-    @Nullable
+    @Column
     private String managerEmail;
 
-    @OneToMany(mappedBy="event", cascade = CascadeType.ALL)
-    private List<EventSchedule> eventSchedules = new ArrayList<>();
+    @Column
+    private String managerPhoneNumber;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id", nullable = false)
-    private User user;
+    @JoinColumn(name="member_id", nullable = false)
+    private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventDetail, int minCompletionTimes, boolean alarmRequest, User user, EventType eventType, EventTarget eventTarget){
+    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
-        this.minCompletionTimes = minCompletionTimes;
+        this.completionTime = completionTime;
         this.alarmResponse = false;
-        this.user = user;
+        this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
+        this.managerEmail = managerEmail;
     }
 
-    public void update(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules, Boolean alarmResponse){
+    public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile){
+        this.eventImage = eventImage;
+        this.beforeAttendanceListFile = eventAttendanceListFile;
+    }
+
+    public void updateEvent(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, Boolean alarmResponse){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.eventSchedules = eventSchedules;
         this.beforeAttendanceListFile = eventAttendanceListFile;
         this.alarmRequest = alarmResponse;
-    }
-
-    public void postFileAndAttendanceList(String eventImage, String eventAttendanceListFile, List<EventSchedule> eventSchedules){
-        this.eventImage = eventImage;
-        this.beforeAttendanceListFile = eventAttendanceListFile;
-        this.eventSchedules = eventSchedules;
     }
 
     public void updateAlarm(){
         this.alarmResponse = true;
     }
 
-    public void updateAttendanceListFileAferEvent(String eachFileUrl, String totalFileUrl){
-        this.afterAttendanceListEachFile = eachFileUrl;
-        this.afterAttendanceListTotalFile = totalFileUrl;
-    }
-
-    public void updateAttendanceListFileBetweenEvent(String eachFileUrl){
-        this.afterAttendanceListEachFile = eachFileUrl;
+    public void updateAttendanceListFile(String afterAttendanceListPDFFile, String afterAttendanceListExcelFile){
+        this.afterAttendanceListPDFFile = afterAttendanceListPDFFile;
+        this.afterAttendanceListExcelFile = afterAttendanceListExcelFile;
     }
 
     public void registerEventManager(String managerName, String managerPhoneNumber, String managerEmail){

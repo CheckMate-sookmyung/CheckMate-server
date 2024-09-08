@@ -11,7 +11,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RequiredArgsConstructor
 public enum ErrorCode {
     //일반적인 응답
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러, 영서에게 문의 바랍니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러, 관리자에게 문의 바랍니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "IO 예외입니다."),
     INVALID_AUTHORITY(HttpStatus.UNAUTHORIZED, "해당 리소스에 대한 접근 권한이 없습니다."),

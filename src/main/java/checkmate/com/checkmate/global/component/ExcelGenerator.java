@@ -1,11 +1,16 @@
 
 package checkmate.com.checkmate.global.component;
 
-import checkmate.com.checkmate.eventattendanceList.domain.EventAttendanceList;
+import checkmate.com.checkmate.event.domain.Event;
+import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
+import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
+import checkmate.com.checkmate.global.domain.EventTarget;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -13,18 +18,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class ExcelGenerator {
     private final WorkbookToMultipartFileConverter workbookToMultipartFileConverter;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
-    public ExcelGenerator(WorkbookToMultipartFileConverter workbookToMultipartFileConverter) {
-        this.workbookToMultipartFileConverter = workbookToMultipartFileConverter;
-    }
 
-    public MultipartFile generateExcel(String eventName, List<EventSchedule> eventSchedules, int completion) {
+    public MultipartFile generateExcel(Event event, List<EventSchedule> eventSchedules, int completion) {
         Workbook workbook = new XSSFWorkbook();
         try {
-            Sheet sheet = workbook.createSheet(eventName + " 참석자 명단");
+            Sheet sheet = workbook.createSheet(event.getEventTitle() + " 참석자 명단");
 
             Row headerRow = sheet.createRow(0);
             String[] baseColumns = {"이름", "학과", "학번"};
@@ -43,18 +47,31 @@ public class ExcelGenerator {
 
             for (int i = 0; i < eventSchedules.size(); i++) {
                 EventSchedule eventSchedule = eventSchedules.get(i);
-                List<EventAttendanceList> attendanceLists = eventSchedule.getEventAttendanceLists();
-                for (EventAttendanceList attendance : attendanceLists) {
-                    String key = attendance.getName() + "_" + attendance.getStudentNumber();
-                    if (!attendanceMap.containsKey(key)) {
-                        String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
-                        info[0] = attendance.getName();
-                        info[1] = attendance.getMajor();
-                        info[2] = String.valueOf(attendance.getStudentNumber());
-                        attendanceMap.put(key, info);
+                List<EventAttendance> attendanceLists = eventAttendanceRepository.findEventAttendancesById(eventSchedule.getEventScheduleId());
+                for (EventAttendance attendance : attendanceLists) {
+                    if (event.getEventTarget() == EventTarget.INTERNAL) {
+                        String key = attendance.getStudent().getStudentName() + "_" + attendance.getStudent().getStudentName();
+                        if (!attendanceMap.containsKey(key)) {
+                            String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
+                            info[0] = attendance.getStudent().getStudentName();
+                            info[1] = attendance.getStudent().getStudentMajor();
+                            info[2] = String.valueOf(attendance.getStudent().getStudentNumber());
+                            attendanceMap.put(key, info);
+                        }
+                        String[] info = attendanceMap.get(key);
+                        info[baseColumns.length + i] = attendance.isAttendance() ? "O" : "X";
+                    } else {
+                        String key = attendance.getStranger().getStrangerName() + "_" + attendance.getStranger().getStrangerPhoneNumber();
+                        if (!attendanceMap.containsKey(key)) {
+                            String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
+                            info[0] = attendance.getStranger().getStrangerName();
+                            info[1] = attendance.getStranger().getStrangerAffiliation();
+                            info[2] = String.valueOf(attendance.getStranger().getStrangerPhoneNumber());
+                            attendanceMap.put(key, info);
+                        }
+                        String[] info = attendanceMap.get(key);
+                        info[baseColumns.length + i] = attendance.isAttendance() ? "O" : "X";
                     }
-                    String[] info = attendanceMap.get(key);
-                    info[baseColumns.length + i] = attendance.isAttendance() ? "O" : "X";
                 }
             }
 
@@ -75,10 +92,10 @@ public class ExcelGenerator {
                 }
             }
 
-            String fileName = eventName + "_참석자명단_전체.xlsx";
+            String fileName = event.getEventTitle() + "_참석자명단_전체.xlsx";
             try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
                 workbook.write(outputStream);
-                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, eventName + "_참석자명단.xlsx");
+                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() + "_참석자명단.xlsx");
                 return attendanceListMultipartFile;
             }
         } catch (IOException e) {
@@ -92,6 +109,7 @@ public class ExcelGenerator {
         }
         return null;
     }
+/*
 
     public MultipartFile generateExcelAboutExternalEvent(String eventName, List<EventSchedule> eventSchedules, int completion) {
         Workbook workbook = new XSSFWorkbook();
@@ -115,8 +133,8 @@ public class ExcelGenerator {
 
             for (int i = 0; i < eventSchedules.size(); i++) {
                 EventSchedule eventSchedule = eventSchedules.get(i);
-                List<EventAttendanceList> attendanceLists = eventSchedule.getEventAttendanceLists();
-                for (EventAttendanceList attendance : attendanceLists) {
+                List<EventAttendance> attendanceLists = eventSchedule.getEventAttendances();
+                for (EventAttendance attendance : attendanceLists) {
                     String key = attendance.getName();
                     if (!attendanceMap.containsKey(key)) {
                         String[] info = new String[baseColumns.length + eventSchedules.size() + 1];
@@ -163,6 +181,7 @@ public class ExcelGenerator {
         }
         return null;
     }
+*/
 
 
 }

@@ -1,7 +1,9 @@
 package checkmate.com.checkmate.event.dto;
 
 import checkmate.com.checkmate.event.domain.Event;
+import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.domain.EventType;
 import lombok.Getter;
@@ -29,8 +31,8 @@ public class EventDetailResponseDto {
     private final String managerName;
     private final String managerPhoneNumber;
     private final String managerEmail;
-    public static EventDetailResponseDto of(Event event) {
-        List<EventScheduleResponseDto> EventSchedulesDto = event.getEventSchedules().stream()
+    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules) {
+        List<EventScheduleResponseDto> EventSchedulesDto = eventSchedules.stream()
                 .map(EventScheduleResponseDto::of)
                 .collect(Collectors.toList());
         return new EventDetailResponseDto(
