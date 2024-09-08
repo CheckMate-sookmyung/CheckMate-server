@@ -38,6 +38,7 @@ out/
 
 ## Key Files ##
 src/main/resources/*.yml
+.DS_Store
 CheckMate-server/log/attendanceCheckTest.log
 log/attendanceCheckTest.log
 log/*.gz
