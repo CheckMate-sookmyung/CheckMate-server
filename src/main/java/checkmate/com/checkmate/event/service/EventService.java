@@ -45,7 +45,6 @@ public class EventService {
     private final EventAttendanceService eventAttendanceService;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final AmazonS3 amazonS3Client;
-    @Autowired
     private final MemberRepository memberRepository;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
