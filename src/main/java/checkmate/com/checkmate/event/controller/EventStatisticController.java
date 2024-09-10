@@ -35,8 +35,8 @@ public class EventStatisticController {
     private final EventStatisticService eventStatisticService;
 
     @ResponseBody
-    @GetMapping("/{eventId}/major")
-    @Operation(summary = "행사별 참석한 학과 비율 조회")
+    @GetMapping("/{eventId}")
+    @Operation(summary = "행사별 세부통계")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
