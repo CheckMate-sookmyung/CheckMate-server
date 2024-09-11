@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberInfoRequest {
 
-    @NotNull(message = "사용자의 이름은 필수입니다.")
+    //@NotNull(message = "사용자의 이름은 필수입니다.")
     private String name;
 
-    @NotNull(message = "사용자의 메일은 필수입니다.")
+    //@NotNull(message = "사용자의 메일은 필수입니다.")
     private String email;
 
-    @NotNull(message = "사용자의 소셜 아이디는 필수입니다.")
+    //@NotNull(message = "사용자의 소셜 아이디는 필수입니다.")
     private String socialId;
 
     private String socialRefreshToken;

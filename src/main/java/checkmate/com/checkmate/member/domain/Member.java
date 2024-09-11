@@ -22,13 +22,13 @@ public class Member extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long memberId;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String memberName;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String memberEmail;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private String socialId;
 
     private String refreshToken;

@@ -33,6 +33,10 @@ public class OAuthService {
 
         String refreshToken = jwtProvider.createRefreshToken();
 
+        System.out.println(memberInfoRequest.getName());
+        System.out.println(memberInfoRequest.getEmail());
+        System.out.println(memberInfoRequest.getSocialId());
+
         Member member = Member.builder()
                 .memberName(memberInfoRequest.getName())
                 .memberEmail(memberInfoRequest.getEmail())
