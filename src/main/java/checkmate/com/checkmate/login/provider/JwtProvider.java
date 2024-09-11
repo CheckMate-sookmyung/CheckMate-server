@@ -21,8 +21,8 @@ import static checkmate.com.checkmate.global.codes.ErrorCode.FAIL_VALIDATE_TOKEN
 @RequiredArgsConstructor
 public class JwtProvider {
     public static final String EMPTY_SUBJECT = "";
-    private final long accessTokenExpirationTime = 1000L * 60 * 30; // 30M
-    private final long refreshTokenExpirationTime = 1000L * 60 * 60 * 24 * 30; // 1M
+    private final long accessTokenExpirationTime = 1000L * 60 * 60 * 3; // 3Hour
+    private final long refreshTokenExpirationTime = 1000L * 60 * 60 * 24 * 30; // 1Month
     private Key key;
 
     @Value("${jwt.secretKey}")

@@ -28,14 +28,10 @@ public class OAuthService {
     public OAuthMemberResponse signup(final MemberInfoRequest memberInfoRequest) {
 
         Optional<Member> findMember = memberRepository.findMemberBySocialId(memberInfoRequest.getSocialId());
-        if (findMember.isPresent()) throw new GeneralException(USER_EXISTS);
-
+        if (findMember.isPresent())
+            return new OAuthMemberResponse(findMember.get(), false, jwtProvider.createAccessToken(findMember.get().getMemberId().toString()));
 
         String refreshToken = jwtProvider.createRefreshToken();
-
-        System.out.println(memberInfoRequest.getName());
-        System.out.println(memberInfoRequest.getEmail());
-        System.out.println(memberInfoRequest.getSocialId());
 
         Member member = Member.builder()
                 .memberName(memberInfoRequest.getName())

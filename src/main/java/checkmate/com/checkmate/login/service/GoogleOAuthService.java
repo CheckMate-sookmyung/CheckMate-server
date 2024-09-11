@@ -2,8 +2,10 @@ package checkmate.com.checkmate.login.service;
 
 
 import checkmate.com.checkmate.global.exception.GeneralException;
+import checkmate.com.checkmate.login.dto.google.GoogleMemberOauthResponse;
 import checkmate.com.checkmate.login.dto.google.GoogleMemberResponse;
 import checkmate.com.checkmate.login.dto.google.GoogleTokenResponse;
+import checkmate.com.checkmate.login.dto.response.AccessTokenResponse;
 import checkmate.com.checkmate.login.dto.response.OAuthMemberResponse;
 import checkmate.com.checkmate.login.provider.JwtProvider;
 import checkmate.com.checkmate.member.domain.Member;
@@ -89,7 +91,7 @@ public class GoogleOAuthService {
     /**
      * Get Access Token
      */
-    public String getAccessToken(final String code) {
+    public GoogleTokenResponse getAccessToken(final String code) {
         GoogleTokenResponse googleTokenResponse = webClient.post()
                 .uri(GOOGLE_BASE_URL, uriBuilder -> uriBuilder
                         .queryParam("grant_type", "authorization_code")
@@ -107,6 +109,13 @@ public class GoogleOAuthService {
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(INVALID_OAUTH_TOKEN));
 
-        return googleTokenResponse.getAccessToken();
+        return googleTokenResponse;
     }
+
+/*    public AccessTokenResponse processGoogleOAuth(String authorizationCode) {
+        String accessToken = getAccessToken(authorizationCode);
+        return AccessTokenResponse.builder()
+                .accessToken(accessToken)
+                .build();
+    }*/
 }
