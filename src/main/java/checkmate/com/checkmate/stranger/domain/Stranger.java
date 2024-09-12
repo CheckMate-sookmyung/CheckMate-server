@@ -1,10 +1,8 @@
 package checkmate.com.checkmate.stranger.domain;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import checkmate.com.checkmate.member.domain.Member;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,9 +33,12 @@ public class Stranger {
     @Column
     private String strangerAffiliation;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Builder
     public Stranger(final String strangerName,
-
                          final String strangerPhoneNumber,
                          final String strangerEmail,
                          final String strangerAffiliation){

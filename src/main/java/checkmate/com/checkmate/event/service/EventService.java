@@ -54,12 +54,10 @@ public class EventService {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event savedEvent = eventRequestDto.toEntity(loginMember);
         eventRepository.save(savedEvent);
-
         String imageUrl = null;
         if(eventImage != null)
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
         String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
-
         eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
                     EventSchedule eventSchedule = EventSchedule.builder()
@@ -78,7 +76,6 @@ public class EventService {
                     return eventSchedule;
                 })
                 .collect(Collectors.toList());
-
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
     }

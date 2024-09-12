@@ -2,7 +2,6 @@ package checkmate.com.checkmate.eventschedule.dto;
 
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
-import checkmate.com.checkmate.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -4,6 +4,7 @@ import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventRatioResponseDto;
+import checkmate.com.checkmate.event.dto.MostFrequentParticipantsResponseDto;
 import checkmate.com.checkmate.event.service.EventService;
 import checkmate.com.checkmate.event.service.EventStatisticService;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
@@ -39,7 +40,7 @@ public class EventStatisticController {
     @Operation(summary = "행사별 세부통계")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventRatioResponseDto.class))),
             }
     )
     public ResponseEntity<?> getEventRatio(@Auth final Accessor accessor,
@@ -49,17 +50,17 @@ public class EventStatisticController {
     }
 
     @ResponseBody
-    @GetMapping("/{eventId}")
-    @Operation(summary = "행사별 전체통계")
+    @GetMapping("/student")
+    @Operation(summary = "행사별 전체 통계 - 학생")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MostFrequentParticipantsResponseDto.class))),
             }
     )
     public ResponseEntity<?> getMostFrequentParticipants(@Auth final Accessor accessor,
                                            @PathVariable("eventId") Long eventId) {
-        EventRatioResponseDto eventRatio = eventStatisticService.getMostFrequentParticipants(accessor, eventId);
-        return ResponseEntity.ok(eventRatio);
+        List<MostFrequentParticipantsResponseDto> studentStatistic = eventStatisticService.getMostFrequentParticipants(accessor, eventId);
+        return ResponseEntity.ok(studentStatistic);
     }
 /*
     @ResponseBody

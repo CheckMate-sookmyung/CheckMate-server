@@ -6,7 +6,6 @@ import checkmate.com.checkmate.global.BaseTimeEntity;
 import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.member.domain.Member;
-import checkmate.com.checkmate.user.domain.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;

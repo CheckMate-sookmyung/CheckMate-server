@@ -1,7 +1,6 @@
 package checkmate.com.checkmate.global.component;
 
 import checkmate.com.checkmate.event.domain.Event;
-import checkmate.com.checkmate.user.domain.User;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;

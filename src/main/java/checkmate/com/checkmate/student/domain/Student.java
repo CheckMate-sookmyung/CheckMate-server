@@ -1,6 +1,6 @@
 package checkmate.com.checkmate.student.domain;
 
-import checkmate.com.checkmate.user.domain.User;
+import checkmate.com.checkmate.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,8 +45,8 @@ public class Student {
     private int applicationTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Builder
     public Student(final String studentName,
