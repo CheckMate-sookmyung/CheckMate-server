@@ -17,6 +17,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import checkmate.com.checkmate.member.domain.Member;
+import checkmate.com.checkmate.member.domain.repository.MemberRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -24,6 +27,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import checkmate.com.checkmate.auth.MemberOnly;
 import checkmate.com.checkmate.auth.Auth;
+
+import java.util.Optional;
 
 import static checkmate.com.checkmate.global.codes.SuccessCode.LOGOUT_SUCCESS;
 
@@ -44,10 +49,11 @@ public class OAuthController {
             }
     )
     public ResponseEntity<OAuthMemberResponse> signup(
-            @ModelAttribute @Valid final MemberInfoRequest memberInfoRequest
+        @ModelAttribute @Valid final MemberInfoRequest memberInfoRequest
     ) {
-        return ResponseEntity.ok(oAuthService.signup(memberInfoRequest));
-    }
+            return ResponseEntity.ok(oAuthService.signup(memberInfoRequest));
+        }
+
 
     @GetMapping(value ="/code")
     @Operation(summary = "로그인 시 accessToken 발급")
