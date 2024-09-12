@@ -31,7 +31,7 @@ public class StudentEventAttendanceResponseDto {
                 eventAttendance.getStudent().getStudentEmail(),
                 eventAttendance.isAttendance(),
                 eventAttendance.getSign(),
-                eventAttendance.getCreatedDate());
+                eventAttendance.getModifiedDate());
     }
 
 }

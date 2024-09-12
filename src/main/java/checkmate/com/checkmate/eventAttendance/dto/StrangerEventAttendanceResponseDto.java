@@ -18,7 +18,7 @@ public class StrangerEventAttendanceResponseDto {
     private final String strangerEmail;
     private final boolean attendance;
     private final String sign;
-    private final LocalDateTime createdDate;
+    private final LocalDateTime attendanceTime;
 
     public static StrangerEventAttendanceResponseDto of(EventAttendance eventAttendance){
         return new StrangerEventAttendanceResponseDto(
@@ -29,6 +29,6 @@ public class StrangerEventAttendanceResponseDto {
                 eventAttendance.getStranger().getStrangerEmail(),
                 eventAttendance.isAttendance(),
                 eventAttendance.getSign(),
-                eventAttendance.getCreatedDate());
+                eventAttendance.getModifiedDate());
     }
 }
