@@ -17,9 +17,9 @@ public class EventRatioResponseDto {
     private final List<String> eventDates;
     private final List<EventRatioDetailResponseDto> eventRatioDetailResponseDtos;
 
-    public static EventRatioResponseDto of(List<String> eventDates, List<Student> students){
+    public static EventRatioResponseDto of(List<String> eventDates, List<Student> students, boolean completion){
         List<EventRatioDetailResponseDto> eventRatioDetailResponseDtos = students.stream()
-                .map(EventRatioDetailResponseDto::of)
+                .map(student -> EventRatioDetailResponseDto.of(student, completion))
                 .collect(Collectors.toList());
         return new EventRatioResponseDto(
                 eventDates,

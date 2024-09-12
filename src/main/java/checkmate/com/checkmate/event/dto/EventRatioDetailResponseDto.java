@@ -11,11 +11,13 @@ import static lombok.AccessLevel.PRIVATE;
 public class EventRatioDetailResponseDto {
     private final int studentNumber;
     private final String studentMajor;
+    private final Boolean completion;
 
-    public static EventRatioDetailResponseDto of(Student student){
+    public static EventRatioDetailResponseDto of(Student student, boolean completion){
         return new EventRatioDetailResponseDto(
                 student.getStudentNumber(),
-                student.getStudentMajor()
+                student.getStudentMajor(),
+                completion
         );
     }
 }

@@ -51,10 +51,15 @@ public class EventStatisticService {
                     List<Student> students = eventAttendances.stream()
                         .map(EventAttendance::getStudent)
                         .collect(Collectors.toList());
-                    eventRatioResponseDto = EventRatioResponseDto.of(eventDates, students);
+                    eventRatioResponseDto = EventRatioResponseDto.of(eventDates, students, checkEventCompletion(eventId));
                 }
             }
         return eventRatioResponseDto;
     }
 
+    public boolean checkEventCompletion(Long eventId) {
+        int attendanceCount = eventRepository.countAttendanceForEvent(eventId);
+        int completionTime = eventRepository.findCompletionTimeByEventId(eventId);
+        return attendanceCount >= completionTime;
+    }
 }
