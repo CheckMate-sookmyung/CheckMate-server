@@ -4,6 +4,7 @@ import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventRatioResponseDto;
+import checkmate.com.checkmate.event.dto.MostFrequentParticipantsResponseDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
@@ -16,6 +17,7 @@ import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
+import checkmate.com.checkmate.student.domain.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,7 @@ public class EventStatisticService {
     private final EventScheduleRepository eventScheduleRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final MemberRepository memberRepository;
+    private final StudentRepository studentRepository;
 
     public EventRatioResponseDto getEventRatioAboutEvent(Accessor accessor, Long eventId) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
@@ -61,5 +64,12 @@ public class EventStatisticService {
         int attendanceCount = eventRepository.countAttendanceForEvent(eventId);
         int completionTime = eventRepository.findCompletionTimeByEventId(eventId);
         return attendanceCount >= completionTime;
+    }
+
+    public List<MostFrequentParticipantsResponseDto> getMostFrequentParticipants(Accessor accessor, Long eventId) {
+        List<Student> topStudents = studentRepository.findAllByOrderByAttendanceTimeDesc();
+        return topStudents.stream()
+                .map(MostFrequentParticipantsResponseDto::of)
+                .collect(Collectors.toList());
     }
 }

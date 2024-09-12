@@ -47,6 +47,20 @@ public class EventStatisticController {
         EventRatioResponseDto eventRatio = eventStatisticService.getEventRatioAboutEvent(accessor, eventId);
         return ResponseEntity.ok(eventRatio);
     }
+
+    @ResponseBody
+    @GetMapping("/{eventId}")
+    @Operation(summary = "행사별 전체통계")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
+            }
+    )
+    public ResponseEntity<?> getMostFrequentParticipants(@Auth final Accessor accessor,
+                                           @PathVariable("eventId") Long eventId) {
+        EventRatioResponseDto eventRatio = eventStatisticService.getMostFrequentParticipants(accessor, eventId);
+        return ResponseEntity.ok(eventRatio);
+    }
 /*
     @ResponseBody
     @GetMapping("/{eventId}/number")
