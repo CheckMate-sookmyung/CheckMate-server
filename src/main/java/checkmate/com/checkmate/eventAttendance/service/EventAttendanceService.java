@@ -2,7 +2,7 @@ package checkmate.com.checkmate.eventAttendance.service;
 
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.*;
-import checkmate.com.checkmate.global.component.EmailSender;
+import checkmate.com.checkmate.mail.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
@@ -172,7 +172,7 @@ public class EventAttendanceService {
         List<MultipartFile> files = new ArrayList<>();
         files.add(attendanceListEachMultipartFile);
         files.add(attendanceListTotalMultipartFile);
-        emailSender.sendEmailWithFile(event, files);
+        emailSender.sendAttendanceListFile(event, files);
         String attendanceListEachUrl = s3Uploader.saveFile(attendanceListEachMultipartFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
         String attendanceTotalListUrl = s3Uploader.saveFile(attendanceListTotalMultipartFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFile(attendanceListEachUrl, attendanceTotalListUrl);

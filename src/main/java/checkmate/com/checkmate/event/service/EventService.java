@@ -7,6 +7,7 @@ import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
+import checkmate.com.checkmate.mail.service.MailService;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
@@ -21,7 +22,6 @@ import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +46,7 @@ public class EventService {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final AmazonS3 amazonS3Client;
     private final MemberRepository memberRepository;
+    private final MailService mailService;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -78,6 +79,8 @@ public class EventService {
                 .collect(Collectors.toList());
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
+        mailService.createRemindMail(savedEvent);
+        mailService.createSurveyMail(savedEvent);
     }
 
     @Transactional
