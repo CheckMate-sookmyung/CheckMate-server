@@ -14,12 +14,12 @@ public class MailRequestDto {
     private final String mailContent;
     private final String attachUrl;
 
-    public static MailRequestDto of(MailType mailType, String mailTitle, String mailContent, String attachUrl) {
+/*    public static MailRequestDto of(MailType mailType, String mailTitle, String mailContent, String attachUrl) {
         return MailRequestDto.builder()
                 .mailType(mailType)
                 .mailTitle(mailTitle)
                 .mailContent(mailContent)
                 .attachUrl(attachUrl)
                 .build();
-    }
+    }*/
 }

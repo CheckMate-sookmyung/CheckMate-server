@@ -64,7 +64,11 @@ public class MailService {
         }
         content.append("\n감사합니다.");
         Mail mail = Mail.builder()
-                .mailRequest(MailRequestDto.of(MailType.REMIND,title, String.valueOf(content),null))
+                .mailType(MailType.REMIND)
+                .mailTitle(title)
+                .mailContent(content.toString())
+                .attachUrl(null)
+                .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
     }
@@ -74,8 +78,11 @@ public class MailService {
         StringBuilder content = new StringBuilder();
         content.append("안녕하세요.\n").append(event.getEventTitle()).append("만족도 조사 안내드립니다.\n감사합니다.");
         Mail mail = Mail.builder()
-                .mailRequest(MailRequestDto.of(MailType.SURVEY, title, String.valueOf(content), null))
-                .event(event)
+                .mailType(MailType.SURVEY)
+                .mailTitle(title)
+                .mailContent(content.toString())
+                .attachUrl(null)
+                .imageUrl(event.getEventImage())                .event(event)
                 .build();
     }
 

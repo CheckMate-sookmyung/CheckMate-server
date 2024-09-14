@@ -14,6 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Getter
 @DynamicInsert
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
 public class Mail {
@@ -40,7 +41,6 @@ public class Mail {
     @JoinColumn(name="event_id")
     private Event event;
 
-    @Builder(toBuilder = true)
     public Mail(MailRequestDto mailRequestDto, Event event){
         this.mailTitle = mailRequestDto.getMailTitle();
         this.mailContent = mailRequestDto.getMailContent();
