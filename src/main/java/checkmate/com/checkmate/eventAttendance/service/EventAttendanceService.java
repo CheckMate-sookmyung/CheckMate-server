@@ -18,6 +18,12 @@ import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
+import checkmate.com.checkmate.stranger.domain.Stranger;
+import checkmate.com.checkmate.stranger.domain.StrangerRepository;
+import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
+import checkmate.com.checkmate.student.domain.Student;
+import checkmate.com.checkmate.student.domain.repository.StudentRepository;
+import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 
@@ -40,6 +47,10 @@ public class EventAttendanceService {
     private final EventScheduleRepository eventScheduleRepository;
     @Autowired
     private final EventAttendanceRepository eventAttendanceRepository;
+    @Autowired
+    private final StudentRepository studentRepository;
+    @Autowired
+    private final StrangerRepository strangerRepository;
     @Autowired
     private final MemberRepository memberRepository;
     @Autowired
@@ -123,13 +134,17 @@ public class EventAttendanceService {
     }
 
     @Transactional
-    public List<EventAttendance> readAndSaveAttendanceList(MultipartFile attendanceListFile, EventSchedule eventSchedule, EventTarget eventTarget) throws IOException {
+    public List<EventAttendance> readAttendanceList(Member member, MultipartFile attendanceListFile, EventSchedule eventSchedule, EventTarget eventTarget) throws IOException {
         List<EventAttendance> eventAttendances = new ArrayList<>();
+        List<StudentExcelResponseDto> studentExcelResponseDtos = new ArrayList<>();
+        List<StrangerExcelResponseDto> strangerExcelResponseDtos = new ArrayList<>();
         try {
             if (eventTarget == EventTarget.INTERNAL) {
-                eventAttendances = excelReader.readAndSaveAttendanceListAboutStudent(convertMultiPartToFile(attendanceListFile), eventSchedule);
+                studentExcelResponseDtos = excelReader.readAttendanceListAboutStudent(convertMultiPartToFile(attendanceListFile));
+                eventAttendances = saveStudentAttendanceList(member, studentExcelResponseDtos, eventSchedule);
             } else {
-                eventAttendances = excelReader.readAndSaveAttendanceListAboutStranger(convertMultiPartToFile(attendanceListFile), eventSchedule);
+                strangerExcelResponseDtos = excelReader.readAndSaveAttendanceListAboutStranger(convertMultiPartToFile(attendanceListFile));
+                eventAttendances = saveStrangerAttendanceList(member, strangerExcelResponseDtos, eventSchedule);
             }
         } catch (IOException e) {
             throw new GeneralException(IO_EXCEPTION);
@@ -137,8 +152,75 @@ public class EventAttendanceService {
         return eventAttendances;
     }
 
+    @Transactional
+    public List<EventAttendance> saveStudentAttendanceList(Member member, List<StudentExcelResponseDto> studentExcelResponseDtos, EventSchedule eventSchedule){
+        List<EventAttendance> eventAttendances = new ArrayList<>();
+        for(StudentExcelResponseDto excelResponseDto : studentExcelResponseDtos) {
+            Optional<Student> studentOpt = studentRepository.findByStudentNumber(excelResponseDto.getStudentNumber());
+            Student attendanceStudent;
+
+            if (studentOpt.isPresent()) {
+                attendanceStudent = studentOpt.get();
+            } else {
+                attendanceStudent = Student.builder()
+                        .studentName(excelResponseDto.getStudentName())
+                        .studentNumber(excelResponseDto.getStudentNumber())
+                        .studentMajor(excelResponseDto.getStudentMajor())
+                        .studentPhoneNumber(excelResponseDto.getStudentPhoneNumber())
+                        .studentEmail(excelResponseDto.getStudentEmail())
+                        .member(member)
+                        .build();
+                studentRepository.save(attendanceStudent);
+            }
+
+            EventAttendance eventAttendance = EventAttendance.builder()
+                    .eventSchedule(eventSchedule)
+                    .student(attendanceStudent)
+                    .attendance(false)
+                    .build();
+
+            eventAttendanceRepository.save(eventAttendance);
+            eventAttendances.add(eventAttendance);
+        }
+        return eventAttendances;
+    }
 
     @Transactional
+    public List<EventAttendance> saveStrangerAttendanceList(Member member, List<StrangerExcelResponseDto> strangerExcelResponseDtos, EventSchedule eventSchedule) {
+        List<EventAttendance> eventAttendances = new ArrayList<>();
+        for(StrangerExcelResponseDto strangerExcelResponseDto : strangerExcelResponseDtos) {
+            Optional<Stranger> strangerOpt = strangerRepository.findByStrangerPhoneNumberAndStrangerName(strangerExcelResponseDto.getStrangerPhoneNumber(), strangerExcelResponseDto.getStrangerName());
+            Stranger attendanceStranger;
+
+            if (strangerOpt.isPresent()) {
+                attendanceStranger = strangerOpt.get();
+            } else {
+                attendanceStranger = Stranger.builder()
+                        .strangerName(strangerExcelResponseDto.getStrangerName())
+                        .strangerPhoneNumber(strangerExcelResponseDto.getStrangerPhoneNumber())
+                        .strangerEmail(strangerExcelResponseDto.getStrangerEmail())
+                        .strangerAffiliation(strangerExcelResponseDto.getStrangerAffiliation())
+                        .member(member)
+                        .build();
+                strangerRepository.save(attendanceStranger);
+            }
+
+            EventAttendance eventAttendance = EventAttendance.builder()
+                    .eventSchedule(eventSchedule)
+                    .stranger(attendanceStranger)
+                    .attendance(false)
+                    .build();
+
+            eventAttendanceRepository.save(eventAttendance);
+            eventAttendances.add(eventAttendance);
+        }
+        return eventAttendances;
+    }
+
+
+
+
+        @Transactional
     public List<String> downloadAttendanceList(Accessor accessor, Long eventId) throws IOException {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         List<String> filenames = new ArrayList<>();

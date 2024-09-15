@@ -41,10 +41,12 @@ public class Stranger {
     public Stranger(final String strangerName,
                          final String strangerPhoneNumber,
                          final String strangerEmail,
-                         final String strangerAffiliation){
+                         final String strangerAffiliation,
+                    final Member member){
         this.strangerName = strangerName;
         this.strangerPhoneNumber = strangerPhoneNumber;
         this.strangerEmail = strangerEmail;
         this.strangerAffiliation = strangerAffiliation;
+        this.member = member;
     }
 }

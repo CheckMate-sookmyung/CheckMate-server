@@ -53,7 +53,9 @@ public class Student {
                    final int studentNumber,
                    final String studentMajor,
                    final String studentPhoneNumber,
-                   final String studentEmail) {
+                   final String studentEmail,
+                   final Member member
+                   ) {
         this.studentName = studentName;
         this.studentNumber = studentNumber;
         this.studentMajor = studentMajor;
@@ -62,6 +64,7 @@ public class Student {
         this.attendanceRate = 0.0F;
         this.attendanceTime = 0;
         this.applicationTime = 1;
+        this.member = member;
     }
 
     public void updateApplication() {

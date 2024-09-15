@@ -5,10 +5,13 @@ import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.global.exception.GeneralException;
+import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.stranger.domain.Stranger;
 import checkmate.com.checkmate.stranger.domain.StrangerRepository;
+import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
 import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.student.domain.repository.StudentRepository;
+import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +35,9 @@ public class ExcelReader {
     private final StudentRepository studentRepository;
     @Autowired
     private final StrangerRepository strangerRepository;
-    public List<EventAttendance> readAndSaveAttendanceListAboutStudent(File attendanceListFile, EventSchedule eventSchedule) throws IOException {
-        List<EventAttendance> eventAttendances = new ArrayList<>();
+
+    public List<StudentExcelResponseDto> readAttendanceListAboutStudent(File attendanceListFile) throws IOException {
+        List<StudentExcelResponseDto> studentExcelResponseDtos = new ArrayList<>();
 
         Workbook workbook = WorkbookFactory.create(attendanceListFile);
         Sheet sheet = workbook.getSheetAt(0);
@@ -53,14 +57,11 @@ public class ExcelReader {
             String headerValue = cell.getStringCellValue();
 
             switch (headerValue) {
-                case "이름":
-                    nameIndex = cell.getColumnIndex();
-                    break;
-                case "학번/사번":
-                    studentNumberIndex = cell.getColumnIndex();
-                    break;
                 case "학과":
                     majorIndex = cell.getColumnIndex();
+                    break;
+                case "이름":
+                    nameIndex = cell.getColumnIndex();
                     break;
                 case "휴대전화번호":
                     phoneNumberIndex = cell.getColumnIndex();
@@ -68,73 +69,44 @@ public class ExcelReader {
                 case "이메일주소":
                     emailIndex = cell.getColumnIndex();
                     break;
+                case "학번/사번":
+                    studentNumberIndex = cell.getColumnIndex();
+                    break;
             }
         }
 
         try {
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
-                if (nameIndex == -1 || row.getCell(nameIndex) == null || row.getCell(nameIndex).getCellType() != CellType.STRING) {
-                    continue;
-                }
-                String name = row.getCell(nameIndex).getStringCellValue();
 
-                if (studentNumberIndex == -1 || row.getCell(studentNumberIndex) == null) {
-                    continue;
-                }
-                int studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
+                String major = (majorIndex != -1 && row.getCell(majorIndex) != null && row.getCell(majorIndex).getCellType() == CellType.STRING) ? row.getCell(majorIndex).getStringCellValue() : "";
 
-                String major = "";
-                if (majorIndex != -1 && row.getCell(majorIndex) != null && row.getCell(majorIndex).getCellType() == CellType.STRING) {
-                    major = row.getCell(majorIndex).getStringCellValue();
-                }
+                String name = (nameIndex != -1 && row.getCell(nameIndex) != null && row.getCell(nameIndex).getCellType() == CellType.STRING) ? row.getCell(nameIndex).getStringCellValue() : "";
+                if (name.isEmpty()) continue;
 
-                String phoneNumber = "";
-                if (phoneNumberIndex != -1 && row.getCell(phoneNumberIndex) != null && row.getCell(phoneNumberIndex).getCellType() == CellType.STRING) {
-                    phoneNumber = row.getCell(phoneNumberIndex).getStringCellValue();
-                }
+                String phoneNumber = (phoneNumberIndex != -1 && row.getCell(phoneNumberIndex) != null && row.getCell(phoneNumberIndex).getCellType() == CellType.STRING) ? row.getCell(phoneNumberIndex).getStringCellValue() : "";
 
-                String email = "";
-                if (emailIndex != -1 && row.getCell(emailIndex) != null && row.getCell(emailIndex).getCellType() == CellType.STRING) {
-                    email = row.getCell(emailIndex).getStringCellValue();
-                }
+                String email = (emailIndex != -1 && row.getCell(emailIndex) != null && row.getCell(emailIndex).getCellType() == CellType.STRING) ? row.getCell(emailIndex).getStringCellValue() : "";
 
-                Optional<Student> studentOpt = studentRepository.findByStudentNumber(studentNumber);
-                Student attendanceStudent;
-
-                if (studentOpt.isPresent()) {
-                    attendanceStudent = studentOpt.get();
+                int studentNumber = -1;
+                if (studentNumberIndex != -1 && row.getCell(studentNumberIndex) != null && row.getCell(studentNumberIndex).getCellType() == CellType.NUMERIC) {
+                    studentNumber = (int) row.getCell(studentNumberIndex).getNumericCellValue();
                 } else {
-                    attendanceStudent = Student.builder()
-                            .studentName(name)
-                            .studentNumber(studentNumber)
-                            .studentMajor(major)
-                            .studentPhoneNumber(phoneNumber)
-                            .studentEmail(email)
-                            .build();
-                    studentRepository.save(attendanceStudent);
+                    continue;
                 }
 
-                EventAttendance eventAttendance = EventAttendance.builder()
-                        .eventSchedule(eventSchedule)
-                        .student(attendanceStudent)
-                        .attendance(false)
-                        .build();
-
-                eventAttendanceRepository.save(eventAttendance);
-                eventAttendances.add(eventAttendance);
+                studentExcelResponseDtos.add(StudentExcelResponseDto.of(name, studentNumber, major, phoneNumber, email));
             }
             workbook.close();
         } catch (Exception e) {
             throw new GeneralException(FILE_READ_FAIL);
         }
 
-        return eventAttendances;
+        return studentExcelResponseDtos;
     }
 
-
-    public List<EventAttendance> readAndSaveAttendanceListAboutStranger(File attendanceListFile, EventSchedule eventSchedule) throws IOException {
-        List<EventAttendance> eventAttendances = new ArrayList<>();
+    public List<StrangerExcelResponseDto> readAndSaveAttendanceListAboutStranger(File attendanceListFile) throws IOException {
+        List<StrangerExcelResponseDto> strangerExcelResponseDtos = new ArrayList<>();
 
         Workbook workbook = WorkbookFactory.create(attendanceListFile);
         Sheet sheet = workbook.getSheetAt(0);
@@ -192,35 +164,13 @@ public class ExcelReader {
                     affiliation = row.getCell(affiliationIndex).getStringCellValue();
                 }
 
-                Optional<Stranger> strangerOpt = strangerRepository.findByStrangerPhoneNumberAndStrangerName(phoneNumber, name);
-                Stranger attendanceStranger;
-
-                if (strangerOpt.isPresent()) {
-                    attendanceStranger = strangerOpt.get();
-                } else {
-                    attendanceStranger = Stranger.builder()
-                            .strangerName(name)
-                            .strangerPhoneNumber(phoneNumber)
-                            .strangerEmail(email)
-                            .strangerAffiliation(affiliation)
-                            .build();
-                    strangerRepository.save(attendanceStranger);
-                }
-
-                EventAttendance eventAttendance = EventAttendance.builder()
-                        .eventSchedule(eventSchedule)
-                        .stranger(attendanceStranger)
-                        .attendance(false)
-                        .build();
-
-                eventAttendanceRepository.save(eventAttendance);
-                eventAttendances.add(eventAttendance);
-                workbook.close();
+                strangerExcelResponseDtos.add(StrangerExcelResponseDto.of(name, phoneNumber, email, affiliation));
 
             } catch (Exception e) {
                 throw new GeneralException(FILE_READ_FAIL);
             }
+            workbook.close();
         }
-        return eventAttendances;
+        return strangerExcelResponseDtos;
     }
 }

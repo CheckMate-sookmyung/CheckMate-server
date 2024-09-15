@@ -17,10 +17,10 @@ import java.util.List;
 
 import static lombok.AccessLevel.PRIVATE;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
-@AllArgsConstructor
-@Data
-//@RequiredArgsConstructor
 public class EventRequestDto {
 
     @NotBlank(message="행사명을 입력해주세요.")

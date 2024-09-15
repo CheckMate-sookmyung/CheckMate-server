@@ -68,8 +68,7 @@ public class EventService {
                             .build();
                     eventScheduleRepository.save(eventSchedule);
                     try {
-                        eventAttendanceService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
-
+                        eventAttendanceService.readAttendanceList(loginMember, attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
                     } catch (IOException e) {
                         throw new GeneralException(IO_EXCEPTION);
                     }

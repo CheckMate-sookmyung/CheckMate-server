@@ -66,7 +66,7 @@ public class EventStatisticService {
         return attendanceCount >= completionTime;
     }
 
-    public List<MostFrequentParticipantsResponseDto> getMostFrequentParticipants(Accessor accessor, Long eventId) {
+    public List<MostFrequentParticipantsResponseDto> getMostFrequentParticipants(Accessor accessor) {
         List<Student> topStudents = studentRepository.findAllByOrderByAttendanceTimeDesc();
         return topStudents.stream()
                 .map(MostFrequentParticipantsResponseDto::of)

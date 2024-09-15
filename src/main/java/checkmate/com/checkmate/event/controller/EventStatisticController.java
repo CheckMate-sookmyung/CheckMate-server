@@ -57,38 +57,9 @@ public class EventStatisticController {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MostFrequentParticipantsResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getMostFrequentParticipants(@Auth final Accessor accessor,
-                                           @PathVariable("eventId") Long eventId) {
-        List<MostFrequentParticipantsResponseDto> studentStatistic = eventStatisticService.getMostFrequentParticipants(accessor, eventId);
+    public ResponseEntity<?> getMostFrequentParticipants(@Auth final Accessor accessor) {
+        List<MostFrequentParticipantsResponseDto> studentStatistic = eventStatisticService.getMostFrequentParticipants(accessor);
         return ResponseEntity.ok(studentStatistic);
     }
-/*
-    @ResponseBody
-    @GetMapping("/{eventId}/number")
-    @Operation(summary = "행사별 참석한 학번 비율 조회")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
-            }
-    )
-    public ResponseEntity<?> getMajorRatio(@Auth final Accessor accessor,
-                                           @PathVariable("eventId") Long eventId){
-        List<RatioResponseDto> studentNumberRatio = eventStatisticService.getStudentNumberRatioAboutEvent(accessor, eventId);
-        return ResponseEntity.ok(studentNumberRatio);
-    }
-
-    @ResponseBody
-    @GetMapping("/{eventId}/attainment")
-    @Operation(summary = "행사별 이수율 조회")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
-            }
-    )
-    public ResponseEntity<?> getMajorRatio(@Auth final Accessor accessor,
-                                           @PathVariable("eventId") Long eventId){
-        List<RatioResponseDto> attainmentRatio = eventStatisticService.getAttainmentRatioAboutEvent(accessor, eventId);
-        return ResponseEntity.ok(attainmentRatio);
-    }*/
 
 }
