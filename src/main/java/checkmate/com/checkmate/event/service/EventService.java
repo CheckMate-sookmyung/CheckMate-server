@@ -224,4 +224,10 @@ public class EventService {
         event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());
         eventRepository.save(event);
     }
+
+    public void registerSurveyUrl(Accessor accessor, Long eventId, String surveyUrl) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        event.registerSurveyUrl(surveyUrl);
+    }
 }

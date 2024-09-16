@@ -27,6 +27,7 @@ public class EventDetailResponseDto {
     private final EventTarget eventTarget;
     private final List<EventScheduleResponseDto> eventSchedules;
     private final boolean alaramRequest;
+    private final String eventUrl;
     private final boolean alarmResponse;
     private final String managerName;
     private final String managerPhoneNumber;
@@ -44,6 +45,7 @@ public class EventDetailResponseDto {
                 event.getEventTarget(),
                 EventSchedulesDto,
                 event.getAlarmRequest(),
+                event.getEventUrl(),
                 event.getAlarmResponse(),
                 event.getManagerName(),
                 event.getManagerPhoneNumber(),
