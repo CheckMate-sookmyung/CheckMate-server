@@ -47,7 +47,7 @@ public class MailController {
     public BaseResponseDto<?> sendRemindMail(@Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,
                                              @RequestParam("mailType") MailType mailType) {
-        mailService.sendRemindMail(accessor, eventId, mailType);
+        mailService.sendEventMail(accessor, eventId, mailType);
         return BaseResponseDto.ofSuccess(SEND_BEFORE_MAIL);
     }
 

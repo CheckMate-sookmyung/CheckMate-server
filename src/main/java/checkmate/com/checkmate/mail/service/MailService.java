@@ -3,6 +3,7 @@ package checkmate.com.checkmate.mail.service;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.mail.domain.Mail;
 import checkmate.com.checkmate.mail.domain.MailType;
 import checkmate.com.checkmate.mail.domain.repository.MailRepository;
@@ -17,6 +18,7 @@ import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,11 +31,21 @@ public class MailService {
     private final MailRepository mailRepository;
     private final EventScheduleRepository eventScheduleRepository;
 
-    public void sendRemindMail(Accessor accessor, Long eventId, MailType mailType) {
+    public void sendEventMail(Accessor accessor, Long eventId, MailType mailType) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        List<String> attendeeEmailList = eventAttendanceRepository.findAllEmailsByEventId(eventId);
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        List<String> attendeeEmailList = new ArrayList<>();
+        if(event.getEventTarget()== EventTarget.INTERNAL) {
+            attendeeEmailList = eventRepository.findDistinctStudentEmailsByEventId(eventId);
+        } else{
+            attendeeEmailList = eventRepository.findDistinctStrangerEmailsByEventId(eventId);
+        }
         Mail mail = mailRepository.findByEventIdAndMailType(eventId, mailType);
-        emailSender.sendEventMail(mail, attendeeEmailList);
+        attendeeEmailList.add(event.getManagerEmail());
+        if(mail.getMailType()==MailType.REMIND)
+            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getEventUrl());
+        else
+            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getSurveyUrl());
     }
 
     public MailResponseDto getMailContent(Accessor accessor, Long eventId, MailType mailType) {
@@ -82,7 +94,8 @@ public class MailService {
                 .mailTitle(title)
                 .mailContent(content.toString())
                 .attachUrl(null)
-                .imageUrl(event.getEventImage())                .event(event)
+                .imageUrl(event.getEventImage())
+                .event(event)
                 .build();
     }
 

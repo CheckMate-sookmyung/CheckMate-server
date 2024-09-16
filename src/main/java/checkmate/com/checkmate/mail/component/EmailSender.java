@@ -36,15 +36,23 @@ public class EmailSender {
         }
     }
 
-    public void sendEventMail(Mail mail, List<String> receivers) {
+    public void sendEventMail(Mail mail, List<String> receivers, String imageUrl, String buttonUrl) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            for (String receiver : receivers) {
-                helper.setTo(receiver);
-                helper.setSubject(mail.getMailTitle());
-                helper.setText(mail.getMailContent(), true);
-            }
+
+            helper.setBcc(receivers.toArray(new String[0]));
+            helper.setSubject(mail.getMailTitle());
+            String htmlContent = "<html><body>" +
+                    "<p>" + mail.getMailContent() + "</p>" +
+                    "<br>" +
+                    "<a href='" + buttonUrl + "' style='display:inline-block; padding:10px 20px; font-size:16px; color:white; background-color:#007BFF; text-decoration:none; border-radius:5px;'>" + "WISE 바로가기" + "</a>" +
+                    "<br><br>" +
+                    "<img src='" + imageUrl + "' alt='Image' style='max-width:100%; height:auto;' />" +
+                    "</body></html>";
+
+            helper.setText(htmlContent, true);
+
             emailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
