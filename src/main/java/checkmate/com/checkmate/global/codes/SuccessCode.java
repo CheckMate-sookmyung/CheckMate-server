@@ -28,6 +28,8 @@ public enum SuccessCode {
     MODIFY_EVENT_SUCCESS(HttpStatus.OK, "행사 수정에 성공하였습니다."),
     DELETE_EVENT_SUCCESS(HttpStatus.OK, "행사 삭제에 성공하였습니다."),
     REGISTER_EVENT_MANAGER_SUCCESS(HttpStatus.OK, "행사 담당자 등록에 성공하였습니다."),
+    REGISTER_SUREY_URL_SUCCESS(HttpStatus.OK, "행사 설문조사 링크 등록에 성공하였습니다." ),
+
 
     //메일
     SEND_BEFORE_MAIL(HttpStatus.OK, "행사 리마인드 알람 전송에 성공하였습니다."),
@@ -40,8 +42,7 @@ public enum SuccessCode {
     //출석명단
     GET_ATTENDANCE_LIST_SUCCESS(HttpStatus.OK, "출석명단 조회에 성공하였습니다."),
     SEND_ATTENDACE_LIST_SUCCESS(HttpStatus.OK, "출석명단 전송에 성공하였습니다."),
-    UPDATE_ATTENDNACE_LIST_SUCCESS(HttpStatus.OK, "출석명단 수정에 성공하였습니다.")
-    ;
+    UPDATE_ATTENDNACE_LIST_SUCCESS(HttpStatus.OK, "출석명단 수정에 성공하였습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

@@ -7,6 +7,7 @@ import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
+import checkmate.com.checkmate.mail.service.MailService;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
@@ -21,7 +22,6 @@ import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +46,7 @@ public class EventService {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final AmazonS3 amazonS3Client;
     private final MemberRepository memberRepository;
+    private final MailService mailService;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -58,6 +59,7 @@ public class EventService {
         if(eventImage != null)
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
         String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
+        List<EventSchedule> eventSchedules = new ArrayList<>();
         eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
                     EventSchedule eventSchedule = EventSchedule.builder()
@@ -67,6 +69,7 @@ public class EventService {
                             .event(savedEvent)
                             .build();
                     eventScheduleRepository.save(eventSchedule);
+                    eventSchedules.add(eventSchedule);
                     try {
                         eventAttendanceService.readAttendanceList(loginMember, attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
                     } catch (IOException e) {
@@ -77,6 +80,9 @@ public class EventService {
                 .collect(Collectors.toList());
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
+        mailService.createRemindMail(savedEvent);
+        mailService.createSurveyMail(savedEvent);
+        mailService.scheduleEventMails(accessor, eventSchedules, savedEvent.getEventId());
     }
 
     @Transactional
@@ -219,5 +225,11 @@ public class EventService {
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());
         eventRepository.save(event);
+    }
+
+    public void registerSurveyUrl(Accessor accessor, Long eventId, String surveyUrl) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        event.registerSurveyUrl(surveyUrl);
     }
 }

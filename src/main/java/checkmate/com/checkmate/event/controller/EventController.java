@@ -9,6 +9,7 @@ import checkmate.com.checkmate.event.service.EventService;
 import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import checkmate.com.checkmate.auth.Auth;
@@ -139,8 +141,16 @@ public class EventController {
                                              @RequestPart(value="manager") EventManagerRequestDto eventManagerRequestDto){
         eventService.registerManager(accessor, eventId, eventManagerRequestDto);
         return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
+    }
 
-
+    @ResponseBody
+    @PutMapping(value="/survey/{eventId}")
+    @Operation(summary = "설문조사 링크 등록")
+    public BaseResponseDto<?> registerSurveyUrl(@Auth final Accessor accessor,
+                                                @PathVariable("eventId") Long eventId,
+                                                @RequestParam("surveyUrl") String surveyUrl){
+        eventService.registerSurveyUrl(accessor, eventId, surveyUrl);
+        return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
     }
 
 }

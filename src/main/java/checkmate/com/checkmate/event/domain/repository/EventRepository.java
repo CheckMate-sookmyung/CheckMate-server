@@ -24,4 +24,18 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e.completionTime FROM Event e WHERE e.eventId = :eventId")
     Integer findCompletionTimeByEventId(@Param("eventId") Long eventId);
+
+    @Query("SELECT DISTINCT s.studentEmail " +
+            "FROM EventSchedule es " +
+            "LEFT JOIN EventAttendance ea " +
+            "LEFT JOIN Student s " +
+            "WHERE es.event.eventId = :eventId AND s.studentEmail IS NOT NULL")
+    List<String> findDistinctStudentEmailsByEventId(@Param("eventId") Long eventId);
+
+    @Query("SELECT DISTINCT s.strangerEmail " +
+            "FROM EventSchedule es " +
+            "LEFT JOIN EventAttendance ea " +
+            "LEFT JOIN Stranger s " +
+            "WHERE es.event.eventId = :eventId AND s.strangerEmail IS NOT NULL")
+    List<String> findDistinctStrangerEmailsByEventId(@Param("eventId") Long eventId);
 }

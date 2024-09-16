@@ -37,6 +37,12 @@ public class Event extends BaseTimeEntity {
     private String eventImage;
 
     @Column
+    private String eventUrl;
+
+    @Column
+    private String surveyUrl;
+
+    @Column
     private String beforeAttendanceListFile;
 
     @Column
@@ -76,12 +82,13 @@ public class Event extends BaseTimeEntity {
     private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
+    public Event(String eventTitle, String eventUrl, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.alarmRequest = alarmRequest;
         this.completionTime = completionTime;
         this.alarmResponse = false;
+        this.eventUrl = eventUrl;
         this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
@@ -114,6 +121,10 @@ public class Event extends BaseTimeEntity {
         this.managerName = managerName;
         this.managerPhoneNumber = managerPhoneNumber;
         this.managerEmail = managerEmail;
+    }
+
+    public void registerSurveyUrl(String surveyUrl){
+        this.surveyUrl = surveyUrl;
     }
 
 }

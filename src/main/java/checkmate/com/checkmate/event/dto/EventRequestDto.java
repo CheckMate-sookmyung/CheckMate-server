@@ -40,6 +40,9 @@ public class EventRequestDto {
     @JsonProperty("completionTimes")
     private final int completionTimes;
 
+    @JsonProperty("eventUrl")
+    private final String eventUrl;
+
     @NotNull(message="리마인드 알람 전송 여부를 입력해주세요.")
     @JsonProperty("alarmRequest")
     private final Boolean alarmRequest;
@@ -59,6 +62,7 @@ public class EventRequestDto {
                 .eventDetail(eventDetail)
                 .eventType(eventType)
                 .completionTime(completionTimes)
+                .eventUrl(eventUrl)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
                 .managerEmail(member.getMemberEmail())
