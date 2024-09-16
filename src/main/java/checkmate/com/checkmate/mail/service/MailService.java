@@ -3,7 +3,9 @@ package checkmate.com.checkmate.mail.service;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
+import checkmate.com.checkmate.global.config.SchedulingConfig;
 import checkmate.com.checkmate.global.domain.EventTarget;
+import checkmate.com.checkmate.global.util.DateTimeUtil;
 import checkmate.com.checkmate.mail.domain.Mail;
 import checkmate.com.checkmate.mail.domain.MailType;
 import checkmate.com.checkmate.mail.domain.repository.MailRepository;
@@ -16,10 +18,18 @@ import checkmate.com.checkmate.mail.component.EmailSender;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import static checkmate.com.checkmate.mail.domain.MailType.REMIND;
+import static checkmate.com.checkmate.mail.domain.MailType.SURVEY;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +40,7 @@ public class MailService {
     private final EmailSender emailSender;
     private final MailRepository mailRepository;
     private final EventScheduleRepository eventScheduleRepository;
+    private final TaskScheduler taskScheduler;
 
     public void sendEventMail(Accessor accessor, Long eventId, MailType mailType) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
@@ -42,7 +53,7 @@ public class MailService {
         }
         Mail mail = mailRepository.findByEventIdAndMailType(eventId, mailType);
         attendeeEmailList.add(event.getManagerEmail());
-        if(mail.getMailType()==MailType.REMIND)
+        if(mail.getMailType()== REMIND)
             emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getEventUrl());
         else
             emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getSurveyUrl());
@@ -76,7 +87,7 @@ public class MailService {
         }
         content.append("\n감사합니다.");
         Mail mail = Mail.builder()
-                .mailType(MailType.REMIND)
+                .mailType(REMIND)
                 .mailTitle(title)
                 .mailContent(content.toString())
                 .attachUrl(null)
@@ -99,5 +110,22 @@ public class MailService {
                 .build();
     }
 
+    public void scheduleEventMails(Accessor accessor, List<EventSchedule> eventSchedules, Long eventId) {
+        EventSchedule startSchedule = eventSchedules.get(0);
+        EventSchedule endSchedule = eventSchedules.get(eventSchedules.size() - 1);
 
+        // 행사 시작 24시간 전 예약
+        LocalDateTime startDateTime = DateTimeUtil.parseEventDateTime(startSchedule.getEventDate(), startSchedule.getEventStartTime());
+        LocalDateTime reminderDateTime = startDateTime.minusHours(24);
+
+        Date reminderTime = Date.from(reminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        taskScheduler.schedule(() -> sendEventMail(accessor, eventId, REMIND), reminderTime);
+
+        // 행사 종료 1시간 후 예약
+        LocalDateTime endDateTime = DateTimeUtil.parseEventDateTime(endSchedule.getEventDate(), endSchedule.getEventEndTime());
+        LocalDateTime followUpDateTime = endDateTime.plusHours(1);
+
+        Date followUpTime = Date.from(followUpDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        taskScheduler.schedule(() -> sendEventMail(accessor, eventId, SURVEY), followUpTime);
+    }
 }

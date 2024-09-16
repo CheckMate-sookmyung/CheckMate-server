@@ -59,6 +59,7 @@ public class EventService {
         if(eventImage != null)
             imageUrl = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
         String attendanceListUrl = s3Uploader.saveFile(attendanceListFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(savedEvent.getEventId()));
+        List<EventSchedule> eventSchedules = new ArrayList<>();
         eventRequestDto.getEventSchedules().stream()
                 .map(eventScheduleRequestDto -> {
                     EventSchedule eventSchedule = EventSchedule.builder()
@@ -68,6 +69,7 @@ public class EventService {
                             .event(savedEvent)
                             .build();
                     eventScheduleRepository.save(eventSchedule);
+                    eventSchedules.add(eventSchedule);
                     try {
                         eventAttendanceService.readAndSaveAttendanceList(attendanceListFile, eventSchedule, eventRequestDto.getEventTarget());
 
@@ -81,6 +83,7 @@ public class EventService {
         eventRepository.save(savedEvent);
         mailService.createRemindMail(savedEvent);
         mailService.createSurveyMail(savedEvent);
+        mailService.scheduleEventMails(accessor, eventSchedules, savedEvent.getEventId());
     }
 
     @Transactional
