@@ -153,5 +153,14 @@ public class EventController {
         return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
     }
 
+    @ResponseBody
+    @GetMapping(value="/survey/{eventId}")
+    @Operation(summary = "설문조사 링크 조회")
+    public ResponseEntity<?> getSurveyUrl(@Auth final Accessor accessor,
+                                                @PathVariable("eventId") Long eventId){
+        String url = eventService.getSurveyUrl(accessor, eventId);
+        return ResponseEntity.ok(url);
+    }
+
 }
 

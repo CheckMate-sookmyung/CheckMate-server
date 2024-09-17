@@ -232,4 +232,10 @@ public class EventService {
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         event.registerSurveyUrl(surveyUrl);
     }
+
+    public String getSurveyUrl(Accessor accessor, Long eventId) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        return event.getSurveyUrl();
+    }
 }
