@@ -94,6 +94,7 @@ public class MailService {
                 .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
+        mailRepository.save(mail);
     }
 
     public void createSurveyMail(Event event) {
@@ -108,6 +109,7 @@ public class MailService {
                 .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
+        mailRepository.save(mail);
     }
 
     public void scheduleEventMails(Accessor accessor, List<EventSchedule> eventSchedules, Long eventId) {
