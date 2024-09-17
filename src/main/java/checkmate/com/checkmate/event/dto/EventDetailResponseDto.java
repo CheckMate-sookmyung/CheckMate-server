@@ -32,8 +32,11 @@ public class EventDetailResponseDto {
     private final String managerName;
     private final String managerPhoneNumber;
     private final String managerEmail;
-    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules) {
-        List<EventScheduleResponseDto> EventSchedulesDto = eventSchedules.stream()
+    private final int averageAttendees;
+    private final int totalAttendees;
+
+    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules, int averageAttendees, int totalAttendees) {
+        List<EventScheduleResponseDto> eventSchedulesDto = eventSchedules.stream()
                 .map(EventScheduleResponseDto::of)
                 .collect(Collectors.toList());
         return new EventDetailResponseDto(
@@ -43,13 +46,15 @@ public class EventDetailResponseDto {
                 event.getEventImage(),
                 event.getEventType(),
                 event.getEventTarget(),
-                EventSchedulesDto,
+                eventSchedulesDto,
                 event.getAlarmRequest(),
                 event.getEventUrl(),
                 event.getAlarmResponse(),
                 event.getManagerName(),
                 event.getManagerPhoneNumber(),
-                event.getManagerEmail()
+                event.getManagerEmail(),
+                averageAttendees,
+                totalAttendees
         );
     }
 }

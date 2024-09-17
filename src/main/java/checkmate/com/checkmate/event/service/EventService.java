@@ -107,11 +107,25 @@ public class EventService {
     public EventDetailResponseDto getEventDetail(Accessor accessor, Long eventId){
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event getEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        int totalAttendees = 0;
+        int averageAttendees = 0;
+        int eventCount = 0;
         if (getEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
         else {
             List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-            return EventDetailResponseDto.of(getEvent, eventSchedules);
+            for(EventSchedule eventSchedule : eventSchedules){
+                List<EventAttendance> totalEventAttendance = eventAttendanceRepository.findTotalAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
+                totalAttendees = totalEventAttendance.size();
+                List<EventAttendance> averageEventAttendance = eventAttendanceRepository.findAverageAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
+                if(averageEventAttendance.size() == 0)
+                    break;
+                else {
+                    averageAttendees += averageEventAttendance.size() / totalAttendees;
+                    eventCount++;
+                }
+            }
+            return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
         }
     }
 /*

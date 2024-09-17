@@ -24,5 +24,10 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
     @Query(value = "SELECT * FROM event_attendance WHERE event_schedule_id = :eventScheduleId AND SUBSTRING(phone_number, -4) = :phoneNumberSuffix", nativeQuery = true)
     List<EventAttendance> findAllByEventScheduleIdAndPhoneNumberSuffix(@Param("eventScheduleId") Long eventScheduleId, @Param("phoneNumberSuffix") String phoneNumberSuffix);
 
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId")
+    List<EventAttendance> findTotalAttendeeByEventScheduleId(@Param("eventScheduleId") Long eventScheduleId);
+
+    @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.attendance = true")
+    List<EventAttendance> findAverageAttendeeByEventScheduleId(@Param("eventScheduleId") Long eventScheduleId);
 
 }
