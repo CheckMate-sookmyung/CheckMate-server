@@ -27,15 +27,17 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT DISTINCT s.studentEmail " +
             "FROM EventSchedule es " +
-            "LEFT JOIN EventAttendance ea " +
-            "LEFT JOIN Student s " +
+            "LEFT JOIN EventAttendance ea ON es.event.eventId = ea.eventSchedule.event.eventId " +
+            "LEFT JOIN Student s ON ea.student.studentId = s.studentId " +
             "WHERE es.event.eventId = :eventId AND s.studentEmail IS NOT NULL")
     List<String> findDistinctStudentEmailsByEventId(@Param("eventId") Long eventId);
 
+
     @Query("SELECT DISTINCT s.strangerEmail " +
             "FROM EventSchedule es " +
-            "LEFT JOIN EventAttendance ea " +
-            "LEFT JOIN Stranger s " +
+            "LEFT JOIN EventAttendance ea ON es.event.eventId = ea.eventSchedule.event.eventId " +
+            "LEFT JOIN Stranger s ON ea.stranger.strangerId = s.strangerId " +
             "WHERE es.event.eventId = :eventId AND s.strangerEmail IS NOT NULL")
     List<String> findDistinctStrangerEmailsByEventId(@Param("eventId") Long eventId);
+
 }
