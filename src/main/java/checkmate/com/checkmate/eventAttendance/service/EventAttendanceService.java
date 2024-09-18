@@ -24,6 +24,8 @@ import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
 import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.student.domain.repository.StudentRepository;
 import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
+import jakarta.persistence.Access;
+import jakarta.persistence.AttributeConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -309,6 +311,12 @@ public class EventAttendanceService {
         char[] nameChars = name.toCharArray();
         nameChars[1] = 'O';
         return new String(nameChars);
+    }
+
+    public void deleteAttendanceList(Accessor accessor, Long eventId, Long attendaeeId) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(attendaeeId);
+        eventAttendanceRepository.delete(eventAttendance);
     }
 
 

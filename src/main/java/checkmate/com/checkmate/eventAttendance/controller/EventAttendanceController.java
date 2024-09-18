@@ -118,7 +118,7 @@ public class EventAttendanceController {
 
     @ResponseBody
     @PutMapping(value="/list/{eventId}")
-    @Operation(summary = "출석명단 수정")
+    @Operation(summary = "출석명단 출석 수정")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventAttendanceResponseDto.class))),
@@ -130,4 +130,20 @@ public class EventAttendanceController {
         List<?> studentEventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, eventAttendanceRequestDto);
         return ResponseEntity.ok(studentEventAttendanceResponseDtos);
     }
+
+    @ResponseBody
+    @PutMapping(value="/list/{eventId}/{attendeeId}")
+    @Operation(summary = "출석명단 중 참석자 삭제")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventAttendanceResponseDto.class))),
+            }
+    )
+    public BaseResponseDto<?> deleteAttendanceList(@Auth final Accessor accessor,
+                                                  @PathVariable("eventId") Long eventId,
+                                                  @PathVariable("attendeeId") Long attendeeId){
+        eventAttendanceService.deleteAttendanceList(accessor, eventId, attendeeId);
+        return BaseResponseDto.ofSuccess(REMOVE_ATTENDANCE_SUCCESS);
+    }
+
 }

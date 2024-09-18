@@ -11,7 +11,7 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
 public class StudentEventAttendanceResponseDto {
-    private final Long studentInfoId;
+    private final Long attendeeId;
     private final String studentName;
     private final int studentNumber;
     private final String major;

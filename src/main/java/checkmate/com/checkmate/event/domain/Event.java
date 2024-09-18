@@ -77,7 +77,7 @@ public class Event extends BaseTimeEntity {
     @Column
     private String managerPhoneNumber;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="member_id", nullable = false)
     private Member member;
 
