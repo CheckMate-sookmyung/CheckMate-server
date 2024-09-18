@@ -313,11 +313,36 @@ public class EventAttendanceService {
         return new String(nameChars);
     }
 
-    public void deleteAttendanceList(Accessor accessor, Long eventId, Long attendaeeId) {
+    public void deleteAttendanceList(Accessor accessor, Long eventId, Long eventScheduleId, Long attendaeeId) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(attendaeeId);
         eventAttendanceRepository.delete(eventAttendance);
     }
 
-
+    public void addAttendee(Accessor accessor, Long eventId, Long eventScheduleId, List<EventAttendanceDetailRequestDto> eventAttendanceDetailRequestDtos) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        EventSchedule eventSchedule = eventScheduleRepository.findEventScheduleByEventScheduleId(eventScheduleId);
+        if(event.getEventTarget() == EventTarget.INTERNAL) {
+            List<StudentExcelResponseDto> studentExcelResponseDtos = null;
+            for(EventAttendanceDetailRequestDto eventAttendanceDetailRequestDto : eventAttendanceDetailRequestDtos){
+                studentExcelResponseDtos.add(StudentExcelResponseDto.of(eventAttendanceDetailRequestDto.getAttendeeName(),
+                        eventAttendanceDetailRequestDto.getAttendeeStudentNumber(),
+                        eventAttendanceDetailRequestDto.getAttendeeAffiliation(),
+                        eventAttendanceDetailRequestDto.getAttendeePhoneNumber(),
+                        eventAttendanceDetailRequestDto.getAttendeeEmail()));
+            }
+            saveStudentAttendanceList(loginMember, studentExcelResponseDtos, eventSchedule);
+        }
+        else{
+            List<StrangerExcelResponseDto> strangerExcelResponseDtos = null;
+            for(EventAttendanceDetailRequestDto eventAttendanceDetailRequestDto : eventAttendanceDetailRequestDtos){
+                strangerExcelResponseDtos.add(StrangerExcelResponseDto.of(eventAttendanceDetailRequestDto.getAttendeeName(),
+                        eventAttendanceDetailRequestDto.getAttendeePhoneNumber(),
+                        eventAttendanceDetailRequestDto.getAttendeeEmail(),
+                        eventAttendanceDetailRequestDto.getAttendeeAffiliation()));
+            }
+            saveStrangerAttendanceList(loginMember, strangerExcelResponseDtos, eventSchedule);
+        }
+    }
 }
