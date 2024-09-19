@@ -62,7 +62,7 @@ public class MailController {
     )
     public ResponseEntity<?> getMailContent(@Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
-                                            @RequestPart("mailType") MailType mailType) {
+                                            @RequestParam("mailType") MailType mailType) {
         MailResponseDto mailResponseDto = mailService.getMailContent(accessor, eventId, mailType);
         return ResponseEntity.ok(mailResponseDto);
     }

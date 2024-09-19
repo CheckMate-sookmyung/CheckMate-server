@@ -138,7 +138,7 @@ public class EventController {
     @Operation(summary = "행사 담당자 등록")
     public BaseResponseDto<?> registerManager(@Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,
-                                             @RequestPart(value="manager") EventManagerRequestDto eventManagerRequestDto){
+                                             @ModelAttribute EventManagerRequestDto eventManagerRequestDto){
         eventService.registerManager(accessor, eventId, eventManagerRequestDto);
         return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
     }
