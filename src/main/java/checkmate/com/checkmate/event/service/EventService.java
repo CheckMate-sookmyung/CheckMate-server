@@ -7,6 +7,11 @@ import checkmate.com.checkmate.event.dto.EventDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
+import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
+import checkmate.com.checkmate.eventschedule.dto.EventScheduleResponseDto;
+import checkmate.com.checkmate.mail.domain.Mail;
+import checkmate.com.checkmate.mail.domain.repository.MailRepository;
+import checkmate.com.checkmate.mail.dto.MailResponseDto;
 import checkmate.com.checkmate.mail.service.MailService;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
@@ -47,6 +52,7 @@ public class EventService {
     private final AmazonS3 amazonS3Client;
     private final MemberRepository memberRepository;
     private final MailService mailService;
+    private final MailRepository mailRepository;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -138,23 +144,20 @@ public class EventService {
         Event updateEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
 
         if (updateEvent != null) {
-            String updatedImageFileName = null;
-            if (!eventImage.isEmpty()) {
+            String updatedImageFileName = updateEvent.getManagerName();
+            if (eventImage!=null && !eventImage.isEmpty()) {
                 String ImagefileName = extractFileNameFromUrl(updateEvent.getEventImage());
                 amazonS3Client.deleteObject(bucketName, ImagefileName);
                 updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(updateEvent.getEventId()));
-            } else
-                throw new GeneralException(IMAGE_IS_NULL);
+            }
 
-            eventScheduleRepository.deleteByEventEventId(eventId);
-            List<EventSchedule> updatedEventSchedules = eventRequestDto.getEventSchedules().stream()
-                    .map(eventScheduleRequestDto -> EventSchedule.builder()
-                            .eventDate(eventScheduleRequestDto.getEventDate())
-                            .eventStartTime(eventScheduleRequestDto.getEventStartTime())
-                            .eventEndTime(eventScheduleRequestDto.getEventEndTime())
-                            .event(updateEvent)
-                            .build())
-                    .collect(Collectors.toList());
+            List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+
+            int cnt = 0;
+            for(EventScheduleRequestDto eventScheduleRequestDto : eventRequestDto.getEventSchedules()){
+                eventSchedules.get(cnt).updateEventSchedule(eventScheduleRequestDto.getEventDate(), eventScheduleRequestDto.getEventStartTime(), eventScheduleRequestDto.getEventEndTime());
+                cnt++;
+            }
 
             updateEvent.updateEvent(
                     eventRequestDto.getEventTitle(),
@@ -173,7 +176,7 @@ public class EventService {
         Event deleteEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         if (deleteEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
-        if (deleteEvent.getEventImage() != null) {
+        /*if (deleteEvent.getEventImage() != null) {
             String ImagefileName = extractFileNameFromUrl(deleteEvent.getEventImage());
             amazonS3Client.deleteObject(bucketName, ImagefileName);
         }
@@ -182,7 +185,9 @@ public class EventService {
         String AttendanceListExcelfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListExcelFile());
         amazonS3Client.deleteObject(bucketName, AttendanceListExcelfileName);
         String AttendanceListPDFfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListPDFFile());
-        amazonS3Client.deleteObject(bucketName, AttendanceListPDFfileName);
+        amazonS3Client.deleteObject(bucketName, AttendanceListPDFfileName);*/
+        List<Mail> mails = mailRepository.findByEventId(eventId);
+        mailRepository.deleteAll(mails);
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         for (EventSchedule eventSchedule : eventSchedules) {
             List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventSchedule.getEventScheduleId());

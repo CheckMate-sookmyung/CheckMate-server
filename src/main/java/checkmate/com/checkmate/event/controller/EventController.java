@@ -57,7 +57,7 @@ public class EventController {
     public BaseResponseDto<?> postEvent(@Auth final Accessor accessor,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                    @ModelAttribute EventRequestDto eventRequestDto) throws IOException {
+                                    @RequestPart(value="eventDetail") EventRequestDto eventRequestDto) throws IOException {
         eventService.postEvent(accessor, eventImage, attendanceListFile, eventRequestDto);
         return BaseResponseDto.ofSuccess(POST_EVENT_SUCCESS);
     }
@@ -90,7 +90,7 @@ public class EventController {
     }
 
     @ResponseBody
-    @PutMapping(value="/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value="/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
     @ApiResponses(
             value = {
@@ -100,7 +100,7 @@ public class EventController {
     public ResponseEntity<?> putEvent(@Auth final Accessor accessor,
                                       @PathVariable("eventId") Long eventId,
                                       @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
-                                      @ModelAttribute EventRequestDto eventRequestDto){
+                                      @RequestPart(value="eventDetail") EventRequestDto eventRequestDto){
         eventService.updateEvent(accessor, eventId, eventImage, eventRequestDto);
         return ResponseEntity.ok(UPDATE_EVENT_SUCCESS);
     }
