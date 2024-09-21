@@ -132,7 +132,7 @@ public class EventService {
                 }
             }
             if(eventCount==0)
-                return EventDetailResponseDto.of(getEvent, eventSchedules, 0, 0);
+                return EventDetailResponseDto.of(getEvent, eventSchedules, 0, totalAttendees);
             else
                 return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
         }
@@ -241,6 +241,7 @@ public class EventService {
     public void registerManager(Accessor accessor, Long eventId, EventManagerRequestDto eventManagerRequestDto) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        System.out.println(eventManagerRequestDto.getManagerEmail());
         event.registerEventManager(eventManagerRequestDto.getManagerName(), eventManagerRequestDto.getManagerPhoneNumber(), eventManagerRequestDto.getManagerEmail());
         eventRepository.save(event);
     }

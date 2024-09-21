@@ -14,4 +14,7 @@ public interface MailRepository extends JpaRepository<Mail, Long> {
 
     @Query("SELECT m FROM Mail m WHERE m.event.id = :eventId")
     List<Mail> findByEventId(@Param("eventId") Long eventId);
+
+    @Query("SELECT m FROM Mail m WHERE m.mailId = :mailId")
+    Mail findByMailId(@Param("mailId") Long mailId);
 }

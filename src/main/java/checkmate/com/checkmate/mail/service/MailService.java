@@ -67,7 +67,7 @@ public class MailService {
 
     public MailResponseDto updateMailContent(Accessor accessor, Long mailId, MailRequestDto mailRequestDto) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        Mail mail = mailRepository.findByEventIdAndMailType(mailId, mailRequestDto.getMailType());
+        Mail mail = mailRepository.findByMailId(mailId);
         mail.updateMailContent(mailRequestDto);
         mailRepository.save(mail);
         return MailResponseDto.of(mail);

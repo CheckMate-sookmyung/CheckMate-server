@@ -137,7 +137,7 @@ public class EventController {
     @Operation(summary = "행사 담당자 등록")
     public BaseResponseDto<?> registerManager(@Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,
-                                             @ModelAttribute EventManagerRequestDto eventManagerRequestDto){
+                                             @RequestBody EventManagerRequestDto eventManagerRequestDto){
         eventService.registerManager(accessor, eventId, eventManagerRequestDto);
         return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
     }
@@ -150,15 +150,6 @@ public class EventController {
                                                 @RequestParam("surveyUrl") String surveyUrl){
         eventService.registerSurveyUrl(accessor, eventId, surveyUrl);
         return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
-    }
-
-    @ResponseBody
-    @GetMapping(value="/survey/{eventId}")
-    @Operation(summary = "설문조사 링크 조회")
-    public ResponseEntity<?> getSurveyUrl(@Auth final Accessor accessor,
-                                                @PathVariable("eventId") Long eventId){
-        String url = eventService.getSurveyUrl(accessor, eventId);
-        return ResponseEntity.ok(url);
     }
 
 }

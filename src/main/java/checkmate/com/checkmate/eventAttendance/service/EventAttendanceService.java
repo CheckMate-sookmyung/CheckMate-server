@@ -78,7 +78,7 @@ public class EventAttendanceService {
             EventAttendance studentInfoFromEventAttendance = eventAttendanceRepository.findByEventScheduleIdAndStudentNumber(eventScheduleId, studentNumber);
             if (studentInfoFromEventAttendance == null) {
                 throw new GeneralException(STUDENT_NOT_FOUND);
-            } else if (!studentInfoFromEventAttendance.getSign().isEmpty()) {
+            } else if (!(studentInfoFromEventAttendance.getSign()==null)) {
                 throw new GeneralException(STUDENT_ALREADY_CHECK);
             } else {
                 String maskedName = maskMiddleName(studentInfoFromEventAttendance.getStudent().getStudentName());
@@ -223,9 +223,9 @@ public class EventAttendanceService {
 
 
         @Transactional
-    public List<String> downloadAttendanceList(Accessor accessor, Long eventId) throws IOException {
+    public String downloadAttendanceList(Accessor accessor, Long eventId) throws IOException {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        List<String> filenames = new ArrayList<>();
+        //List<String> filenames = new ArrayList<>();
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         String eventTitle = event.getEventTitle();
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
@@ -239,9 +239,9 @@ public class EventAttendanceService {
         String originalFilename = attendanceListEachMultipartFile.getOriginalFilename();
         String attendanceListEachUrl = s3Uploader.saveFile(attendanceListEachMultipartFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFile(attendanceListEachUrl, null);
-        filenames.add(attendanceListEachUrl);
-        filenames.add(originalFilename);
-        return filenames;
+        String fileUrl = attendanceListEachUrl;
+        //filenames.add(originalFilename);
+        return fileUrl;
     }
 
     public void sendAttendanceList(Accessor accessor, Long eventId) throws IOException {

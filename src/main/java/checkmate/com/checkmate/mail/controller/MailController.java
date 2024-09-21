@@ -76,8 +76,8 @@ public class MailController {
             }
     )
     public ResponseEntity<?> putMailContent(@Auth final Accessor accessor,
-                                                   @PathVariable("mailId") Long mailId,
-                                                   @RequestPart MailRequestDto mailRequestDto) {
+                                            @PathVariable("mailId") Long mailId,
+                                            @RequestBody MailRequestDto mailRequestDto) {
         MailResponseDto mailResponseDto = mailService.updateMailContent(accessor, mailId, mailRequestDto);
         return ResponseEntity.ok(mailResponseDto);
     }

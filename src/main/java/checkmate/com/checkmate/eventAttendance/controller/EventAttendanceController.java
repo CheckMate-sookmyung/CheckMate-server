@@ -96,8 +96,8 @@ public class EventAttendanceController {
     @Operation(summary="출석명단 다운")
     public ResponseEntity<?> sendAttendanceListManually(@Auth final Accessor accessor,
                                                  @PathVariable("eventId") Long eventId) throws IOException {
-        List<String> filenames = eventAttendanceService.downloadAttendanceList(accessor, eventId);
-        return s3Download.getObject(filenames.get(0), filenames.get(1));
+        String filenames = eventAttendanceService.downloadAttendanceList(accessor, eventId);
+        return ResponseEntity.ok(filenames);
     }
 
     @ResponseBody

@@ -22,7 +22,7 @@ public class Mail {
     @GeneratedValue
     private Long mailId;
 
-    @Column(nullable = false)
+    @Column
     private String mailTitle;
 
     @Column
@@ -51,6 +51,7 @@ public class Mail {
     }
 
     public void updateMailContent(MailRequestDto mailRequestDto){
+        System.out.println("=================="+mailRequestDto.getMailTitle());
         this.mailTitle = mailRequestDto.getMailTitle();
         this.mailContent = mailRequestDto.getMailContent();
         this.attachUrl = mailRequestDto.getAttachUrl();
