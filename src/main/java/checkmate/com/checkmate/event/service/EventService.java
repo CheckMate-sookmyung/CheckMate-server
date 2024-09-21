@@ -131,26 +131,20 @@ public class EventService {
                 return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
         }
     }
-/*
+
     @Transactional
-    public EventDetailResponseDto updateEvent(MultipartFile eventImage, MultipartFile attendanceListFile, Long userId, Long eventId, EventRequestDto eventRequestDto){
-        Event updateEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public void updateEvent(Accessor accessor, Long eventId, MultipartFile eventImage, EventRequestDto eventRequestDto){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event updateEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
 
         if (updateEvent != null) {
             String updatedImageFileName = null;
-            String updatedAttendacneListFileName = null;
             if (!eventImage.isEmpty()) {
                 String ImagefileName = extractFileNameFromUrl(updateEvent.getEventImage());
                 amazonS3Client.deleteObject(bucketName, ImagefileName);
-                updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(updateEvent.getEventId()));
+                updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(updateEvent.getEventId()));
             } else
                 throw new GeneralException(IMAGE_IS_NULL);
-            if (!attendanceListFile.isEmpty()) {
-                String AttendanceListfileName = extractFileNameFromUrl(updateEvent.getBeforeAttendanceListFile());
-                amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
-                updatedAttendacneListFileName = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(updateEvent.getEventId()));
-            } else
-                throw new GeneralException(FILE_IS_NULL);
 
             eventScheduleRepository.deleteByEventEventId(eventId);
             List<EventSchedule> updatedEventSchedules = eventRequestDto.getEventSchedules().stream()
@@ -166,15 +160,12 @@ public class EventService {
                     eventRequestDto.getEventTitle(),
                     eventRequestDto.getEventDetail(),
                     updatedImageFileName,
-                    updatedAttendacneListFileName,
-                    updatedEventSchedules,
                     eventRequestDto.getAlarmRequest());
-            eventRepository.save(updateEvent);
 
-            return EventDetailResponseDto.of(updateEvent);
+            eventRepository.save(updateEvent);
         } else
             throw new GeneralException(EVENT_NOT_FOUND);
-    }*/
+    }
 
     @Transactional
     public void deleteEvent(Accessor accessor, Long eventId){
@@ -188,6 +179,16 @@ public class EventService {
         }
         String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getBeforeAttendanceListFile());
         amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
+        String AttendanceListExcelfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListExcelFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListExcelfileName);
+        String AttendanceListPDFfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListPDFFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListPDFfileName);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        for (EventSchedule eventSchedule : eventSchedules) {
+            List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventSchedule.getEventScheduleId());
+            eventAttendanceRepository.deleteAll(eventAttendances);
+        }
+        eventScheduleRepository.deleteAll(eventSchedules);
         eventRepository.delete(deleteEvent);
     }
 
@@ -215,9 +216,7 @@ public class EventService {
                 for (EventSchedule eventSchedule : eventSchedules) {
                     Long eventScheduleId = eventSchedule.getEventScheduleId();
                     List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
-/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
-                        .map(EventAttendanceResponseDto::of)
-                        .collect(Collectors.toList());*/
+
                     eventScheduleResponseDtos.add(StudentEventScheduleResponseDto.of(eventSchedule, eventAttendances));
                 }
             }
@@ -225,9 +224,6 @@ public class EventService {
                 for (EventSchedule eventSchedule : eventSchedules) {
                     Long eventScheduleId = eventSchedule.getEventScheduleId();
                     List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
-/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
-                        .map(EventAttendanceResponseDto::of)
-                        .collect(Collectors.toList());*/
                     eventScheduleResponseDtos.add(StrangerEventScheduleResponseDto.of(eventSchedule, eventAttendances));
                 }
             }

@@ -32,7 +32,7 @@ public class EventSchedule extends BaseTimeEntity {
     @Column(nullable = false)
     private String eventEndTime;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="event_id")
     private Event event;
 

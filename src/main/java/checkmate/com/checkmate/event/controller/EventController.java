@@ -57,7 +57,7 @@ public class EventController {
     public BaseResponseDto<?> postEvent(@Auth final Accessor accessor,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
-                                    @RequestPart(value="eventDetail") EventRequestDto eventRequestDto) throws IOException {
+                                    @ModelAttribute EventRequestDto eventRequestDto) throws IOException {
         eventService.postEvent(accessor, eventImage, attendanceListFile, eventRequestDto);
         return BaseResponseDto.ofSuccess(POST_EVENT_SUCCESS);
     }
@@ -89,7 +89,7 @@ public class EventController {
         return ResponseEntity.ok(getEvent);
     }
 
-/*    @ResponseBody
+    @ResponseBody
     @PutMapping(value="/{userId}/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이벤트 수정")
     @ApiResponses(
@@ -97,14 +97,13 @@ public class EventController {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> putEvent(@PathVariable("userId") Long userId,
+    public ResponseEntity<?> putEvent(@Auth final Accessor accessor,
                                       @PathVariable("eventId") Long eventId,
                                       @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
-                                      @RequestPart(value="attendanceListFile", required = false) MultipartFile attendanceListFile,
-                                      @RequestPart(value="event") EventRequestDto eventRequestDto){
-        EventDetailResponseDto updatedEvent = eventService.updateEvent(eventImage,attendanceListFile, userId, eventId, eventRequestDto);
-        return ResponseEntity.ok(updatedEvent);
-    }*/
+                                      @ModelAttribute EventRequestDto eventRequestDto){
+        eventService.updateEvent(accessor, eventId, eventImage, eventRequestDto);
+        return ResponseEntity.ok(UPDATE_EVENT_SUCCESS);
+    }
 
     @DeleteMapping(value="/{eventId}")
     @Operation(summary = "이벤트 삭제")

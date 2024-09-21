@@ -14,12 +14,15 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
 public class EventScheduleResponseDto {
+
+    private final Long eventScheduleId;
     private final String eventDate;
     private final String startTime;
     private final String endTime;
 
     public static EventScheduleResponseDto of(EventSchedule eventSchedule){
         return new EventScheduleResponseDto(
+                eventSchedule.getEventScheduleId(),
                 eventSchedule.getEventDate(),
                 eventSchedule.getEventStartTime(),
                 eventSchedule.getEventEndTime()

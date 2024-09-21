@@ -2,12 +2,10 @@ package checkmate.com.checkmate.eventAttendance.controller;
 
 import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
-import checkmate.com.checkmate.eventAttendance.dto.EventAttendanceRequestDto;
-import checkmate.com.checkmate.eventAttendance.dto.StudentEventAttendanceResponseDto;
-import checkmate.com.checkmate.eventAttendance.dto.StrangerInfoResponseDto;
-import checkmate.com.checkmate.eventAttendance.dto.StudentInfoResponseDto;
+import checkmate.com.checkmate.eventAttendance.dto.*;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.global.config.S3Download;
+import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
@@ -118,7 +116,7 @@ public class EventAttendanceController {
 
     @ResponseBody
     @PutMapping(value="/list/{eventId}")
-    @Operation(summary = "출석명단 수정")
+    @Operation(summary = "출석명단 출석 수정")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventAttendanceResponseDto.class))),
@@ -129,5 +127,28 @@ public class EventAttendanceController {
                                                    @RequestPart("attendanceList") List<EventAttendanceRequestDto> eventAttendanceRequestDto){
         List<?> studentEventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, eventAttendanceRequestDto);
         return ResponseEntity.ok(studentEventAttendanceResponseDtos);
+    }
+
+    @ResponseBody
+    @PutMapping(value="/list/{eventId}/{eventScheduleId}/{attendeeId}")
+    @Operation(summary = "출석명단 중 참석자 삭제")
+    public BaseResponseDto<?> deleteAttendanceList(@Auth final Accessor accessor,
+                                                  @PathVariable("eventId") Long eventId,
+                                                  @PathVariable("eventScheduleId") Long eventScheduleId,
+                                                  @PathVariable("attendeeId") Long attendeeId){
+        eventAttendanceService.deleteAttendanceList(accessor, eventId, eventScheduleId, attendeeId);
+        return BaseResponseDto.ofSuccess(REMOVE_ATTENDANCE_SUCCESS);
+    }
+
+    @ResponseBody
+    @PostMapping(value="/list/{eventId}/{eventScheduleId}")
+    @Operation(summary = "출석명단 추가")
+
+    public BaseResponseDto<?> registerAttendee(@Auth final Accessor accessor,
+                                               @PathVariable("eventId") Long eventId,
+                                               @PathVariable("eventScheduleId") Long eventScheduleId,
+                                               @RequestPart("attendeeInfo") List<EventAttendanceDetailRequestDto> eventAttendanceDetailRequestDtos){
+        eventAttendanceService.addAttendee(accessor, eventId, eventScheduleId, eventAttendanceDetailRequestDtos);
+        return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
     }
 }
