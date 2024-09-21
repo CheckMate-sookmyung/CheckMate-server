@@ -11,14 +11,14 @@ import static lombok.AccessLevel.PRIVATE;
 @Getter
 @RequiredArgsConstructor(access=PRIVATE)
 public class StrangerEventAttendanceResponseDto {
-    private final Long strangerInfoId;
-    private final String strangerName;
-    private final String strangerAffiliation;
-    private final String strangerPhoneNumber;
-    private final String strangerEmail;
+    private final Long attendeeId;
+    private final String attendeeName;
+    private final String attendeeAffiliation;
+    private final String attendeePhoneNumber;
+    private final String attendeeEmail;
     private final boolean attendance;
     private final String sign;
-    private final LocalDateTime attendanceTime;
+    private final LocalDateTime attendTime;
 
     public static StrangerEventAttendanceResponseDto of(EventAttendance eventAttendance){
         return new StrangerEventAttendanceResponseDto(

@@ -125,7 +125,10 @@ public class EventService {
                     eventCount++;
                 }
             }
-            return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
+            if(eventCount==0)
+                return EventDetailResponseDto.of(getEvent, eventSchedules, 0, 0);
+            else
+                return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
         }
     }
 
