@@ -100,12 +100,11 @@ public class Event extends BaseTimeEntity {
         this.beforeAttendanceListFile = eventAttendanceListFile;
     }
 
-    public void updateEvent(String eventTitle, String eventDetail, String eventImage, String eventAttendanceListFile, Boolean alarmResponse){
+    public void updateEvent(String eventTitle, String eventDetail, String eventImage, Boolean alarmRequest){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.beforeAttendanceListFile = eventAttendanceListFile;
-        this.alarmRequest = alarmResponse;
+        this.alarmRequest = alarmRequest;
     }
 
     public void updateAlarm(){

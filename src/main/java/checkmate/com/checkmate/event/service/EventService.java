@@ -128,26 +128,20 @@ public class EventService {
             return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
         }
     }
-/*
+
     @Transactional
-    public EventDetailResponseDto updateEvent(MultipartFile eventImage, MultipartFile attendanceListFile, Long userId, Long eventId, EventRequestDto eventRequestDto){
-        Event updateEvent = eventRepository.findByUserIdAndEventId(userId, eventId);
+    public void updateEvent(Accessor accessor, Long eventId, MultipartFile eventImage, EventRequestDto eventRequestDto){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event updateEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
 
         if (updateEvent != null) {
             String updatedImageFileName = null;
-            String updatedAttendacneListFileName = null;
             if (!eventImage.isEmpty()) {
                 String ImagefileName = extractFileNameFromUrl(updateEvent.getEventImage());
                 amazonS3Client.deleteObject(bucketName, ImagefileName);
-                updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(userId), "event/" + String.valueOf(updateEvent.getEventId()));
+                updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(updateEvent.getEventId()));
             } else
                 throw new GeneralException(IMAGE_IS_NULL);
-            if (!attendanceListFile.isEmpty()) {
-                String AttendanceListfileName = extractFileNameFromUrl(updateEvent.getBeforeAttendanceListFile());
-                amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
-                updatedAttendacneListFileName = s3Uploader.saveFile(attendanceListFile, String.valueOf(userId), "event/" + String.valueOf(updateEvent.getEventId()));
-            } else
-                throw new GeneralException(FILE_IS_NULL);
 
             eventScheduleRepository.deleteByEventEventId(eventId);
             List<EventSchedule> updatedEventSchedules = eventRequestDto.getEventSchedules().stream()
@@ -163,15 +157,12 @@ public class EventService {
                     eventRequestDto.getEventTitle(),
                     eventRequestDto.getEventDetail(),
                     updatedImageFileName,
-                    updatedAttendacneListFileName,
-                    updatedEventSchedules,
                     eventRequestDto.getAlarmRequest());
-            eventRepository.save(updateEvent);
 
-            return EventDetailResponseDto.of(updateEvent);
+            eventRepository.save(updateEvent);
         } else
             throw new GeneralException(EVENT_NOT_FOUND);
-    }*/
+    }
 
     @Transactional
     public void deleteEvent(Accessor accessor, Long eventId){
