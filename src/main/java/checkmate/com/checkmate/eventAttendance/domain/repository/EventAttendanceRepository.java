@@ -29,4 +29,5 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
 
     @Query("SELECT ea FROM EventAttendance ea WHERE ea.eventSchedule.id = :eventScheduleId AND ea.attendance = true")
     List<EventAttendance> findAverageAttendeeByEventScheduleId(@Param("eventScheduleId") Long eventScheduleId);
+
 }

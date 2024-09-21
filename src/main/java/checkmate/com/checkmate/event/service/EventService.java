@@ -185,6 +185,16 @@ public class EventService {
         }
         String AttendanceListfileName = extractFileNameFromUrl(deleteEvent.getBeforeAttendanceListFile());
         amazonS3Client.deleteObject(bucketName, AttendanceListfileName);
+        String AttendanceListExcelfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListExcelFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListExcelfileName);
+        String AttendanceListPDFfileName = extractFileNameFromUrl(deleteEvent.getAfterAttendanceListPDFFile());
+        amazonS3Client.deleteObject(bucketName, AttendanceListPDFfileName);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        for (EventSchedule eventSchedule : eventSchedules) {
+            List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventSchedule.getEventScheduleId());
+            eventAttendanceRepository.deleteAll(eventAttendances);
+        }
+        eventScheduleRepository.deleteAll(eventSchedules);
         eventRepository.delete(deleteEvent);
     }
 
@@ -212,9 +222,7 @@ public class EventService {
                 for (EventSchedule eventSchedule : eventSchedules) {
                     Long eventScheduleId = eventSchedule.getEventScheduleId();
                     List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
-/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
-                        .map(EventAttendanceResponseDto::of)
-                        .collect(Collectors.toList());*/
+
                     eventScheduleResponseDtos.add(StudentEventScheduleResponseDto.of(eventSchedule, eventAttendances));
                 }
             }
@@ -222,9 +230,6 @@ public class EventService {
                 for (EventSchedule eventSchedule : eventSchedules) {
                     Long eventScheduleId = eventSchedule.getEventScheduleId();
                     List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
-/*                List<EventAttendanceResponseDto> eventAttendanceResponseDtos = eventAttendances.stream()
-                        .map(EventAttendanceResponseDto::of)
-                        .collect(Collectors.toList());*/
                     eventScheduleResponseDtos.add(StrangerEventScheduleResponseDto.of(eventSchedule, eventAttendances));
                 }
             }
