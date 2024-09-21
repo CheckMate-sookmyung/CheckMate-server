@@ -29,6 +29,8 @@ public class EventDetailResponseDto {
     private final boolean alaramRequest;
     private final String eventUrl;
     private final boolean alarmResponse;
+    private final int completionTime;
+    private final String eventAttendanceFile;
     private final String managerName;
     private final String managerPhoneNumber;
     private final String managerEmail;
@@ -50,6 +52,8 @@ public class EventDetailResponseDto {
                 event.getAlarmRequest(),
                 event.getEventUrl(),
                 event.getAlarmResponse(),
+                event.getCompletionTime(),
+                event.getBeforeAttendanceListFile(),
                 event.getManagerName(),
                 event.getManagerPhoneNumber(),
                 event.getManagerEmail(),
