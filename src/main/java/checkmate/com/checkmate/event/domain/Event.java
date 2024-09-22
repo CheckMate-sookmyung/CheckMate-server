@@ -51,6 +51,9 @@ public class Event extends BaseTimeEntity {
     @Column
     private String afterAttendanceListPDFFile;
 
+    @Column
+    private double eventAttendanceRatio;
+
     @Column(nullable = false)
     private Boolean alarmRequest;
 
@@ -93,6 +96,7 @@ public class Event extends BaseTimeEntity {
         this.eventType = eventType;
         this.eventTarget = eventTarget;
         this.managerEmail = managerEmail;
+        this.eventAttendanceRatio = 0.0;
     }
 
     public void registerFileAndAttendanceList(String eventImage, String eventAttendanceListFile){
@@ -124,6 +128,10 @@ public class Event extends BaseTimeEntity {
 
     public void registerSurveyUrl(String surveyUrl){
         this.surveyUrl = surveyUrl;
+    }
+
+    public void updateEventAttendanceRatio(double eventAttendanceRatio){
+        this.eventAttendanceRatio = eventAttendanceRatio;
     }
 
 }

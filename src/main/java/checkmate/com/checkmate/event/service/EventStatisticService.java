@@ -4,6 +4,7 @@ import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
 import checkmate.com.checkmate.event.dto.EventRatioResponseDto;
+import checkmate.com.checkmate.event.dto.MostAttendeeRatioEventResponseDto;
 import checkmate.com.checkmate.event.dto.MostFrequentParticipantsResponseDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
@@ -70,6 +71,13 @@ public class EventStatisticService {
         List<Student> topStudents = studentRepository.findAllByOrderByAttendanceTimeDesc();
         return topStudents.stream()
                 .map(MostFrequentParticipantsResponseDto::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<MostAttendeeRatioEventResponseDto> getMostAttendeeRatioEvents(Accessor accessor) {
+        List<Event> topEvents = eventRepository.findAllByOrderByEventAttendanceRatioDesc();
+        return topEvents.stream()
+                .map(MostAttendeeRatioEventResponseDto::of)
                 .collect(Collectors.toList());
     }
 }

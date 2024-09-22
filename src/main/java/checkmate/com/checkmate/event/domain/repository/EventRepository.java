@@ -40,4 +40,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE es.event.eventId = :eventId AND s.strangerEmail IS NOT NULL")
     List<String> findDistinctStrangerEmailsByEventId(@Param("eventId") Long eventId);
 
+    List<Event> findAllByOrderByEventAttendanceRatioDesc();
 }

@@ -55,8 +55,9 @@ public class MailService {
         attendeeEmailList.add(event.getManagerEmail());
         if(mail.getMailType()== REMIND)
             emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getEventUrl());
-        else
-            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getSurveyUrl());
+        else {
+            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(), event.getSurveyUrl());
+        }
     }
 
     public MailResponseDto getMailContent(Accessor accessor, Long eventId, MailType mailType) {
