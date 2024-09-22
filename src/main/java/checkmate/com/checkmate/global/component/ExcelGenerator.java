@@ -29,7 +29,7 @@ public class ExcelGenerator {
     public MultipartFile generateExcel(Event event, List<EventSchedule> eventSchedules, int completion) {
         Workbook workbook = new XSSFWorkbook();
         try {
-            Sheet sheet = workbook.createSheet(event.getEventTitle() + " 참석자 명단");
+            Sheet sheet = workbook.createSheet(event.getEventTitle() + " 출석 명단");
 
             Row headerRow = sheet.createRow(0);
             String[] baseColumns = {"이름", "학과", "학번"};
@@ -93,10 +93,10 @@ public class ExcelGenerator {
                 }
             }
 
-            String fileName = event.getEventTitle() + "_참석자명단_전체.xlsx";
+            String fileName = event.getEventTitle() + "_출석명단_전체.xlsx";
             try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
                 workbook.write(outputStream);
-                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() + "_참석자명단.xlsx");
+                MultipartFile attendanceListMultipartFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() + "_출석명단.xlsx");
                 return attendanceListMultipartFile;
             }
         } catch (IOException e) {
@@ -144,10 +144,10 @@ public class ExcelGenerator {
     public Workbook generateOnlineAttendaceExcel(List<EventAttendance> attendances, List<Map<String, String>> excelFile) {
         Workbook workbook = new XSSFWorkbook();
 
-        Sheet attendanceSheet = workbook.createSheet("확인 참석자 명단");
+        Sheet attendanceSheet = workbook.createSheet("확인 출석자 명단");
         createAttendanceSheet(attendanceSheet, attendances);
 
-        Sheet excelFileSheet = workbook.createSheet("미확인 참석자 명단");
+        Sheet excelFileSheet = workbook.createSheet("미확인 출석자 명단");
         createExcelFileSheet(excelFileSheet, excelFile);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

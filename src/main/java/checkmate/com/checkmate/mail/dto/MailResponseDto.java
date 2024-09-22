@@ -13,9 +13,17 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor(access=PRIVATE)
 @Schema(description = "Mail Response")
 public class MailResponseDto {
+
+    @Schema(description = "메일 ID", example = "1")
     private final Long mailId;
+
+    @Schema(description = "메일 제목", example = "메일 제목")
     private final String mailTitle;
+
+    @Schema(description = "메일 내용", example = "메일 내용")
     private final String mailContent;
+
+    @Schema(description = "메일 삽입 주소", example = "https://checkmate.pe.kr")
     private final String mailUrl;
 
     public static MailResponseDto of(Mail mail) {

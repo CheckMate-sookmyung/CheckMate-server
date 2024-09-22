@@ -18,7 +18,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/home")
-@Tag(name="홈 화면 API", description="이벤트 수와 사용자 수를 조회할 수 있습니다.")
+@Tag(name="홈 화면 API", description="이벤트 수와 참석자 수를 조회할 수 있습니다.")
 public class HomeController {
 
     @Autowired

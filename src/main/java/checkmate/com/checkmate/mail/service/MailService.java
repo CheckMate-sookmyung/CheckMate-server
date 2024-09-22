@@ -58,6 +58,8 @@ public class MailService {
         else {
             emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(), event.getSurveyUrl());
         }
+        event.updateMail();
+        eventRepository.save(event);
     }
 
     public MailResponseDto getMailContent(Accessor accessor, Long eventId, MailType mailType) {
@@ -106,7 +108,7 @@ public class MailService {
                 .mailType(MailType.SURVEY)
                 .mailTitle(title)
                 .mailContent(content.toString())
-                .attachUrl(null)
+                .attachUrl(event.getEventUrl())
                 .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
@@ -130,5 +132,11 @@ public class MailService {
 
         Date followUpTime = Date.from(followUpDateTime.atZone(ZoneId.systemDefault()).toInstant());
         taskScheduler.schedule(() -> sendEventMail(accessor, eventId, SURVEY), followUpTime);
+    }
+
+    public void registerSurveyUrl(Accessor accessor, Long eventId, String surveyUrl) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        event.registerSurveyUrl(surveyUrl);
     }
 }

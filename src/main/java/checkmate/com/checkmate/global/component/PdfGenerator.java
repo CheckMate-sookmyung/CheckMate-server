@@ -47,10 +47,10 @@ public class PdfGenerator {
 
 
         //Local Test
-        String fontPath = "src/main/resources/NanumGothic.otf";
-        String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
-        //String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
-        //String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
+        //String fontPath = "src/main/resources/NanumGothic.otf";
+        //String boldFontPath = "src/main/resources/NanumGothicExtraBold.otf";
+        String fontPath = "/usr/share/fonts/nanum/NanumGothic.ttf";
+        String boldFontPath = "/usr/share/fonts/nanum/NanumGothicExtraBold.ttf";
         PdfFont font = PdfFontFactory.createFont(FontProgramFactory.createFont(fontPath), "Identity-H", true);
         PdfFont boldFont = PdfFontFactory.createFont(FontProgramFactory.createFont(boldFontPath), "Identity-H", true);
 
@@ -156,7 +156,7 @@ public class PdfGenerator {
         ByteArrayResource resource = new ByteArrayResource(baos.toByteArray()) {
             @Override
             public String getFilename() {
-                return eventName + "_참석자_명단.pdf";
+                return eventName + "_출석명단.pdf";
             }
         };
 

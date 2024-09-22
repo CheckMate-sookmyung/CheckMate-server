@@ -2,6 +2,8 @@ package checkmate.com.checkmate.eventAttendance.service;
 
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.*;
+import checkmate.com.checkmate.eventschedule.dto.StrangerEventScheduleResponseDto;
+import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.component.*;
 import checkmate.com.checkmate.global.domain.CsvResultDto;
 import checkmate.com.checkmate.mail.component.EmailSender;
@@ -23,8 +25,6 @@ import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
 import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.student.domain.repository.StudentRepository;
 import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
-import jakarta.persistence.Access;
-import jakarta.persistence.AttributeConverter;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -276,25 +276,25 @@ public class EventAttendanceService {
     }
 
     @Transactional
-    public List<Object> updateAttendanceList(Accessor accessor, Long eventId, List<EventAttendanceRequestDto> eventAttendanceRequestDtos) {
+    public List<Object> updateAttendanceList(Accessor accessor, Long eventId, List<AttendanceUpdateRequestDto> attendanceUpdateRequestDtos) {
         // eventAttendanceListId가 userId, eventId랑 다 맞는지 확인
         Event event = eventRepository.findByMemberIdAndEventId(accessor.getMemberId(), eventId);
         List<Object> eventAttendanceResponseDtos = new ArrayList<>();
 
         if (event.getEventTarget() == EventTarget.INTERNAL) {
             List<?> studentEventAttendanceResponseDtos = new ArrayList<>();
-            for (EventAttendanceRequestDto eventAttendanceListrequestDto : eventAttendanceRequestDtos) {
-                EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(eventAttendanceListrequestDto.getStudentInfoId());
-                eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace());
+            for (AttendanceUpdateRequestDto eventAttendanceListrequestDto : attendanceUpdateRequestDtos) {
+                EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(eventAttendanceListrequestDto.getAttendeeId());
+                eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendance());
                 eventAttendanceRepository.save(eventAttendance);
                 eventAttendanceResponseDtos.add(StudentEventAttendanceResponseDto.of(eventAttendance));
             }
         }
         else{
             List<?> strangerEventAttendanceResponseDtos = new ArrayList<>();
-            for (EventAttendanceRequestDto eventAttendanceListrequestDto : eventAttendanceRequestDtos) {
-                EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(eventAttendanceListrequestDto.getStudentInfoId());
-                eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendace());
+            for (AttendanceUpdateRequestDto eventAttendanceListrequestDto : attendanceUpdateRequestDtos) {
+                EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(eventAttendanceListrequestDto.getAttendeeId());
+                eventAttendance.updateAttendanceByManager(eventAttendanceListrequestDto.getAttendance());
                 eventAttendanceRepository.save(eventAttendance);
                 eventAttendanceResponseDtos.add(StrangerEventAttendanceResponseDto.of(eventAttendance));
             }
@@ -323,28 +323,28 @@ public class EventAttendanceService {
         eventAttendanceRepository.delete(eventAttendance);
     }
 
-    public void addAttendee(Accessor accessor, Long eventId, Long eventScheduleId, List<EventAttendanceDetailRequestDto> eventAttendanceDetailRequestDtos) {
+    public void addAttendee(Accessor accessor, Long eventId, Long eventScheduleId, List<AttendeePlustRequestDto> attendeePlustRequestDtos) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         EventSchedule eventSchedule = eventScheduleRepository.findEventScheduleByEventScheduleId(eventScheduleId);
         if(event.getEventTarget() == EventTarget.INTERNAL) {
             List<StudentExcelResponseDto> studentExcelResponseDtos = null;
-            for(EventAttendanceDetailRequestDto eventAttendanceDetailRequestDto : eventAttendanceDetailRequestDtos){
-                studentExcelResponseDtos.add(StudentExcelResponseDto.of(eventAttendanceDetailRequestDto.getAttendeeName(),
-                        eventAttendanceDetailRequestDto.getAttendeeStudentNumber(),
-                        eventAttendanceDetailRequestDto.getAttendeeAffiliation(),
-                        eventAttendanceDetailRequestDto.getAttendeePhoneNumber(),
-                        eventAttendanceDetailRequestDto.getAttendeeEmail()));
+            for(AttendeePlustRequestDto attendeePlustRequestDto : attendeePlustRequestDtos){
+                studentExcelResponseDtos.add(StudentExcelResponseDto.of(attendeePlustRequestDto.getAttendeeName(),
+                        attendeePlustRequestDto.getAttendeeStudentNumber(),
+                        attendeePlustRequestDto.getAttendeeAffiliation(),
+                        attendeePlustRequestDto.getAttendeePhoneNumber(),
+                        attendeePlustRequestDto.getAttendeeEmail()));
             }
             saveStudentAttendanceList(loginMember, studentExcelResponseDtos, eventSchedule);
         }
         else{
             List<StrangerExcelResponseDto> strangerExcelResponseDtos = null;
-            for(EventAttendanceDetailRequestDto eventAttendanceDetailRequestDto : eventAttendanceDetailRequestDtos){
-                strangerExcelResponseDtos.add(StrangerExcelResponseDto.of(eventAttendanceDetailRequestDto.getAttendeeName(),
-                        eventAttendanceDetailRequestDto.getAttendeePhoneNumber(),
-                        eventAttendanceDetailRequestDto.getAttendeeEmail(),
-                        eventAttendanceDetailRequestDto.getAttendeeAffiliation()));
+            for(AttendeePlustRequestDto attendeePlustRequestDto : attendeePlustRequestDtos){
+                strangerExcelResponseDtos.add(StrangerExcelResponseDto.of(attendeePlustRequestDto.getAttendeeName(),
+                        attendeePlustRequestDto.getAttendeePhoneNumber(),
+                        attendeePlustRequestDto.getAttendeeEmail(),
+                        attendeePlustRequestDto.getAttendeeAffiliation()));
             }
             saveStrangerAttendanceList(loginMember, strangerExcelResponseDtos, eventSchedule);
         }
@@ -374,10 +374,37 @@ public class EventAttendanceService {
         }
 
         Workbook workbook = excelGenerator.generateOnlineAttendaceExcel(attendances, csvResultDto.getFailedTimeMap());
-        MultipartFile onlineAttendanceFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() +"_"+eventSchedule.getEventDate()+"_온라인_참석명단" + ".xlsx");
+        MultipartFile onlineAttendanceFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() +"_"+eventSchedule.getEventDate()+"_온라인_출석명단" + ".xlsx");
         String onlineAttendanceListUrl = s3Uploader.saveFile(onlineAttendanceFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFile(null, onlineAttendanceListUrl);
         return onlineAttendanceListUrl;
     }
 
+    @Transactional
+    public List<Object> getAttendanceList(Accessor accessor, Long eventId){
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        List<Object> eventScheduleResponseDtos = new ArrayList<>();
+        if (eventSchedules.isEmpty())
+            throw new GeneralException(EVENT_NOT_FOUND);
+        else {
+            if(event.getEventTarget() == EventTarget.INTERNAL) {
+                for (EventSchedule eventSchedule : eventSchedules) {
+                    Long eventScheduleId = eventSchedule.getEventScheduleId();
+                    List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
+                    eventScheduleResponseDtos.add(StudentEventScheduleResponseDto.of(eventSchedule, eventAttendances));
+                }
+            }
+            else{
+                for (EventSchedule eventSchedule : eventSchedules) {
+                    Long eventScheduleId = eventSchedule.getEventScheduleId();
+                    List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
+                    eventScheduleResponseDtos.add(StrangerEventScheduleResponseDto.of(eventSchedule, eventAttendances));
+                }
+            }
+            return eventScheduleResponseDtos;
+
+        }
+    }
 }

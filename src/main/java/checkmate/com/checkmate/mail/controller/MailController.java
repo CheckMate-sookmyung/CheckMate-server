@@ -10,6 +10,7 @@ import checkmate.com.checkmate.mail.service.MailService;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,42 +26,31 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/events/mail")
+@RequestMapping("/api/v1/mail")
 @Tag(name="행사 메일 전송", description="행사별 메일 전송 관련 API입니다.")
-@ApiResponses(
-        value = {
-                @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-        }
-)
 public class MailController {
     @Autowired
     private final MailService mailService;
 
     @ResponseBody
-    @GetMapping("/{eventId}")
+    @GetMapping("/send/{eventId}")
     @Operation(summary = "행사 전후 메일 발송")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
-            }
-    )
-    public BaseResponseDto<?> sendRemindMail(@Auth final Accessor accessor,
+    public BaseResponseDto<?> sendRemindMail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                              @PathVariable("eventId") Long eventId,
                                              @RequestParam("mailType") MailType mailType) {
         mailService.sendEventMail(accessor, eventId, mailType);
         return BaseResponseDto.ofSuccess(SEND_BEFORE_MAIL);
     }
 
-
     @ResponseBody
-    @GetMapping("/content/{eventId}")
+    @GetMapping("/{eventId}")
     @Operation(summary = "메일 내용 조회")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getMailContent(@Auth final Accessor accessor,
+    public ResponseEntity<?> getMailContent(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("mailType") MailType mailType) {
         MailResponseDto mailResponseDto = mailService.getMailContent(accessor, eventId, mailType);
@@ -68,17 +58,27 @@ public class MailController {
     }
 
     @ResponseBody
-    @PutMapping("/content/{mailId}")
+    @PutMapping("/{mailId}")
     @Operation(summary = "메일 내용 변경")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> putMailContent(@Auth final Accessor accessor,
+    public ResponseEntity<?> putMailContent(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("mailId") Long mailId,
                                             @RequestBody MailRequestDto mailRequestDto) {
         MailResponseDto mailResponseDto = mailService.updateMailContent(accessor, mailId, mailRequestDto);
         return ResponseEntity.ok(mailResponseDto);
+    }
+
+    @ResponseBody
+    @PutMapping(value="/survey/{eventId}")
+    @Operation(summary = "설문조사 링크 등록")
+    public BaseResponseDto<?> registerSurveyUrl(@Parameter(hidden = true) @Auth final Accessor accessor,
+                                                @PathVariable("eventId") Long eventId,
+                                                @RequestParam("surveyUrl") String surveyUrl){
+        mailService.registerSurveyUrl(accessor, eventId, surveyUrl);
+        return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
     }
 }

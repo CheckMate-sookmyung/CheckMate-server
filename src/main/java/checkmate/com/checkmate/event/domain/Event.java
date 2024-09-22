@@ -55,10 +55,10 @@ public class Event extends BaseTimeEntity {
     private double eventAttendanceRatio;
 
     @Column(nullable = false)
-    private Boolean alarmRequest;
+    private Boolean mailRequest;
 
     @Column
-    private Boolean alarmResponse;
+    private Boolean mailResponse;
 
     @Column(nullable = false)
     private int completionTime;
@@ -85,12 +85,12 @@ public class Event extends BaseTimeEntity {
     private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventUrl, String eventDetail, int completionTime, boolean alarmRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
+    public Event(String eventTitle, String eventUrl, String eventDetail, int completionTime, boolean mailRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
-        this.alarmRequest = alarmRequest;
+        this.mailRequest = mailRequest;
         this.completionTime = completionTime;
-        this.alarmResponse = false;
+        this.mailResponse = false;
         this.eventUrl = eventUrl;
         this.member = member;
         this.eventType = eventType;
@@ -104,15 +104,15 @@ public class Event extends BaseTimeEntity {
         this.beforeAttendanceListFile = eventAttendanceListFile;
     }
 
-    public void updateEvent(String eventTitle, String eventDetail, String eventImage, Boolean alarmRequest){
+    public void updateEvent(String eventTitle, String eventDetail, String eventImage, Boolean mailRequest){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.alarmRequest = alarmRequest;
+        this.mailRequest = mailRequest;
     }
 
-    public void updateAlarm(){
-        this.alarmResponse = true;
+    public void updateMail(){
+        this.mailResponse = true;
     }
 
     public void updateAttendanceListFile(String afterAttendanceListPDFFile, String afterAttendanceListExcelFile){

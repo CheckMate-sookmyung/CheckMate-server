@@ -3,17 +3,14 @@ package checkmate.com.checkmate.event.service;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
-import checkmate.com.checkmate.event.dto.EventRatioResponseDto;
+import checkmate.com.checkmate.event.dto.EventStatisticResponseDto;
 import checkmate.com.checkmate.event.dto.MostAttendeeRatioEventResponseDto;
-import checkmate.com.checkmate.event.dto.MostFrequentParticipantsResponseDto;
+import checkmate.com.checkmate.event.dto.BestAttendeeResponseDto;
 import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
-import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.eventschedule.dto.StrangerEventScheduleResponseDto;
-import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.GeneralException;
 import checkmate.com.checkmate.member.domain.Member;
@@ -37,11 +34,11 @@ public class EventStatisticService {
     private final MemberRepository memberRepository;
     private final StudentRepository studentRepository;
 
-    public EventRatioResponseDto getEventRatioAboutEvent(Accessor accessor, Long eventId) {
+    public EventStatisticResponseDto getEventRatioAboutEvent(Accessor accessor, Long eventId) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-        EventRatioResponseDto eventRatioResponseDto = null;
+        EventStatisticResponseDto eventStatisticResponseDto = null;
         List<String> eventDates = new ArrayList<>();
         if (eventSchedules.isEmpty())
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -55,10 +52,10 @@ public class EventStatisticService {
                     List<Student> students = eventAttendances.stream()
                         .map(EventAttendance::getStudent)
                         .collect(Collectors.toList());
-                    eventRatioResponseDto = EventRatioResponseDto.of(eventDates, students, checkEventCompletion(eventId));
+                    eventStatisticResponseDto = EventStatisticResponseDto.of(eventDates, students, checkEventCompletion(eventId));
                 }
             }
-        return eventRatioResponseDto;
+        return eventStatisticResponseDto;
     }
 
     public boolean checkEventCompletion(Long eventId) {
@@ -67,10 +64,10 @@ public class EventStatisticService {
         return attendanceCount >= completionTime;
     }
 
-    public List<MostFrequentParticipantsResponseDto> getMostFrequentParticipants(Accessor accessor) {
+    public List<BestAttendeeResponseDto> getMostFrequentParticipants(Accessor accessor) {
         List<Student> topStudents = studentRepository.findAllByOrderByAttendanceTimeDesc();
         return topStudents.stream()
-                .map(MostFrequentParticipantsResponseDto::of)
+                .map(BestAttendeeResponseDto::of)
                 .collect(Collectors.toList());
     }
 

@@ -7,6 +7,7 @@ import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,38 +22,40 @@ import static lombok.AccessLevel.PRIVATE;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
+@Schema(description = "Event Request")
 public class EventRequestDto {
 
     @NotBlank(message="행사명을 입력해주세요.")
     @Size(max = 30, message = "행사명은 30자를 초과할 수 없습니다.")
-    @JsonProperty("eventTitle")  // JSON 필드와 매핑
+    @Schema(description = "행사 제목", example = "제목")
     private final String eventTitle;
 
     @Size(max = 250, message = "행사 내용은 250자를 초과할 수 없습니다.")
-    @JsonProperty("eventDetail")
+    @Schema(description = "행사 설명", example = "설명입니다.")
     private final String eventDetail;
 
     @NotBlank(message="행사 일정은 하나 이상 입력해주세요.")
-    @JsonProperty("eventSchedules")
+    @Schema(description = "행사 일정")
     private final List<EventScheduleRequestDto> eventSchedules;
 
     @Min(value = 1, message = "최소이수기준은 1 이상이어야 합니다.")
-    @JsonProperty("completionTimes")
+    @NotBlank(message="최소 이수기준을 입력해주세요.")
+    @Schema(description = "행사 최소 이수 기준", example = "2")
     private final int completionTimes;
 
-    @JsonProperty("eventUrl")
+    @Schema(description = "행사 웹사이트 주소", example = "https://checkmate.pe.kr")
     private final String eventUrl;
 
-    @NotNull(message="리마인드 알람 전송 여부를 입력해주세요.")
-    @JsonProperty("alarmRequest")
-    private final Boolean alarmRequest;
+    @NotNull(message="메일 전송 여부를 입력해주세요.")
+    @Schema(description = "행사 메일 발송 여부 (보낼것인지)", example = "true")
+    private final Boolean mailRequest;
 
     @NotBlank(message="행사 유형을 선택해주세요.")
-    @JsonProperty("eventType")
+    @Schema(description = "행사 유형", example = "ONLINE")
     private final EventType eventType;
 
     @NotBlank(message="행사 대상을 선택해주세요.")
-    @JsonProperty("eventTarget")
+    @Schema(description = "행사 대상", example = "INTERNAL")
     private final EventTarget eventTarget;
 
     public Event toEntity(Member member){

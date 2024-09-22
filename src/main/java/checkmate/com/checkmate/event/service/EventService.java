@@ -86,9 +86,11 @@ public class EventService {
                 .collect(Collectors.toList());
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
-        mailService.createRemindMail(savedEvent);
-        mailService.createSurveyMail(savedEvent);
-        mailService.scheduleEventMails(accessor, eventSchedules, savedEvent.getEventId());
+        if(eventRequestDto.getMailRequest()) {
+            mailService.createRemindMail(savedEvent);
+            mailService.createSurveyMail(savedEvent);
+            mailService.scheduleEventMails(accessor, eventSchedules, savedEvent.getEventId());
+        }
     }
 
     @Transactional
@@ -145,6 +147,13 @@ public class EventService {
     public void updateEvent(Accessor accessor, Long eventId, MultipartFile eventImage, EventRequestDto eventRequestDto){
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event updateEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+
+        if(!updateEvent.getMailRequest() && eventRequestDto.getMailRequest()){
+            mailService.createRemindMail(updateEvent);
+            mailService.createSurveyMail(updateEvent);
+            mailService.scheduleEventMails(accessor, eventSchedules, updateEvent.getEventId());
+        }
 
         if (updateEvent != null) {
             String updatedImageFileName = updateEvent.getManagerName();
@@ -154,19 +163,16 @@ public class EventService {
                 updatedImageFileName = s3Uploader.saveFile(eventImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(updateEvent.getEventId()));
             }
 
-            List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
-
             int cnt = 0;
             for(EventScheduleRequestDto eventScheduleRequestDto : eventRequestDto.getEventSchedules()){
                 eventSchedules.get(cnt).updateEventSchedule(eventScheduleRequestDto.getEventDate(), eventScheduleRequestDto.getEventStartTime(), eventScheduleRequestDto.getEventEndTime());
                 cnt++;
             }
-
             updateEvent.updateEvent(
                     eventRequestDto.getEventTitle(),
                     eventRequestDto.getEventDetail(),
                     updatedImageFileName,
-                    eventRequestDto.getAlarmRequest());
+                    eventRequestDto.getMailRequest());
 
             eventRepository.save(updateEvent);
         } else

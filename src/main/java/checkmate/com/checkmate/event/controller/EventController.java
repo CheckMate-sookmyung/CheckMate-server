@@ -7,10 +7,12 @@ import checkmate.com.checkmate.event.dto.EventManagerRequestDto;
 import checkmate.com.checkmate.event.dto.EventRequestDto;
 import checkmate.com.checkmate.event.service.EventService;
 import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
+import checkmate.com.checkmate.global.codes.SuccessCode;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
 import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,12 +36,7 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.*;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/events")
-@Tag(name="행사 CRUD", description="행사를 등록/조회/수정/삭제 할 수 있습니다.")
-@ApiResponses(
-        value = {
-                @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-        }
-)
+@Tag(name="행사 CRUD API", description="행사를 등록/조회/수정/삭제 할 수 있습니다.")
 public class EventController {
 
     @Autowired
@@ -48,13 +45,7 @@ public class EventController {
     @ResponseBody
     @PostMapping(value="", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "행사 등록")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
-            }
-    )
-
-    public BaseResponseDto<?> postEvent(@Auth final Accessor accessor,
+    public BaseResponseDto<?> postEvent(@Parameter(hidden = true) @Auth final Accessor accessor,
                                     @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                     @RequestPart(value="attendanceListFile") MultipartFile attendanceListFile,
                                     @RequestPart(value="eventDetail") EventRequestDto eventRequestDto) throws IOException {
@@ -64,26 +55,26 @@ public class EventController {
 
     @ResponseBody
     @GetMapping("")
-    @Operation(summary = "이벤트 목록 조회")
+    @Operation(summary = "행사 목록 조회")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventListResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getEventList(@Auth final Accessor accessor){
+    public ResponseEntity<?> getEventList(@Parameter(hidden = true) @Auth final Accessor accessor){
         List<EventListResponseDto> getEventList = eventService.getEventList(accessor);
         return ResponseEntity.ok(getEventList);
     }
 
     @ResponseBody
     @GetMapping(value="/{eventId}")
-    @Operation(summary = "이벤트 상세 조회")
+    @Operation(summary = "행사 상세 조회")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getEventDetail(@Auth final Accessor accessor,
+    public ResponseEntity<?> getEventDetail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId){
         EventDetailResponseDto getEvent = eventService.getEventDetail(accessor, eventId);
         return ResponseEntity.ok(getEvent);
@@ -91,13 +82,8 @@ public class EventController {
 
     @ResponseBody
     @PutMapping(value="/{eventId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "이벤트 수정")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = EventDetailResponseDto.class))),
-            }
-    )
-    public ResponseEntity<?> putEvent(@Auth final Accessor accessor,
+    @Operation(summary = "행사 수정")
+    public ResponseEntity<?> putEvent(@Parameter(hidden = true) @Auth final Accessor accessor,
                                       @PathVariable("eventId") Long eventId,
                                       @RequestPart(value="eventImage", required = false) MultipartFile eventImage,
                                       @RequestPart(value="eventDetail") EventRequestDto eventRequestDto){
@@ -106,50 +92,11 @@ public class EventController {
     }
 
     @DeleteMapping(value="/{eventId}")
-    @Operation(summary = "이벤트 삭제")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
-            }
-    )
-    public BaseResponseDto<?> deleteEvent(@Auth final Accessor accessor,
+    @Operation(summary = "행사 삭제")
+    public BaseResponseDto<?> deleteEvent(@Parameter(hidden = true) @Auth final Accessor accessor,
                                          @PathVariable("eventId") Long eventId){
         eventService.deleteEvent(accessor, eventId);
         return BaseResponseDto.ofSuccess(DELETE_EVENT_SUCCESS);
-    }
-
-    @ResponseBody
-    @GetMapping(value="/attendanceList/{eventId}")
-    @Operation(summary="행사 출석 명단 확인")
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = StudentEventScheduleResponseDto.class))),
-            }
-    )
-    public ResponseEntity<?> getAttendanceList(@Auth final Accessor accessor,
-                                               @PathVariable("eventId") Long eventId){
-        List<Object> eventAttendanceList = eventService.getAttendanceList(accessor, eventId);
-        return ResponseEntity.ok(eventAttendanceList);
-    }
-
-    @ResponseBody
-    @PutMapping(value="/manager/{eventId}")
-    @Operation(summary = "행사 담당자 등록")
-    public BaseResponseDto<?> registerManager(@Auth final Accessor accessor,
-                                             @PathVariable("eventId") Long eventId,
-                                             @RequestBody EventManagerRequestDto eventManagerRequestDto){
-        eventService.registerManager(accessor, eventId, eventManagerRequestDto);
-        return BaseResponseDto.ofSuccess(REGISTER_EVENT_MANAGER_SUCCESS);
-    }
-
-    @ResponseBody
-    @PutMapping(value="/survey/{eventId}")
-    @Operation(summary = "설문조사 링크 등록")
-    public BaseResponseDto<?> registerSurveyUrl(@Auth final Accessor accessor,
-                                                @PathVariable("eventId") Long eventId,
-                                                @RequestParam("surveyUrl") String surveyUrl){
-        eventService.registerSurveyUrl(accessor, eventId, surveyUrl);
-        return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
     }
 
 }

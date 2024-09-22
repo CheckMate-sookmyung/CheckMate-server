@@ -12,6 +12,7 @@ import checkmate.com.checkmate.login.dto.response.OAuthMemberResponse;
 import checkmate.com.checkmate.login.service.GoogleOAuthService;
 import checkmate.com.checkmate.login.service.OAuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +37,7 @@ import static checkmate.com.checkmate.global.codes.SuccessCode.LOGOUT_SUCCESS;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-@Tag(name="구글 로그인", description="구글 로그인을 할 수 있습니다.")
+@Tag(name="구글 로그인 API", description="구글 로그인을 할 수 있습니다.")
 public class OAuthController {
     private final OAuthService oAuthService;
     private final GoogleOAuthService googleOAuthService;
@@ -93,7 +94,7 @@ public class OAuthController {
     @Operation(summary = "로그아웃")
     @MemberOnly
     public BaseResponseDto<?> logout(
-            @Auth Accessor accessor
+            @Parameter(hidden = true) @Auth Accessor accessor
     ) {
         oAuthService.logout(accessor.getMemberId());
         return BaseResponseDto.ofSuccess(LOGOUT_SUCCESS);
