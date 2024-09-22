@@ -224,7 +224,6 @@ public class EventService {
                 for (EventSchedule eventSchedule : eventSchedules) {
                     Long eventScheduleId = eventSchedule.getEventScheduleId();
                     List<EventAttendance> eventAttendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
-
                     eventScheduleResponseDtos.add(StudentEventScheduleResponseDto.of(eventSchedule, eventAttendances));
                 }
             }

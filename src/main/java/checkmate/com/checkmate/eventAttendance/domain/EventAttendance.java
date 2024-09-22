@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -25,7 +27,10 @@ public class EventAttendance extends BaseTimeEntity {
     private String sign;
 
     @Column
-    private int accessTime;
+    private Integer accessTime;
+
+    @Column
+    private LocalDateTime attendTime;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="eventSchedule_id")
@@ -50,6 +55,7 @@ public class EventAttendance extends BaseTimeEntity {
     public void updateAttendanceByAttendanceCheck(String imageUrl){
         this.sign = imageUrl;
         this.attendance = true;
+        this.attendTime = LocalDateTime.now();
     }
 
     public void updateAttendanceByManager(boolean attendance){

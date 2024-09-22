@@ -4,6 +4,7 @@ import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -31,7 +32,7 @@ public class StudentEventAttendanceResponseDto {
                 eventAttendance.getStudent().getStudentEmail(),
                 eventAttendance.isAttendance(),
                 eventAttendance.getSign(),
-                eventAttendance.getModifiedDate());
+                eventAttendance.getAttendTime());
     }
 
 }
