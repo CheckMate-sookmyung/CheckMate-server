@@ -2,6 +2,8 @@ package checkmate.com.checkmate.eventAttendance.service;
 
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.eventAttendance.dto.*;
+import checkmate.com.checkmate.global.component.*;
+import checkmate.com.checkmate.global.domain.CsvResultDto;
 import checkmate.com.checkmate.mail.component.EmailSender;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
@@ -9,9 +11,6 @@ import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.domain.repository.EventScheduleRepository;
-import checkmate.com.checkmate.global.component.ExcelGenerator;
-import checkmate.com.checkmate.global.component.ExcelReader;
-import checkmate.com.checkmate.global.component.PdfGenerator;
 import checkmate.com.checkmate.global.config.S3Uploader;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.exception.GeneralException;
@@ -27,6 +26,7 @@ import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
 import jakarta.persistence.Access;
 import jakarta.persistence.AttributeConverter;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static checkmate.com.checkmate.global.codes.ErrorCode.*;
@@ -65,6 +66,9 @@ public class EventAttendanceService {
     private final EmailSender emailSender;
     @Autowired
     private final ExcelGenerator excelGenerator;
+    @Autowired
+    private CsvReader csvReader;
+    private final WorkbookToMultipartFileConverter workbookToMultipartFileConverter;
 
     @Transactional
     public StudentInfoResponseDto getStudentInfoByStudentNumber(Accessor accessor, Long eventId, int studentNumber, String eventDate) throws StudentAlreadyAttendedException {
@@ -345,4 +349,35 @@ public class EventAttendanceService {
             saveStrangerAttendanceList(loginMember, strangerExcelResponseDtos, eventSchedule);
         }
     }
+
+    public String uploadAttendanceListAboutOnline(Accessor accessor, Long eventScheduleId, MultipartFile attendanceFile) throws IOException {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        EventSchedule eventSchedule = eventScheduleRepository.findEventScheduleByEventScheduleId(eventScheduleId);
+        Event event = eventSchedule.getEvent();
+        List<EventAttendance> attendances = eventAttendanceRepository.findEventAttendancesById(eventScheduleId);
+        CsvResultDto csvResultDto = csvReader.parseCsvFile(attendanceFile);
+        Map<Integer, Integer> studentAttendanceList = csvResultDto.getStudentTimeMap();
+
+        for (EventAttendance attendance : attendances) {
+            int studentNumber = attendance.getStudent().getStudentNumber();
+
+            if (studentAttendanceList.containsKey(studentNumber)) {
+                int csvAttendanceTime = studentAttendanceList.get(studentNumber);
+
+                if (csvAttendanceTime >= event.getCompletionTime()) {
+                    attendance.updateAttendanceAboutOnlineEvent(true, csvAttendanceTime);
+                } else {
+                    attendance.updateAttendanceAboutOnlineEvent(false, csvAttendanceTime);
+                }
+                eventAttendanceRepository.save(attendance);
+            }
+        }
+
+        Workbook workbook = excelGenerator.generateOnlineAttendaceExcel(attendances, csvResultDto.getFailedTimeMap());
+        MultipartFile onlineAttendanceFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() +"_"+eventSchedule.getEventDate()+"_온라인_참석명단" + ".xlsx");
+        String onlineAttendanceListUrl = s3Uploader.saveFile(onlineAttendanceFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
+        event.updateAttendanceListFile(null, onlineAttendanceListUrl);
+        return onlineAttendanceListUrl;
+    }
+
 }

@@ -13,7 +13,8 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    Optional<Member> findMemberBySocialId(String socialId);
+    @Query("SELECT m FROM Member m WHERE m.socialId = :socialId")
+    Optional<Member> findMemberBySocialId(@Param("socialId") String socialId);
     Optional<Member> findMemberByRefreshToken(String refreshToken);
 
     /*
