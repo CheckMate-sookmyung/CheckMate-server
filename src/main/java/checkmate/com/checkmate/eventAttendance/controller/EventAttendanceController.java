@@ -101,7 +101,22 @@ public class EventAttendanceController {
     }
 
     @ResponseBody
-    @GetMapping(value="/list/sending/{eventId}")
+    @GetMapping(value="/list/upload/{eventScheduleId}")
+    @Operation(summary="온라인 참석명단 업로드")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content),
+            }
+    )
+    public ResponseEntity<?> uploadAttendanceListAboutOnline(@Auth final Accessor accessor,
+                                                             @PathVariable("eventScheduleId") Long eventScheduleId,
+                                                             @RequestPart(value="attendanceListFile") MultipartFile attendanceFile) throws IOException {
+        String fileUrl = eventAttendanceService.uploadAttendanceListAboutOnline(accessor, eventScheduleId, attendanceFile);
+        return ResponseEntity.ok(fileUrl);
+    }
+
+    @ResponseBody
+    @PostMapping(value="/list/sending/{eventId}")
     @Operation(summary="출석명단 자동 전송")
     @ApiResponses(
             value = {
@@ -109,7 +124,7 @@ public class EventAttendanceController {
             }
     )
     public BaseResponseDto<?> sendAttendanceListAutomatically(@Auth final Accessor accessor,
-                                                @PathVariable("eventId") Long eventId) throws IOException {
+                                                              @PathVariable("eventId") Long eventId) throws IOException {
         eventAttendanceService.sendAttendanceList(accessor, eventId);
         return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
     }

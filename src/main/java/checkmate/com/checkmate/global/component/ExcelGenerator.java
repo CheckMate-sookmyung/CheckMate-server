@@ -9,6 +9,7 @@ import checkmate.com.checkmate.global.domain.EventTarget;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,6 +110,94 @@ public class ExcelGenerator {
         }
         return null;
     }
+
+    public MultipartFile saveFailedRowsToExcel(List<String[]> failedRows, String fileName) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Cannot Read");
+
+        int rowNum = 0;
+        for (String[] failedRow : failedRows) {
+            Row row = sheet.createRow(rowNum++);
+            for (int i = 0; i < failedRow.length; i++) {
+                Cell cell = row.createCell(i);
+                cell.setCellValue(failedRow[i]);
+            }
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+            workbook.write(outputStream);
+            MultipartFile failFileList = workbookToMultipartFileConverter.convert(workbook, fileName + ".xlsx");
+            return failFileList;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
+    public Workbook generateOnlineAttendaceExcel(List<EventAttendance> attendances, List<Map<String, String>> excelFile) {
+        Workbook workbook = new XSSFWorkbook();
+
+        Sheet attendanceSheet = workbook.createSheet("확인 참석자 명단");
+        createAttendanceSheet(attendanceSheet, attendances);
+
+        Sheet excelFileSheet = workbook.createSheet("미확인 참석자 명단");
+        createExcelFileSheet(excelFileSheet, excelFile);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            workbook.write(outputStream);
+            //workbook.close();
+
+            return workbook;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 첫 번째 시트에 attendances 데이터 추가
+    private void createAttendanceSheet(Sheet sheet, List<EventAttendance> attendances) {
+        // 헤더 생성
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("이름");
+        headerRow.createCell(1).setCellValue("학번");
+        headerRow.createCell(2).setCellValue("전공");
+        headerRow.createCell(3).setCellValue("이수 여부");
+        headerRow.createCell(4).setCellValue("접속시간");
+
+        // attendances 데이터 추가
+        int rowNum = 1;
+        for (EventAttendance attendance : attendances) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(attendance.getStudent().getStudentName());
+            row.createCell(1).setCellValue(attendance.getStudent().getStudentNumber());
+            row.createCell(2).setCellValue(attendance.getStudent().getStudentMajor());
+            row.createCell(3).setCellValue(attendance.isAttendance() ? "O" : "X");
+            row.createCell(4).setCellValue(attendance.getAccessTime());
+        }
+    }
+
+    private void createExcelFileSheet(Sheet sheet, List<Map<String, String>> excelFile) {
+        // 헤더 생성
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("이름");
+        headerRow.createCell(1).setCellValue("접속 시간");
+
+        // excelFile 데이터 추가
+        int rowNum = 1;
+        for (Map<String, String> rowData : excelFile) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(rowData.get("name"));
+            row.createCell(1).setCellValue(rowData.get("accessTime"));
+        }
+    }
+}
 /*
 
     public MultipartFile generateExcelAboutExternalEvent(String eventName, List<EventSchedule> eventSchedules, int completion) {
@@ -183,5 +272,3 @@ public class ExcelGenerator {
     }
 */
 
-
-}

@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
+import java.util.Optional;
+
 import static checkmate.com.checkmate.global.codes.ErrorCode.*;
 
 
@@ -46,7 +48,7 @@ public class GoogleOAuthService {
 
         Member member = memberRepository.findMemberBySocialId(memberResponse.getId()).orElse(null);
 
-        if (member == null) {
+        if (member==null) {
             return OAuthMemberResponse.builder()
                     .socialId(memberResponse.getId())
                     .name(memberResponse.getName())
@@ -60,14 +62,7 @@ public class GoogleOAuthService {
 
         member.updateRefreshToken(appRefreshToken);
         memberRepository.save(member);
-        return OAuthMemberResponse.builder()
-                .socialId(memberResponse.getId())
-                .name(memberResponse.getName())
-                .email(memberResponse.getEmail())
-                .accessToken(appAccessToken)
-                .refreshToken(appRefreshToken)
-                .isNewMember(false)
-                .build();
+        return new OAuthMemberResponse(member, false, appAccessToken);
     }
 
     /**

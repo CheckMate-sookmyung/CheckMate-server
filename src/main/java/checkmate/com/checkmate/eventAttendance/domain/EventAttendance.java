@@ -24,6 +24,9 @@ public class EventAttendance extends BaseTimeEntity {
     @Column
     private String sign;
 
+    @Column
+    private int accessTime;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="eventSchedule_id")
     private EventSchedule eventSchedule;
@@ -51,6 +54,12 @@ public class EventAttendance extends BaseTimeEntity {
 
     public void updateAttendanceByManager(boolean attendance){
         this.attendance = attendance;
+    }
+
+    public void updateAttendanceAboutOnlineEvent(boolean attendance, int accessTime){
+        this.attendance = attendance;
+        this.accessTime = accessTime;
+
     }
 
 }
