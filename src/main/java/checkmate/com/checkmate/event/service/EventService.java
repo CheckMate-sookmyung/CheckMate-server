@@ -124,6 +124,7 @@ public class EventService {
                 List<EventAttendance> totalEventAttendance = eventAttendanceRepository.findTotalAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
                 totalAttendees = totalEventAttendance.size();
                 List<EventAttendance> averageEventAttendance = eventAttendanceRepository.findAverageAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
+
                 if(averageEventAttendance.size() == 0)
                     break;
                 else {
@@ -133,8 +134,10 @@ public class EventService {
             }
             if(eventCount==0)
                 return EventDetailResponseDto.of(getEvent, eventSchedules, 0, totalAttendees);
-            else
-                return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees/eventCount, totalAttendees);
+            else {
+                getEvent.updateEventAttendanceRatio(((averageAttendees/eventCount)/totalAttendees) * 100);
+                return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees / eventCount, totalAttendees);
+            }
         }
     }
 
@@ -252,9 +255,9 @@ public class EventService {
         event.registerSurveyUrl(surveyUrl);
     }
 
-    public String getSurveyUrl(Accessor accessor, Long eventId) {
-        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
-        return event.getSurveyUrl();
-    }
+//    public String getSurveyUrl(Accessor accessor, Long eventId) {
+//        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+//        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+//        return event.getSurveyUrl();
+//    }
 }
