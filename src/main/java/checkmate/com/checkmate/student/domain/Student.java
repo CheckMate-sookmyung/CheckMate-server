@@ -71,8 +71,8 @@ public class Student {
         this.applicationTime += 1;
     }
 
-    public void updateAttendance(final int attendance) {
-        this.attendanceRate = (float) (this.attendanceTime + attendance) / this.applicationTime * 100;
-        this.attendanceTime += attendance;
+    public void updateAttendance() {
+        this.attendanceRate = (float) (this.attendanceTime + 1) / this.applicationTime * 100;
+        this.attendanceTime += 1;
     }
 }

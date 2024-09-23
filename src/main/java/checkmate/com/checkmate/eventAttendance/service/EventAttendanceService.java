@@ -135,6 +135,8 @@ public class EventAttendanceService {
         if (signImage != null) {
             imageUrl = s3Uploader.saveFile(signImage, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(eventId) + "/sign");
             eventAttendance.updateAttendanceByAttendanceCheck(imageUrl);
+            if(event.getEventTarget() == EventTarget.INTERNAL)
+                eventAttendance.getStudent().updateAttendance();
         } else
             throw new GeneralException(IMAGE_IS_NULL);
     }
@@ -167,6 +169,7 @@ public class EventAttendanceService {
 
             if (studentOpt.isPresent()) {
                 attendanceStudent = studentOpt.get();
+                attendanceStudent.updateApplication();
             } else {
                 attendanceStudent = Student.builder()
                         .studentName(excelResponseDto.getStudentName())
