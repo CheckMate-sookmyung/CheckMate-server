@@ -86,11 +86,6 @@ public class EventService {
                 .collect(Collectors.toList());
         savedEvent.registerFileAndAttendanceList(imageUrl, attendanceListUrl);
         eventRepository.save(savedEvent);
-        if(eventRequestDto.getMailRequest()) {
-            mailService.createRemindMail(savedEvent);
-            mailService.createSurveyMail(savedEvent);
-            mailService.scheduleEventMails(accessor, eventSchedules, savedEvent.getEventId());
-        }
     }
 
     @Transactional
@@ -116,7 +111,7 @@ public class EventService {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Event getEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         int totalAttendees = 0;
-        int averageAttendees = 0;
+        double averageAttendees = 0;
         int eventCount = 0;
         if (getEvent == null)
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -126,11 +121,10 @@ public class EventService {
                 List<EventAttendance> totalEventAttendance = eventAttendanceRepository.findTotalAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
                 totalAttendees = totalEventAttendance.size();
                 List<EventAttendance> averageEventAttendance = eventAttendanceRepository.findAverageAttendeeByEventScheduleId(eventSchedule.getEventScheduleId());
-
                 if(averageEventAttendance.size() == 0)
                     break;
                 else {
-                    averageAttendees += averageEventAttendance.size() / totalAttendees;
+                    averageAttendees += (double) averageEventAttendance.size() / totalAttendees;
                     eventCount++;
                 }
             }
@@ -149,12 +143,6 @@ public class EventService {
         Event updateEvent = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
 
-        if(!updateEvent.getMailRequest() && eventRequestDto.getMailRequest()){
-            mailService.createRemindMail(updateEvent);
-            mailService.createSurveyMail(updateEvent);
-            mailService.scheduleEventMails(accessor, eventSchedules, updateEvent.getEventId());
-        }
-
         if (updateEvent != null) {
             String updatedImageFileName = updateEvent.getManagerName();
             if (eventImage!=null && !eventImage.isEmpty()) {
@@ -171,8 +159,7 @@ public class EventService {
             updateEvent.updateEvent(
                     eventRequestDto.getEventTitle(),
                     eventRequestDto.getEventDetail(),
-                    updatedImageFileName,
-                    eventRequestDto.getMailRequest());
+                    updatedImageFileName);
 
             eventRepository.save(updateEvent);
         } else
@@ -254,11 +241,6 @@ public class EventService {
         eventRepository.save(event);
     }
 
-    public void registerSurveyUrl(Accessor accessor, Long eventId, String surveyUrl) {
-        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
-        event.registerSurveyUrl(surveyUrl);
-    }
 
 //    public String getSurveyUrl(Accessor accessor, Long eventId) {
 //        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());

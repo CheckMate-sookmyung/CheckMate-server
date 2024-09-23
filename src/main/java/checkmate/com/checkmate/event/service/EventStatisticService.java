@@ -3,6 +3,7 @@ package checkmate.com.checkmate.event.service;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
+import checkmate.com.checkmate.event.dto.EventStatisticDetailResponseDto;
 import checkmate.com.checkmate.event.dto.EventStatisticResponseDto;
 import checkmate.com.checkmate.event.dto.MostAttendeeRatioEventResponseDto;
 import checkmate.com.checkmate.event.dto.BestAttendeeResponseDto;
@@ -39,6 +40,7 @@ public class EventStatisticService {
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
         EventStatisticResponseDto eventStatisticResponseDto = null;
+        List<EventStatisticDetailResponseDto> eventStatisticDetailResponseDtos = new ArrayList<>();
         List<String> eventDates = new ArrayList<>();
         if (eventSchedules.isEmpty())
             throw new GeneralException(EVENT_NOT_FOUND);
@@ -52,27 +54,37 @@ public class EventStatisticService {
                     List<Student> students = eventAttendances.stream()
                         .map(EventAttendance::getStudent)
                         .collect(Collectors.toList());
-                    eventStatisticResponseDto = EventStatisticResponseDto.of(eventDates, students, checkEventCompletion(eventId));
+
+                    students.forEach(student -> {
+                        eventStatisticDetailResponseDtos.add(new EventStatisticDetailResponseDto(student.getStudentNumber(), student.getStudentMajor(), checkEventCompletion(student, event)));
+                });
+                    eventStatisticResponseDto = EventStatisticResponseDto.of(eventDates, eventStatisticDetailResponseDtos);
                 }
             }
         return eventStatisticResponseDto;
     }
 
-    public boolean checkEventCompletion(Long eventId) {
-        int attendanceCount = eventRepository.countAttendanceForEvent(eventId);
-        int completionTime = eventRepository.findCompletionTimeByEventId(eventId);
+    public boolean checkEventCompletion(Student student, Event event) {
+        List<EventSchedule> eventSchedule = eventScheduleRepository.findEventScheduleListByEventId(event.getEventId());
+        List<Long> eventScheduleIds = eventSchedule.stream()
+                .map(EventSchedule::getEventScheduleId)
+                .collect(Collectors.toList());
+        int attendanceCount = eventAttendanceRepository.countAttendanceByEventScheduleIdsAndStudent(eventScheduleIds, student);
+        int completionTime = event.getCompletionTime();
         return attendanceCount >= completionTime;
     }
 
     public List<BestAttendeeResponseDto> getMostFrequentParticipants(Accessor accessor) {
-        List<Student> topStudents = studentRepository.findAllByOrderByAttendanceTimeDesc();
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        List<Student> topStudents = studentRepository.findAllStudentsByMemberIdOrderByAttendanceTimeDesc(loginMember.getMemberId());
         return topStudents.stream()
                 .map(BestAttendeeResponseDto::of)
                 .collect(Collectors.toList());
     }
 
     public List<MostAttendeeRatioEventResponseDto> getMostAttendeeRatioEvents(Accessor accessor) {
-        List<Event> topEvents = eventRepository.findAllByOrderByEventAttendanceRatioDesc();
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        List<Event> topEvents = eventRepository.findAllByMemberIdOrderByEventAttendanceRatioDesc(loginMember.getMemberId());
         return topEvents.stream()
                 .map(MostAttendeeRatioEventResponseDto::of)
                 .collect(Collectors.toList());
