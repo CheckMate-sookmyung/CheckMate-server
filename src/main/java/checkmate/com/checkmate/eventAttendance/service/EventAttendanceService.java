@@ -20,7 +20,7 @@ import checkmate.com.checkmate.global.exception.StudentAlreadyAttendedException;
 import checkmate.com.checkmate.member.domain.Member;
 import checkmate.com.checkmate.member.domain.repository.MemberRepository;
 import checkmate.com.checkmate.stranger.domain.Stranger;
-import checkmate.com.checkmate.stranger.domain.StrangerRepository;
+import checkmate.com.checkmate.stranger.domain.repository.StrangerRepository;
 import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
 import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.student.domain.repository.StudentRepository;
@@ -163,8 +163,9 @@ public class EventAttendanceService {
     @Transactional
     public List<EventAttendance> saveStudentAttendanceList(Member member, List<StudentExcelResponseDto> studentExcelResponseDtos, EventSchedule eventSchedule){
         List<EventAttendance> eventAttendances = new ArrayList<>();
+        System.out.println(studentExcelResponseDtos.get(0).getStudentName());
         for(StudentExcelResponseDto excelResponseDto : studentExcelResponseDtos) {
-            Optional<Student> studentOpt = studentRepository.findByStudentNumber(excelResponseDto.getStudentNumber());
+            Optional<Student> studentOpt = studentRepository.findByStudentNumberAndMemberId(excelResponseDto.getStudentNumber(), member.getMemberId());
             Student attendanceStudent;
 
             if (studentOpt.isPresent()) {
@@ -198,7 +199,7 @@ public class EventAttendanceService {
     public List<EventAttendance> saveStrangerAttendanceList(Member member, List<StrangerExcelResponseDto> strangerExcelResponseDtos, EventSchedule eventSchedule) {
         List<EventAttendance> eventAttendances = new ArrayList<>();
         for(StrangerExcelResponseDto strangerExcelResponseDto : strangerExcelResponseDtos) {
-            Optional<Stranger> strangerOpt = strangerRepository.findByStrangerPhoneNumberAndStrangerName(strangerExcelResponseDto.getStrangerPhoneNumber(), strangerExcelResponseDto.getStrangerName());
+            Optional<Stranger> strangerOpt = strangerRepository.findByStrangerPhoneNumberAndStrangerNameAndMemberMemberId(strangerExcelResponseDto.getStrangerPhoneNumber(), strangerExcelResponseDto.getStrangerName(), member.getMemberId());
             Stranger attendanceStranger;
 
             if (strangerOpt.isPresent()) {
@@ -230,7 +231,7 @@ public class EventAttendanceService {
 
 
         @Transactional
-    public String downloadAttendanceList(Accessor accessor, Long eventId) throws IOException {
+    public AttendanceListFileUrlResponseDto downloadAttendanceList(Accessor accessor, Long eventId) throws IOException {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         //List<String> filenames = new ArrayList<>();
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
@@ -248,7 +249,7 @@ public class EventAttendanceService {
         event.updateAttendanceListFile(attendanceListEachUrl, null);
         String fileUrl = attendanceListEachUrl;
         //filenames.add(originalFilename);
-        return fileUrl;
+        return AttendanceListFileUrlResponseDto.of(fileUrl);
     }
 
     public void sendAttendanceList(Accessor accessor, Long eventId) throws IOException {

@@ -9,6 +9,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -55,7 +57,7 @@ public class EventAttendance extends BaseTimeEntity {
     public void updateAttendanceByAttendanceCheck(String imageUrl){
         this.sign = imageUrl;
         this.attendance = true;
-        this.attendTime = LocalDateTime.now();
+        this.attendTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDateTime();
     }
 
     public void updateAttendanceByManager(boolean attendance){

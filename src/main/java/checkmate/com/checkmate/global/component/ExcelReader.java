@@ -1,15 +1,9 @@
 package checkmate.com.checkmate.global.component;
 
-import checkmate.com.checkmate.eventAttendance.domain.EventAttendance;
-
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
-import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.global.exception.GeneralException;
-import checkmate.com.checkmate.member.domain.Member;
-import checkmate.com.checkmate.stranger.domain.Stranger;
-import checkmate.com.checkmate.stranger.domain.StrangerRepository;
+import checkmate.com.checkmate.stranger.domain.repository.StrangerRepository;
 import checkmate.com.checkmate.stranger.dto.StrangerExcelResponseDto;
-import checkmate.com.checkmate.student.domain.Student;
 import checkmate.com.checkmate.student.domain.repository.StudentRepository;
 import checkmate.com.checkmate.student.dto.StudentExcelResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import static checkmate.com.checkmate.global.codes.ErrorCode.FILE_READ_FAIL;
 

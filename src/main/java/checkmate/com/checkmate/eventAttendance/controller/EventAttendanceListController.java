@@ -2,6 +2,7 @@ package checkmate.com.checkmate.eventAttendance.controller;
 
 import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
+import checkmate.com.checkmate.eventAttendance.dto.AttendanceListFileUrlResponseDto;
 import checkmate.com.checkmate.eventAttendance.service.EventAttendanceService;
 import checkmate.com.checkmate.eventschedule.dto.StudentEventScheduleResponseDto;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
@@ -50,10 +51,15 @@ public class EventAttendanceListController {
     @ResponseBody
     @GetMapping(value="/download/{eventId}")
     @Operation(summary="(사후) 출석명단 다운")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = AttendanceListFileUrlResponseDto.class))),
+            }
+    )
     public ResponseEntity<?> sendAttendanceListManually(@Parameter(hidden = true) @Auth final Accessor accessor,
                                                         @PathVariable("eventId") Long eventId) throws IOException {
-        String filenames = eventAttendanceService.downloadAttendanceList(accessor, eventId);
-        return ResponseEntity.ok(filenames);
+        AttendanceListFileUrlResponseDto attendanceListFileUrlResponseDto = eventAttendanceService.downloadAttendanceList(accessor, eventId);
+        return ResponseEntity.ok(attendanceListFileUrlResponseDto);
     }
 
     @ResponseBody

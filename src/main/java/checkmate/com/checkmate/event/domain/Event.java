@@ -51,7 +51,6 @@ public class Event extends BaseTimeEntity {
     @Column
     private double eventAttendanceRatio;
 
-
     @Column(nullable = false)
     private int completionTime;
 

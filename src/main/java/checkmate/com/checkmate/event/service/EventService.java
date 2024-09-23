@@ -124,15 +124,15 @@ public class EventService {
                 if(averageEventAttendance.size() == 0)
                     break;
                 else {
-                    averageAttendees += (double) averageEventAttendance.size() / totalAttendees;
+                    averageAttendees += averageEventAttendance.size();
                     eventCount++;
                 }
             }
             if(eventCount==0)
-                return EventDetailResponseDto.of(getEvent, eventSchedules, 0, totalAttendees);
+                return EventDetailResponseDto.of(getEvent, eventSchedules, 0, totalAttendees, eventCount);
             else {
                 getEvent.updateEventAttendanceRatio(((averageAttendees/eventCount)/totalAttendees) * 100);
-                return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees / eventCount, totalAttendees);
+                return EventDetailResponseDto.of(getEvent, eventSchedules, averageAttendees / eventCount, totalAttendees, eventCount);
             }
         }
     }

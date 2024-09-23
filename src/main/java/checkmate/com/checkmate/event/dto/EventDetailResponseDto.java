@@ -62,7 +62,10 @@ public class EventDetailResponseDto {
     @Schema(description = "행사 출석 예정자 수", example = "23")
     private final int totalAttendees;
 
-    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules, double averageAttendees, int totalAttendees) {
+    @Schema(description = "진행 회차 수", example = "2")
+    private final int InProcessTimes;
+
+    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules, double averageAttendees, int totalAttendees, int inProcessTimes) {
         List<EventScheduleResponseDto> eventSchedulesDto = eventSchedules.stream()
                 .map(EventScheduleResponseDto::of)
                 .collect(Collectors.toList());
@@ -80,7 +83,8 @@ public class EventDetailResponseDto {
                 event.getManagerPhoneNumber(),
                 event.getManagerEmail(),
                 averageAttendees,
-                totalAttendees
+                totalAttendees,
+                inProcessTimes
         );
     }
 }
