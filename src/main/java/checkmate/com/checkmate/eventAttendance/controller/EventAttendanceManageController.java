@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class EventAttendanceManageController {
     private final EventAttendanceService eventAttendanceService;
 
     @ResponseBody
-    @PutMapping(value="/{eventId}")
+    @PutMapping(value="/{eventId}",  consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "출석명단의 출석 수정")
     @ApiResponses(
             value = {
@@ -44,7 +45,7 @@ public class EventAttendanceManageController {
     )
     public ResponseEntity<?> updateAttendanceList(@Parameter(hidden = true) @Auth final Accessor accessor,
                                                   @PathVariable("eventId") Long eventId,
-                                                  @RequestPart("attendanceList") List<AttendanceUpdateRequestDto> attendanceUpdateRequestDto){
+                                                  @RequestBody List<AttendanceUpdateRequestDto> attendanceUpdateRequestDto){
         List<?> studentEventAttendanceResponseDtos = eventAttendanceService.updateAttendanceList(accessor, eventId, attendanceUpdateRequestDto);
         return ResponseEntity.ok(studentEventAttendanceResponseDtos);
     }
