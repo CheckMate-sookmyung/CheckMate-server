@@ -3,6 +3,7 @@ package checkmate.com.checkmate.event.domain;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
 import checkmate.com.checkmate.eventschedule.dto.EventScheduleRequestDto;
 import checkmate.com.checkmate.global.BaseTimeEntity;
+import checkmate.com.checkmate.global.domain.EventStatus;
 import checkmate.com.checkmate.global.domain.EventType;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.member.domain.Member;
@@ -35,6 +36,9 @@ public class Event extends BaseTimeEntity {
 
     @Column
     private String eventImage;
+
+    @Column
+    private EventStatus eventStatus;
 
     @Column
     private String eventUrl;
@@ -132,6 +136,10 @@ public class Event extends BaseTimeEntity {
 
     public void updateEventAttendanceRatio(double eventAttendanceRatio){
         this.eventAttendanceRatio = eventAttendanceRatio;
+    }
+
+    public void changeEventStatus(EventStatus eventStatus){
+        this.eventStatus = eventStatus;
     }
 
 }
