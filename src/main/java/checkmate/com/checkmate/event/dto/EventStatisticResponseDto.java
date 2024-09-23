@@ -21,10 +21,7 @@ public class EventStatisticResponseDto {
     @Schema(description = "행사 세부통계 정보")
     private final List<EventStatisticDetailResponseDto> eventStatisticDetailResponseDtos;
 
-    public static EventStatisticResponseDto of(List<String> eventDates, List<Student> students, boolean completion){
-        List<EventStatisticDetailResponseDto> eventStatisticDetailResponseDtos = students.stream()
-                .map(student -> EventStatisticDetailResponseDto.of(student, completion))
-                .collect(Collectors.toList());
+    public static EventStatisticResponseDto of(List<String> eventDates, List<EventStatisticDetailResponseDto> eventStatisticDetailResponseDtos){
         return new EventStatisticResponseDto(
                 eventDates,
                 eventStatisticDetailResponseDtos

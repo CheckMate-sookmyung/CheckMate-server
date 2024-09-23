@@ -41,15 +41,6 @@ public class EventDetailResponseDto {
     @Schema(description = "행사 일정")
     private final List<EventScheduleResponseDto> eventSchedules;
 
-    @Schema(description = "행사 메일 발송 여부 (보낼것인지)", example = "true")
-    private final boolean mailRequest;
-
-    @Schema(description = "행사 웹사이트 주소", example = "https://checkmate.pe.kr")
-    private final String eventUrl;
-
-    @Schema(description = "행사 메일 발송 여부 (보냈는지)", example = "true")
-    private final boolean mailResponse;
-
     @Schema(description = "행사 최소 이수 기준", example = "2")
     private final int completionTime;
 
@@ -66,12 +57,12 @@ public class EventDetailResponseDto {
     private final String managerEmail;
 
     @Schema(description = "행사 평균 출석자 수", example = "13")
-    private final int averageAttendees;
+    private final double averageAttendees;
 
     @Schema(description = "행사 출석 예정자 수", example = "23")
     private final int totalAttendees;
 
-    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules, int averageAttendees, int totalAttendees) {
+    public static EventDetailResponseDto of(Event event, List<EventSchedule> eventSchedules, double averageAttendees, int totalAttendees) {
         List<EventScheduleResponseDto> eventSchedulesDto = eventSchedules.stream()
                 .map(EventScheduleResponseDto::of)
                 .collect(Collectors.toList());
@@ -83,9 +74,6 @@ public class EventDetailResponseDto {
                 event.getEventType(),
                 event.getEventTarget(),
                 eventSchedulesDto,
-                event.getMailRequest(),
-                event.getEventUrl(),
-                event.getMailResponse(),
                 event.getCompletionTime(),
                 event.getBeforeAttendanceListFile(),
                 event.getManagerName(),

@@ -43,13 +43,6 @@ public class EventRequestDto {
     @Schema(description = "행사 최소 이수 기준", example = "2")
     private final int completionTimes;
 
-    @Schema(description = "행사 웹사이트 주소", example = "https://checkmate.pe.kr")
-    private final String eventUrl;
-
-    @NotNull(message="메일 전송 여부를 입력해주세요.")
-    @Schema(description = "행사 메일 발송 여부 (보낼것인지)", example = "true")
-    private final Boolean mailRequest;
-
     @NotBlank(message="행사 유형을 선택해주세요.")
     @Schema(description = "행사 유형", example = "ONLINE")
     private final EventType eventType;
@@ -65,7 +58,6 @@ public class EventRequestDto {
                 .eventDetail(eventDetail)
                 .eventType(eventType)
                 .completionTime(completionTimes)
-                .eventUrl(eventUrl)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
                 .managerEmail(member.getMemberEmail())

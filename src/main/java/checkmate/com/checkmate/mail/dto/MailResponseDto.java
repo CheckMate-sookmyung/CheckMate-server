@@ -24,14 +24,14 @@ public class MailResponseDto {
     private final String mailContent;
 
     @Schema(description = "메일 삽입 주소", example = "https://checkmate.pe.kr")
-    private final String mailUrl;
+    private final String attachUrl;
 
     public static MailResponseDto of(Mail mail) {
         return MailResponseDto.builder()
                 .mailId(mail.getMailId())
                 .mailTitle(mail.getMailTitle())
                 .mailContent(mail.getMailContent())
-                .mailUrl(mail.getAttachUrl())
+                .attachUrl(mail.getAttachUrl())
                 .build();
     }
 }

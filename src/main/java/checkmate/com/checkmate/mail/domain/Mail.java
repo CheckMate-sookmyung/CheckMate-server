@@ -1,7 +1,7 @@
 package checkmate.com.checkmate.mail.domain;
 
 import checkmate.com.checkmate.event.domain.Event;
-import checkmate.com.checkmate.mail.dto.MailRequestDto;
+import checkmate.com.checkmate.mail.dto.MailUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,19 +41,19 @@ public class Mail {
     @JoinColumn(name="event_id")
     private Event event;
 
-    public Mail(MailRequestDto mailRequestDto, Event event){
-        this.mailTitle = mailRequestDto.getMailTitle();
-        this.mailContent = mailRequestDto.getMailContent();
-        this.mailType = mailRequestDto.getMailType();
-        this.attachUrl = mailRequestDto.getAttachUrl();
+    public Mail(MailUpdateRequestDto mailUpdateRequestDto, Event event){
+        this.mailTitle = mailUpdateRequestDto.getMailTitle();
+        this.mailContent = mailUpdateRequestDto.getMailContent();
+        this.mailType = mailUpdateRequestDto.getMailType();
+        this.attachUrl = mailUpdateRequestDto.getAttachUrl();
         this.imageUrl = event.getEventImage();
         this.event = event;
     }
 
-    public void updateMailContent(MailRequestDto mailRequestDto){
-        System.out.println("=================="+mailRequestDto.getMailTitle());
-        this.mailTitle = mailRequestDto.getMailTitle();
-        this.mailContent = mailRequestDto.getMailContent();
-        this.attachUrl = mailRequestDto.getAttachUrl();
+    public void updateMailContent(MailUpdateRequestDto mailUpdateRequestDto){
+        System.out.println("=================="+ mailUpdateRequestDto.getMailTitle());
+        this.mailTitle = mailUpdateRequestDto.getMailTitle();
+        this.mailContent = mailUpdateRequestDto.getMailContent();
+        this.attachUrl = mailUpdateRequestDto.getAttachUrl();
     }
 }

@@ -3,13 +3,13 @@ package checkmate.com.checkmate.mail.service;
 import checkmate.com.checkmate.auth.domain.Accessor;
 import checkmate.com.checkmate.event.domain.Event;
 import checkmate.com.checkmate.event.domain.repository.EventRepository;
-import checkmate.com.checkmate.global.config.SchedulingConfig;
 import checkmate.com.checkmate.global.domain.EventTarget;
 import checkmate.com.checkmate.global.util.DateTimeUtil;
 import checkmate.com.checkmate.mail.domain.Mail;
 import checkmate.com.checkmate.mail.domain.MailType;
 import checkmate.com.checkmate.mail.domain.repository.MailRepository;
 import checkmate.com.checkmate.mail.dto.MailRequestDto;
+import checkmate.com.checkmate.mail.dto.MailUpdateRequestDto;
 import checkmate.com.checkmate.mail.dto.MailResponseDto;
 import checkmate.com.checkmate.eventAttendance.domain.repository.EventAttendanceRepository;
 import checkmate.com.checkmate.eventschedule.domain.EventSchedule;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,10 +35,10 @@ import static checkmate.com.checkmate.mail.domain.MailType.SURVEY;
 public class MailService {
     private final MemberRepository memberRepository;
     private final EventRepository eventRepository;
+    private final EventScheduleRepository eventScheduleRepository;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final EmailSender emailSender;
     private final MailRepository mailRepository;
-    private final EventScheduleRepository eventScheduleRepository;
     private final TaskScheduler taskScheduler;
 
     public void sendEventMail(Accessor accessor, Long eventId, MailType mailType) {
@@ -54,12 +53,25 @@ public class MailService {
         Mail mail = mailRepository.findByEventIdAndMailType(eventId, mailType);
         attendeeEmailList.add(event.getManagerEmail());
         if(mail.getMailType()== REMIND)
-            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(),event.getEventUrl());
+            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(), mail.getAttachUrl());
         else {
-            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(), event.getSurveyUrl());
+            emailSender.sendEventMail(mail, attendeeEmailList, event.getEventImage(), mail.getAttachUrl());
         }
-        event.updateMail();
         eventRepository.save(event);
+    }
+
+    public void registerMail(Accessor accessor, Long eventId, MailRequestDto mailRequestDto) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
+        List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(eventId);
+        if(mailRequestDto.getMailType()==REMIND) {
+            createRemindMail(event, mailRequestDto);
+            scheduleEventMails(accessor, eventSchedules, event.getEventId());
+        }
+        else {
+            createSurveyMail(event, mailRequestDto);
+            scheduleEventMails(accessor, eventSchedules, event.getEventId());
+        }
     }
 
     public MailResponseDto getMailContent(Accessor accessor, Long eventId, MailType mailType) {
@@ -68,15 +80,20 @@ public class MailService {
         return MailResponseDto.of(mail);
     }
 
-    public MailResponseDto updateMailContent(Accessor accessor, Long mailId, MailRequestDto mailRequestDto) {
+    public MailResponseDto updateMailContent(Accessor accessor, Long mailId, MailUpdateRequestDto mailUpdateRequestDto) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
         Mail mail = mailRepository.findByMailId(mailId);
-        mail.updateMailContent(mailRequestDto);
+        mail.updateMailContent(mailUpdateRequestDto);
         mailRepository.save(mail);
         return MailResponseDto.of(mail);
     }
 
-    public void createRemindMail(Event event) {
+    public void deleteMail(Accessor accessor, Long mailId) {
+        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
+        mailRepository.delete(mailRepository.findByMailId(mailId));
+    }
+
+    public void createRemindMail(Event event, MailRequestDto mailRequestDto) {
         List<EventSchedule> eventSchedules = eventScheduleRepository.findEventScheduleListByEventId(event.getEventId());
         String title = "[체크메이트]" + event.getEventTitle() + "리마인드 메일";
         StringBuilder content = new StringBuilder();
@@ -93,14 +110,14 @@ public class MailService {
                 .mailType(REMIND)
                 .mailTitle(title)
                 .mailContent(content.toString())
-                .attachUrl(null)
+                .attachUrl(mailRequestDto.getAttachUrl())
                 .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
         mailRepository.save(mail);
     }
 
-    public void createSurveyMail(Event event) {
+    public void createSurveyMail(Event event, MailRequestDto mailRequestDto) {
         String title = "[체크메이트]" + event.getEventTitle() + "설문조사 안내 메일";
         StringBuilder content = new StringBuilder();
         content.append("안녕하세요.<br>").append(event.getEventTitle()).append("만족도 조사 안내드립니다.<br>감사합니다.");
@@ -108,7 +125,7 @@ public class MailService {
                 .mailType(MailType.SURVEY)
                 .mailTitle(title)
                 .mailContent(content.toString())
-                .attachUrl(event.getEventUrl())
+                .attachUrl(mailRequestDto.getAttachUrl())
                 .imageUrl(event.getEventImage())
                 .event(event)
                 .build();
@@ -134,9 +151,4 @@ public class MailService {
         taskScheduler.schedule(() -> sendEventMail(accessor, eventId, SURVEY), followUpTime);
     }
 
-    public void registerSurveyUrl(Accessor accessor, Long eventId, String surveyUrl) {
-        final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
-        event.registerSurveyUrl(surveyUrl);
-    }
 }

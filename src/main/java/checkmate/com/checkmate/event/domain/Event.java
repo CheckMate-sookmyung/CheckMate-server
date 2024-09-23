@@ -40,13 +40,6 @@ public class Event extends BaseTimeEntity {
     @Column
     private EventStatus eventStatus;
 
-    @Column
-    private String eventUrl;
-
-    @Column
-    private String surveyUrl;
-
-    @Column
     private String beforeAttendanceListFile;
 
     @Column
@@ -58,11 +51,6 @@ public class Event extends BaseTimeEntity {
     @Column
     private double eventAttendanceRatio;
 
-    @Column(nullable = false)
-    private Boolean mailRequest;
-
-    @Column
-    private Boolean mailResponse;
 
     @Column(nullable = false)
     private int completionTime;
@@ -89,13 +77,10 @@ public class Event extends BaseTimeEntity {
     private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventUrl, String eventDetail, int completionTime, boolean mailRequest, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
+    public Event(String eventTitle, String eventDetail, int completionTime, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
-        this.mailRequest = mailRequest;
         this.completionTime = completionTime;
-        this.mailResponse = false;
-        this.eventUrl = eventUrl;
         this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
@@ -108,15 +93,10 @@ public class Event extends BaseTimeEntity {
         this.beforeAttendanceListFile = eventAttendanceListFile;
     }
 
-    public void updateEvent(String eventTitle, String eventDetail, String eventImage, Boolean mailRequest){
+    public void updateEvent(String eventTitle, String eventDetail, String eventImage){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.eventImage = eventImage;
-        this.mailRequest = mailRequest;
-    }
-
-    public void updateMail(){
-        this.mailResponse = true;
     }
 
     public void updateAttendanceListFile(String afterAttendanceListPDFFile, String afterAttendanceListExcelFile){
@@ -130,9 +110,6 @@ public class Event extends BaseTimeEntity {
         this.managerEmail = managerEmail;
     }
 
-    public void registerSurveyUrl(String surveyUrl){
-        this.surveyUrl = surveyUrl;
-    }
 
     public void updateEventAttendanceRatio(double eventAttendanceRatio){
         this.eventAttendanceRatio = eventAttendanceRatio;

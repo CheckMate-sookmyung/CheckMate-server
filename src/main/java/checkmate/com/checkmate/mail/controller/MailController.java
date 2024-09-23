@@ -2,13 +2,12 @@ package checkmate.com.checkmate.mail.controller;
 
 import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
-import checkmate.com.checkmate.event.dto.EventListResponseDto;
 import checkmate.com.checkmate.mail.domain.MailType;
 import checkmate.com.checkmate.mail.dto.MailRequestDto;
+import checkmate.com.checkmate.mail.dto.MailUpdateRequestDto;
 import checkmate.com.checkmate.mail.dto.MailResponseDto;
 import checkmate.com.checkmate.mail.service.MailService;
 import checkmate.com.checkmate.global.responseDto.BaseResponseDto;
-import checkmate.com.checkmate.global.responseDto.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,14 +42,24 @@ public class MailController {
     }
 
     @ResponseBody
+    @PostMapping("/{mailId}")
+    @Operation(summary = "메일 등록")
+    public BaseResponseDto<?> registerMail(@Parameter(hidden = true) @Auth final Accessor accessor,
+                                            @PathVariable("eventId") Long eventId,
+                                            @RequestBody MailRequestDto mailRequestDto) {
+        mailService.registerMail(accessor, eventId, mailRequestDto);
+        return BaseResponseDto.ofSuccess(REGISTER_MAIL_SUCCESS);
+    }
+
+    @ResponseBody
     @GetMapping("/{eventId}")
-    @Operation(summary = "메일 내용 조회")
+    @Operation(summary = "메일 조회")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> getMailContent(@Parameter(hidden = true) @Auth final Accessor accessor,
+    public ResponseEntity<?> getMail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
                                             @RequestParam("mailType") MailType mailType) {
         MailResponseDto mailResponseDto = mailService.getMailContent(accessor, eventId, mailType);
@@ -59,26 +68,26 @@ public class MailController {
 
     @ResponseBody
     @PutMapping("/{mailId}")
-    @Operation(summary = "메일 내용 변경")
+    @Operation(summary = "메일 변경")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = MailResponseDto.class))),
             }
     )
-    public ResponseEntity<?> putMailContent(@Parameter(hidden = true) @Auth final Accessor accessor,
+    public ResponseEntity<?> putMail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("mailId") Long mailId,
-                                            @RequestBody MailRequestDto mailRequestDto) {
-        MailResponseDto mailResponseDto = mailService.updateMailContent(accessor, mailId, mailRequestDto);
+                                            @RequestBody MailUpdateRequestDto mailUpdateRequestDto) {
+        MailResponseDto mailResponseDto = mailService.updateMailContent(accessor, mailId, mailUpdateRequestDto);
         return ResponseEntity.ok(mailResponseDto);
     }
 
     @ResponseBody
-    @PutMapping(value="/survey/{eventId}")
-    @Operation(summary = "설문조사 링크 등록")
-    public BaseResponseDto<?> registerSurveyUrl(@Parameter(hidden = true) @Auth final Accessor accessor,
-                                                @PathVariable("eventId") Long eventId,
-                                                @RequestParam("surveyUrl") String surveyUrl){
-        mailService.registerSurveyUrl(accessor, eventId, surveyUrl);
-        return BaseResponseDto.ofSuccess(REGISTER_SUREY_URL_SUCCESS);
+    @DeleteMapping("/{mailId}")
+    @Operation(summary = "메일 삭제")
+    public BaseResponseDto<?> deleteMail(@Parameter(hidden = true) @Auth final Accessor accessor,
+                                         @PathVariable("mailId") Long mailId) {
+        mailService.deleteMail(accessor, mailId);
+        return BaseResponseDto.ofSuccess(DELET_MAIL_SUCCESS);
     }
+
 }

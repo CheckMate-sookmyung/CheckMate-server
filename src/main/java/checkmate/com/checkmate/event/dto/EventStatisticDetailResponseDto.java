@@ -6,9 +6,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PUBLIC;
 
 @Getter
-@RequiredArgsConstructor(access=PRIVATE)
+@RequiredArgsConstructor(access=PUBLIC)
 @Schema(description = "Event Statistic Detail Response")
 public class EventStatisticDetailResponseDto {
 

@@ -30,10 +30,11 @@ public enum SuccessCode {
     REGISTER_EVENT_MANAGER_SUCCESS(HttpStatus.OK, "행사 담당자 등록에 성공하였습니다."),
     REGISTER_SUREY_URL_SUCCESS(HttpStatus.OK, "행사 설문조사 링크 등록에 성공하였습니다." ),
 
-
     //메일
-    SEND_BEFORE_MAIL(HttpStatus.OK, "행사 리마인드 알람 전송에 성공하였습니다."),
-    SEND_AFTER_MAIL(HttpStatus.OK, "행사 만족도조사 알람 전송에 성공하였습니다."),
+    SEND_BEFORE_MAIL(HttpStatus.OK, "행사 리마인드 메일 전송에 성공하였습니다."),
+    SEND_AFTER_MAIL(HttpStatus.OK, "행사 만족도조사 메일 전송에 성공하였습니다."),
+    REGISTER_MAIL_SUCCESS(HttpStatus.OK, "행사 메일 등록에 성공하였습니다." ),
+    DELET_MAIL_SUCCESS(HttpStatus.OK, "행사 메일 등록에 성공하였습니다."),
 
     //출석체크
     GET_STUDENT_INFO_SUCCESS(HttpStatus.OK, "학생 정보 조회에 성공하였습니다."),

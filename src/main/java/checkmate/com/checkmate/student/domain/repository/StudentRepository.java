@@ -18,7 +18,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     @Query("SELECT s FROM Student s WHERE s.studentNumber = :studentNumber")
     Optional<Student> findByStudentNumber(@Param("studentNumber") int studentNumber);
 
-    List<Student> findAllByOrderByAttendanceTimeDesc();
-
+    @Query("SELECT s FROM Student s  WHERE s.member.memberId = :memberId ORDER BY s.attendanceTime DESC")
+    List<Student> findAllStudentsByMemberIdOrderByAttendanceTimeDesc(@Param("memberId") Long memberId);
 
 }
