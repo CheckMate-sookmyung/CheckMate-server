@@ -43,6 +43,10 @@ public class EventRequestDto {
     @Schema(description = "행사 최소 이수 기준", example = "2")
     private final int completionTimes;
 
+    @Min(value = 1, message = "출석 기준 시간(분)은 1 이상이어야 합니다.")
+    @Schema(description = "온라인 행사용 출석 기준 시간(분)", example = "50")
+    private final int attendanceTimeForOnline;
+
     @NotBlank(message="행사 유형을 선택해주세요.")
     @Schema(description = "행사 유형", example = "ONLINE")
     private final EventType eventType;
@@ -58,6 +62,7 @@ public class EventRequestDto {
                 .eventDetail(eventDetail)
                 .eventType(eventType)
                 .completionTime(completionTimes)
+                .attendanceTimeForOnline(attendanceTimeForOnline)
                 .eventType(eventType)
                 .eventTarget(eventTarget)
                 .managerEmail(member.getMemberEmail())

@@ -79,10 +79,11 @@ public class Event extends BaseTimeEntity {
     private Member member;
 
     @Builder(toBuilder = true)
-    public Event(String eventTitle, String eventDetail, int completionTime, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
+    public Event(String eventTitle, String eventDetail, int completionTime, int attendanceTimeForOnline, Member member, EventType eventType, EventTarget eventTarget, String managerEmail){
         this.eventTitle = eventTitle;
         this.eventDetail = eventDetail;
         this.completionTime = completionTime;
+        this.attendanceTimeForOnline = attendanceTimeForOnline;
         this.member = member;
         this.eventType = eventType;
         this.eventTarget = eventTarget;
