@@ -368,7 +368,7 @@ public class EventAttendanceService {
             if (studentAttendanceList.containsKey(studentNumber)) {
                 int csvAttendanceTime = studentAttendanceList.get(studentNumber);
 
-                if (csvAttendanceTime >= event.getCompletionTime()) {
+                if (csvAttendanceTime >= event.getAttendanceTimeForOnline()) {
                     attendance.updateAttendanceAboutOnlineEvent(true, csvAttendanceTime);
                 } else {
                     attendance.updateAttendanceAboutOnlineEvent(false, csvAttendanceTime);

@@ -54,6 +54,9 @@ public class Event extends BaseTimeEntity {
     @Column(nullable = false)
     private int completionTime;
 
+    @Column
+    private int attendanceTimeForOnline;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventTarget eventTarget;
