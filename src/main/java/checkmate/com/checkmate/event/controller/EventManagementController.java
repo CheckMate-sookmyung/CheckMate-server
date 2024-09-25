@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class EventManagementController {
     private final EventService eventService;
 
     @ResponseBody
-    @PutMapping(value="/manager/{eventId}")
+    @PutMapping(value="/manager/{eventId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "행사 담당자 등록")
     public BaseResponseDto<?> registerManager(@Parameter(hidden = true) @Auth final Accessor accessor,
                                               @PathVariable("eventId") Long eventId,

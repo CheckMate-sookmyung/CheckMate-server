@@ -42,7 +42,7 @@ public class MailController {
     }
 
     @ResponseBody
-    @PostMapping("/{mailId}")
+    @PostMapping("/{eventId}")
     @Operation(summary = "메일 등록")
     public BaseResponseDto<?> registerMail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,

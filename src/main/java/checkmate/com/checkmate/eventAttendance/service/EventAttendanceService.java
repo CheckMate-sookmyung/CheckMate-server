@@ -321,10 +321,12 @@ public class EventAttendanceService {
         return new String(nameChars);
     }
 
-    public void deleteAttendanceList(Accessor accessor, Long eventId, Long eventScheduleId, Long attendaeeId) {
+    public void deleteAttendanceList(Accessor accessor, Long eventId, Long eventScheduleId, List<AttendanceDeleteRequestDto> attendanceDeleteRequestDtos) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(attendaeeId);
-        eventAttendanceRepository.delete(eventAttendance);
+        for(AttendanceDeleteRequestDto attendanceDeleteRequestDto : attendanceDeleteRequestDtos) {
+            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(attendanceDeleteRequestDto.getAttendeeId());
+            eventAttendanceRepository.delete(eventAttendance);
+        }
     }
 
     public void addAttendee(Accessor accessor, Long eventId, Long eventScheduleId, List<AttendeePlustRequestDto> attendeePlustRequestDtos) {
@@ -367,6 +369,7 @@ public class EventAttendanceService {
 
             if (studentAttendanceList.containsKey(studentNumber)) {
                 int csvAttendanceTime = studentAttendanceList.get(studentNumber);
+                studentAttendanceList.remove(studentNumber);
 
                 if (csvAttendanceTime >= event.getAttendanceTimeForOnline()) {
                     attendance.updateAttendanceAboutOnlineEvent(true, csvAttendanceTime);
@@ -377,7 +380,7 @@ public class EventAttendanceService {
             }
         }
 
-        Workbook workbook = excelGenerator.generateOnlineAttendaceExcel(attendances, csvResultDto.getFailedTimeMap());
+        Workbook workbook = excelGenerator.generateOnlineAttendaceExcel(attendances, studentAttendanceList, csvResultDto.getFailedTimeMap());
         MultipartFile onlineAttendanceFile = workbookToMultipartFileConverter.convert(workbook, event.getEventTitle() +"_"+eventSchedule.getEventDate()+"_온라인_출석명단" + ".xlsx");
         String onlineAttendanceListUrl = s3Uploader.saveFile(onlineAttendanceFile, String.valueOf(loginMember.getMemberId()), "event/" + String.valueOf(event.getEventId()));
         event.updateAttendanceListFile(null, onlineAttendanceListUrl);

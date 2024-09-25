@@ -87,14 +87,12 @@ public class ExcelReader {
                 } else {
                     continue;
                 }
-
                 studentExcelResponseDtos.add(StudentExcelResponseDto.of(name, studentNumber, major, phoneNumber, email));
             }
             workbook.close();
         } catch (Exception e) {
             throw new GeneralException(FILE_READ_FAIL);
         }
-
         return studentExcelResponseDtos;
     }
 

@@ -2,6 +2,7 @@ package checkmate.com.checkmate.eventAttendance.controller;
 
 import checkmate.com.checkmate.auth.Auth;
 import checkmate.com.checkmate.auth.domain.Accessor;
+import checkmate.com.checkmate.eventAttendance.dto.AttendanceDeleteRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.AttendeePlustRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.AttendanceUpdateRequestDto;
 import checkmate.com.checkmate.eventAttendance.dto.StudentEventAttendanceResponseDto;
@@ -56,8 +57,8 @@ public class EventAttendanceManageController {
     public BaseResponseDto<?> deleteAttendanceList(@Parameter(hidden = true) @Auth final Accessor accessor,
                                                    @PathVariable("eventId") Long eventId,
                                                    @PathVariable("eventScheduleId") Long eventScheduleId,
-                                                   @PathVariable("attendeeId") Long attendeeId){
-        eventAttendanceService.deleteAttendanceList(accessor, eventId, eventScheduleId, attendeeId);
+                                                   @RequestBody List<AttendanceDeleteRequestDto> attendanceDeleteRequestDtos){
+        eventAttendanceService.deleteAttendanceList(accessor, eventId, eventScheduleId, attendanceDeleteRequestDtos);
         return BaseResponseDto.ofSuccess(REMOVE_ATTENDANCE_SUCCESS);
     }
 

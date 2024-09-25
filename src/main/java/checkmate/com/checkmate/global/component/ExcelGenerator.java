@@ -141,14 +141,14 @@ public class ExcelGenerator {
     }
 
 
-    public Workbook generateOnlineAttendaceExcel(List<EventAttendance> attendances, List<Map<String, String>> excelFile) {
+    public Workbook generateOnlineAttendaceExcel(List<EventAttendance> attendances, Map<Integer, Integer> remainFile, List<Map<String, String>> excelFile) {
         Workbook workbook = new XSSFWorkbook();
 
         Sheet attendanceSheet = workbook.createSheet("확인 출석자 명단");
         createAttendanceSheet(attendanceSheet, attendances);
 
         Sheet excelFileSheet = workbook.createSheet("미확인 출석자 명단");
-        createExcelFileSheet(excelFileSheet, excelFile);
+        createExcelFileSheet(excelFileSheet, remainFile, excelFile);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             workbook.write(outputStream);
@@ -183,7 +183,7 @@ public class ExcelGenerator {
         }
     }
 
-    private void createExcelFileSheet(Sheet sheet, List<Map<String, String>> excelFile) {
+    private void createExcelFileSheet(Sheet sheet, Map<Integer, Integer> remainFile, List<Map<String, String>> excelFile) {
         // 헤더 생성
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("이름");
@@ -196,8 +196,15 @@ public class ExcelGenerator {
             row.createCell(0).setCellValue(rowData.get("name"));
             row.createCell(1).setCellValue(rowData.get("accessTime"));
         }
+
+        for (Map.Entry<Integer, Integer> entry : remainFile.entrySet()) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(entry.getKey());  // 학생 ID (remainFile key)
+            row.createCell(1).setCellValue(entry.getValue());  // 미확인 출석 횟수 (remainFile value)
+        }
     }
 }
+
 /*
 
     public MultipartFile generateExcelAboutExternalEvent(String eventName, List<EventSchedule> eventSchedules, int completion) {

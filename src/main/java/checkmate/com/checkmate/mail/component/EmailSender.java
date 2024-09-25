@@ -48,7 +48,7 @@ public class EmailSender {
                     "<br>" +
                     "<a href='" + buttonUrl + "' style='display:inline-block; padding:10px 20px; font-size:16px; color:white; background-color:#007BFF; text-decoration:none; border-radius:5px;'>" + "WISE 바로가기" + "</a>" +
                     "<br><br>" +
-                    "<img src='" + imageUrl + "' alt='Image' style='max-width:100%; height:auto;' />" +
+                    "<img src='" + imageUrl + "' alt='Image' style='max-width:50%; height:auto;' />" +
                     "</body></html>";
 
             helper.setText(htmlContent, true);
