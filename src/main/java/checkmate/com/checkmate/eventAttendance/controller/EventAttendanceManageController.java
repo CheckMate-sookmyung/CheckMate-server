@@ -52,24 +52,24 @@ public class EventAttendanceManageController {
     }
 
     @ResponseBody
-    @DeleteMapping(value="/{eventId}/{eventScheduleId}/{attendeeId}")
+    @DeleteMapping(value="/{eventId}/{eventScheduleId}")
     @Operation(summary = "출석명단의 출석자 삭제")
     public BaseResponseDto<?> deleteAttendanceList(@Parameter(hidden = true) @Auth final Accessor accessor,
                                                    @PathVariable("eventId") Long eventId,
                                                    @PathVariable("eventScheduleId") Long eventScheduleId,
-                                                   @RequestBody List<AttendanceDeleteRequestDto> attendanceDeleteRequestDtos){
-        eventAttendanceService.deleteAttendanceList(accessor, eventId, eventScheduleId, attendanceDeleteRequestDtos);
+                                                   @RequestParam("attendeeIds") List<Long> attendeeIds){
+        eventAttendanceService.deleteAttendanceList(accessor, eventId, eventScheduleId, attendeeIds);
         return BaseResponseDto.ofSuccess(REMOVE_ATTENDANCE_SUCCESS);
     }
 
     @ResponseBody
-    @PostMapping(value="/{eventId}/{eventScheduleId}")
+    @PostMapping(value="/{eventId}/{eventScheduleId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "출석명단의 출석자 추가")
 
     public BaseResponseDto<?> registerAttendee(@Parameter(hidden = true) @Auth final Accessor accessor,
                                                @PathVariable("eventId") Long eventId,
                                                @PathVariable("eventScheduleId") Long eventScheduleId,
-                                               @RequestPart("attendeeInfo") List<AttendeePlustRequestDto> attendeePlustRequestDtos){
+                                               @RequestBody List<AttendeePlustRequestDto> attendeePlustRequestDtos){
         eventAttendanceService.addAttendee(accessor, eventId, eventScheduleId, attendeePlustRequestDtos);
         return BaseResponseDto.ofSuccess(SEND_ATTENDACE_LIST_SUCCESS);
     }

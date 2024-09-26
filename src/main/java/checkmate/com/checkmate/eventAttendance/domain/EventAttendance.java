@@ -52,6 +52,7 @@ public class EventAttendance extends BaseTimeEntity {
         this.stranger = stranger;
         this.student = student;
         this.attendance = attendance;
+        this.accessTime = 0;
     }
 
     public void updateAttendanceByAttendanceCheck(String imageUrl){

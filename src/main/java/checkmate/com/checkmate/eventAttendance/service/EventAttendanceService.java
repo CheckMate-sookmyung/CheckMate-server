@@ -321,10 +321,10 @@ public class EventAttendanceService {
         return new String(nameChars);
     }
 
-    public void deleteAttendanceList(Accessor accessor, Long eventId, Long eventScheduleId, List<AttendanceDeleteRequestDto> attendanceDeleteRequestDtos) {
+    public void deleteAttendanceList(Accessor accessor, Long eventId, Long eventScheduleId, List<Long> attendeeIds) {
         final Member loginMember = memberRepository.findMemberByMemberId(accessor.getMemberId());
-        for(AttendanceDeleteRequestDto attendanceDeleteRequestDto : attendanceDeleteRequestDtos) {
-            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(attendanceDeleteRequestDto.getAttendeeId());
+        for(Long Id : attendeeIds){
+            EventAttendance eventAttendance = eventAttendanceRepository.findByEventAttendanceId(Id);
             eventAttendanceRepository.delete(eventAttendance);
         }
     }
@@ -334,7 +334,7 @@ public class EventAttendanceService {
         Event event = eventRepository.findByMemberIdAndEventId(loginMember.getMemberId(), eventId);
         EventSchedule eventSchedule = eventScheduleRepository.findEventScheduleByEventScheduleId(eventScheduleId);
         if(event.getEventTarget() == EventTarget.INTERNAL) {
-            List<StudentExcelResponseDto> studentExcelResponseDtos = null;
+            List<StudentExcelResponseDto> studentExcelResponseDtos = new ArrayList<>();
             for(AttendeePlustRequestDto attendeePlustRequestDto : attendeePlustRequestDtos){
                 studentExcelResponseDtos.add(StudentExcelResponseDto.of(attendeePlustRequestDto.getAttendeeName(),
                         attendeePlustRequestDto.getAttendeeStudentNumber(),

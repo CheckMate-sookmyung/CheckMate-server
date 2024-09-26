@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,7 @@ public class MailController {
     }
 
     @ResponseBody
-    @PostMapping("/{eventId}")
+    @PostMapping(value="/{eventId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "메일 등록")
     public BaseResponseDto<?> registerMail(@Parameter(hidden = true) @Auth final Accessor accessor,
                                             @PathVariable("eventId") Long eventId,
@@ -67,7 +68,7 @@ public class MailController {
     }
 
     @ResponseBody
-    @PutMapping("/{mailId}")
+    @PutMapping(value = "/{mailId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "메일 변경")
     @ApiResponses(
             value = {
